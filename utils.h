@@ -1,5 +1,5 @@
-#ifndef __LUBAN_BOX_UTILS_H__
-#define __LUBAN_BOX_UTILS_H__
+#ifndef LUBAN_UTILS_H
+#define LUBAN_UTILS_H
 
 #include "MurmurHash3.h"
 #include "feature.pb.h"
@@ -17,126 +17,131 @@
 
 namespace luban {
 
-    namespace box {
-        template<typename T>
-        std::string &&to_string(T &v) {
-            if (same_type(std::string, T))
-            {
-                return std::move(v);
-            }
-            else
-            {
-                return std::move(std::to_string(v));
-            }
+    //追加
+    void append(std::vector<uint64_t> &dst, std::vector<uint64_t> &src) {
+        for (auto &key: src) {
+            dst.push_back(key);
+        }
+    }
+
+    template<typename T>
+    std::string &&to_string(T &v) {
+        if (same_type(std::string, T))
+        {
+            return std::move(v);
+        }
+        else
+        {
+            return std::move(std::to_string(v));
+        }
+    }
+
+    static u_int64_t mask(u_int64_t v, u_int64_t slot) {
+        if (slot >= 0) {
+            return (slot << slot_shift) + (slot_mask & v);
+        }
+        return v;
+    }
+
+    static u_int64_t mmh3(std::string &key) {
+        u_int64_t ret[2];
+        MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
+        return ret[0];
+    }
+
+    static u_int64_t mmh3(std::string &&key) {
+        u_int64_t ret[2];
+        MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
+        return ret[0];
+    }
+
+    template<typename T>
+    std::tuple<void *, T *> load_externam_func(std::string &name, std::string &path) {
+        void *handler = dlopen(path.c_str(), RTLD_LAZY);
+        if (handler != nullptr) {
+            std::cout << "load function: " << name << " from: " << path << " error: " << dlerror() << std::endl;
+            return std::make_tuple(nullptr, nullptr);
         }
 
-        static u_int64_t mask(u_int64_t v, u_int64_t slot) {
-            if (slot >= 0) {
-                return (slot << slot_shift) + (slot_mask & v);
-            }
-            return v;
+        T func = (T) dlsym(handler, name.c_str());
+        if (dlerror() != nullptr) {
+            std::cout << "load function: " << name << " from: " << path << " error: " << dlerror() << std::endl;
+            dlclose(handler);
+            return std::make_tuple(nullptr, nullptr);
         }
-
-        static u_int64_t mmh3(std::string &key) {
-            u_int64_t ret[2];
-            MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
-            return ret[0];
+        if (func == nullptr) {
+            dlclose(handler);
+            return std::make_tuple(nullptr, nullptr);
         }
+        return std::make_tuple(handler, func);
+    }
 
-        static u_int64_t mmh3(std::string &&key) {
-            u_int64_t ret[2];
-            MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
-            return ret[0];
-        }
-
-        template<typename T>
-        std::tuple<void *, T *> load_externam_func(std::string &name, std::string &path) {
-            void *handler = dlopen(path.c_str(), RTLD_LAZY);
-            if (handler != nullptr) {
-                std::cout << "load function: " << name << " from: " << path << " error: " << dlerror() << std::endl;
-                return std::make_tuple(nullptr, nullptr);
+    //特征转成string
+    void feature_to_strings(int type, tensorflow::Feature &feature, std::vector<std::string> &list) {
+        //字符串
+        if (type == 0) {
+            auto vlist = feature.bytes_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                list.push_back(vlist.value(i));
             }
-
-            T func = (T) dlsym(handler, name.c_str());
-            if (dlerror() != nullptr) {
-                std::cout << "load function: " << name << " from: " << path << " error: " << dlerror() << std::endl;
-                dlclose(handler);
-                return std::make_tuple(nullptr, nullptr);
+        } else if (type == 1) {
+            //整形
+            auto vlist = feature.int64_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                list.push_back(std::to_string(vlist.value(i)));
             }
-            if (func == nullptr) {
-                dlclose(handler);
-                return std::make_tuple(nullptr, nullptr);
-            }
-            return std::make_tuple(handler, func);
-        }
-
-        //特征转成string
-        void feature_to_strings(int type, tensorflow::Feature &feature, std::vector<std::string> &list) {
-            //字符串
-            if (type == 0) {
-                auto vlist = feature.bytes_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    list.push_back(vlist.value(i));
-                }
-            } else if (type == 1) {
-                //整形
-                auto vlist = feature.int64_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    list.push_back(std::to_string(vlist.value(i)));
-                }
-            } else if (type == 2) {
-                //浮点型
-                auto vlist = feature.float_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    ret.push_back(std::to_string(vlist.value(i)));
-                }
+        } else if (type == 2) {
+            //浮点型
+            auto vlist = feature.float_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                ret.push_back(std::to_string(vlist.value(i)));
             }
         }
+    }
 
-        //特征转成float
-        void feature_to_floats(int type, tensorflow::Feature &feature, std::vector<float> &list) {
-            if (type == 1) {
-                //整形
-                auto vlist = feature.int64_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    list.push_back(float(vlist.value(i)));
-                }
-            } else if (type == 2) {
-                //浮点型
-                auto vlist = feature.float_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    ret.push_back(vlist.value(i));
-                }
+    //特征转成float
+    void feature_to_floats(int type, tensorflow::Feature &feature, std::vector<float> &list) {
+        if (type == 1) {
+            //整形
+            auto vlist = feature.int64_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                list.push_back(float(vlist.value(i)));
+            }
+        } else if (type == 2) {
+            //浮点型
+            auto vlist = feature.float_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                ret.push_back(vlist.value(i));
             }
         }
+    }
 
-        template<typename T>
-        std::vector<T> &&fetch_all(tensorflow::Feature &feature) {
-            std::vector<T> ret;
-            if (same_type(int64_t, T))
-            {
-                auto vlist = feature.int64_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    ret.push_back(vlist.value(i));
-                }
+    template<typename T>
+    std::vector<T> &&fetch_all(tensorflow::Feature &feature) {
+        std::vector<T> ret;
+        if (same_type(int64_t, T))
+        {
+            auto vlist = feature.int64_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                ret.push_back(vlist.value(i));
             }
-            else if (same_type(std::string, T))
-            {
-                auto vlist = feature.bytes_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    ret.push_back(vlist.value(i));
-                }
-            }
-            else if (same_type(float, T))
-            {
-                auto vlist = feature.float_list();
-                for (size_t i = 0; i < vlist.value_size(); i++) {
-                    ret.push_back(vlist.value(i));
-                }
-            }
-            return std::move(ret);
         }
-    } // namespace box
+        else if (same_type(std::string, T))
+        {
+            auto vlist = feature.bytes_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                ret.push_back(vlist.value(i));
+            }
+        }
+        else if (same_type(float, T))
+        {
+            auto vlist = feature.float_list();
+            for (size_t i = 0; i < vlist.value_size(); i++) {
+                ret.push_back(vlist.value(i));
+            }
+        }
+        return std::move(ret);
+    }
 } // namespace luban
 
-#endif //__LUBAN_BOX_UTILS_H__
+#endif //LUBAN_UTILS_H

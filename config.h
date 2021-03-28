@@ -1,0 +1,4 @@
+#ifndef LUBAN_CONFIG_H
+#define LUBAN_CONFIG_H
+
+#endif //LUBAN_CONFIG_H
