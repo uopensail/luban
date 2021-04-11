@@ -34,7 +34,7 @@ namespace luban {
             auto func_tables = global_config->get_table_array("third_functions");
             for (const auto &table : *func_tables) {
                 ParamsHelper pfunc(table);
-                factory.load(pfunc);
+                //factory.load(pfunc);
             }
 
             for (const auto &table : *single_tables) {
@@ -68,24 +68,21 @@ namespace luban {
         }
 
         //单特征处理
-        std::vector<u_int64_t> &&single_process(tensorflow::Features &features) {
+        void single_process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             auto features_map = features.feature();
-            std::vector<u_int64_t> ret;
             for (auto &v : single_configs) {
                 auto iter = features_map.find(v.key);
                 if (iter == features_map.end()) {
                     continue;
                 }
-                auto keys = factory.single_process(v.func, v.key, iter->second, v.params);
-                append(ret, keys);
+                factory.single_process(v.func, v.key, iter->second, v.params, ret);
             }
-            return std::move(ret);
+            return;
         }
 
         //交叉特征处理
-        std::vector<u_int64_t> &&cross_process(tensorflow::Features &features) {
+        void cross_process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             auto features_map = features.feature();
-            std::vector<u_int64_t> ret;
             for (auto &v : cross_configs) {
                 auto iterA = features_map.find(v.keyA);
                 if (iterA == features_map.end()) {
@@ -97,21 +94,48 @@ namespace luban {
                     continue;
                 }
 
-                auto keys = factory.cross_process(v.func, v.keyA, iterA->second, v.keyB, iterB->second, v.params);
-                append(ret, keys);
+                factory.cross_process(v.func, v.keyA, iterA->second, v.keyB, iterB->second, v.params, ret);
+
             }
-            return std::move(ret);
+            return;
+
+        }
+
+        //交叉特征处理
+        void bicross_process(tensorflow::Features &featuresA, tensorflow::Features &featuresB,
+                             std::vector<u_int64_t> &ret) {
+            auto features_map_A = featuresA.feature();
+            auto features_map_B = featuresB.feature();
+            for (auto &v : cross_configs) {
+                auto iterA = features_map_A.find(v.keyA);
+                auto iterB = features_map_B.find(v.keyB);
+                if (iterA == features_map_A.end()) {
+                    iterA = features_map_B.find(v.keyA);
+                    if (iterA == features_map_B.end()) {
+                        //都没有找到
+                        continue;
+                    }
+                    iterB = features_map_A.find(v.keyB);
+                    if (iterB == features_map_A.end()) {
+                        //都没有找到
+                        continue;
+                    }
+                } else if (iterB == features_map_B.end()) {
+                    //都没有找到
+                    continue;
+                }
+
+                factory.cross_process(v.func, v.keyA, iterA->second, v.keyB, iterB->second, v.params, ret);
+
+            }
+            return;
 
         }
 
         //统一处理
-        std::vector<u_int64_t> &&process(tensorflow::Features &features) {
-            std::vector<u_int64_t> ret;
-            auto single_keys = single_process(features);
-            auto cross_keys = cross_process(features);
-            append(ret, single_keys);
-            append(ret, cross_keys);
-            std::move(ret);
+        void process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
+            single_process(features, ret);
+            cross_process(features, ret);
         }
     };
 } // namespace luban

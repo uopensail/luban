@@ -8,6 +8,6 @@ include_directories(/usr/local/include)
 
 link_directories(/usr/local/lib)
 
-add_library(luban MurmurHash3.h MurmurHash3.cc feature.pb.h feature.pb.cc common.h cpptoml.h factory.h helper.h toolkit.h utils.h basic_fps.h config.h luban_c.h pyluban.cpp pyluban.h)
+add_library(luban SHARED src/MurmurHash3.h src/MurmurHash3.cc src/feature.pb.h src/feature.pb.cc src/common.h src/cpptoml.h src/factory.h src/helper.h src/toolkit.h src/utils.h src/basic_fps.h src/luban_c.h src/luban_c.cpp)
 
-target_link_libraries(luban --leveldb)
+target_link_libraries(luban protobuf)

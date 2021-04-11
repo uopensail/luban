@@ -3,11 +3,11 @@
 
 #include <vector>
 #include <string>
-
+#include "toolkit.h"
 
 class PyToolKit {
 private:
-    void *toolkit;
+    luban::ToolKit *toolkit;
 public:
     PyToolKit(std::string config_file);
 
