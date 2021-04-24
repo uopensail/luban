@@ -13,11 +13,11 @@ public:
 
     ~PyToolKit();
 
-    std::vector<u_int64_t> single_process(std::string &features);
+    std::vector<unsigned long long> single_process(char *features, int len);
 
-    std::vector<u_int64_t> cross_process(std::string &features);
+    std::vector<unsigned long long> cross_process(char *features, int len);
 
-    std::vector<u_int64_t> process(std::string &features);
+    std::vector<unsigned long long> process(char *features, int len);
 
 };
 

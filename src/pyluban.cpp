@@ -9,26 +9,26 @@ PyToolKit::~PyToolKit() {
     delete toolkit;
 }
 
-std::vector<u_int64_t> PyToolKit::single_process(std::string &feature_str) {
-    tensorflow::Features features;
-    features.ParseFromString(feature_str);
-    std::vector<u_int64_t> ret;
-    toolkit->single_process(features, ret);
+std::vector<unsigned long long> PyToolKit::single_process(char *features, int len) {
+    tensorflow::Features tf_features;
+    tf_features.ParseFromArray(features, len);
+    std::vector<unsigned long long> ret;
+    toolkit->single_process(tf_features, ret);
     return ret;
 }
 
-std::vector<u_int64_t> PyToolKit::cross_process(std::string &feature_str) {
-    tensorflow::Features features;
-    features.ParseFromString(feature_str);
-    std::vector<u_int64_t> ret;
-    toolkit->cross_process(features, ret);
+std::vector<unsigned long long> PyToolKit::cross_process(char *features, int len) {
+    tensorflow::Features tf_features;
+    tf_features.ParseFromArray(features, len);
+    std::vector<unsigned long long> ret;
+    toolkit->cross_process(tf_features, ret);
     return ret;
 }
 
-std::vector<u_int64_t> PyToolKit::process(std::string &feature_str) {
-    tensorflow::Features features;
-    features.ParseFromString(feature_str);
-    std::vector<u_int64_t> ret;
-    toolkit->process(features, ret);
+std::vector<unsigned long long> PyToolKit::process(char *features, int len) {
+    tensorflow::Features tf_features;
+    tf_features.ParseFromArray(features, len);
+    std::vector<unsigned long long> ret;
+    toolkit->process(tf_features, ret);
     return ret;
 }

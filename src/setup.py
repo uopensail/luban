@@ -41,7 +41,7 @@ if is_new_osx():
 
 pylubanmodule = Extension(
     name="_pyluban",
-    sources=["src/MurmurHash3.cc", "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx"],
+    sources=["MurmurHash3.cc", "feature.pb.cc", "pyluban.cpp", "luban_wrap.cxx"],
     extra_compile_args=COMPILE_OPTIONS,
     extra_link_args=LINK_OPTIONS,
 )

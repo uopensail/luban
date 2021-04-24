@@ -37,3 +37,5 @@ cmake-build-debug
 pyluban.egg-info/
 dist/
 build/
+*.txt
+
