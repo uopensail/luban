@@ -8,6 +8,9 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#include <time.h>
+#include <stdio.h>
+#include <sys/time.h>
 
 #define slot_shift 56
 #define slot_mask 0xffffffffffffff
@@ -47,43 +50,58 @@ namespace luban {
     }
 
     //特征转成string
-    static void feature_to_strings(int type, tensorflow::Feature &feature, std::vector<std::string> &list) {
-        //字符串
-        if (type == 0) {
+    static void feature_to_strings(tensorflow::Feature &feature, std::vector<std::string> &list) {
+        if (feature.bytes_list().value_size() > 0) {
             auto vlist = feature.bytes_list();
             for (int i = 0; i < vlist.value_size(); i++) {
                 list.push_back(vlist.value(i));
             }
-        } else if (type == 1) {
+            return;
+        }
+
+        if (feature.int64_list().value_size() > 0) {
             //整形
             auto vlist = feature.int64_list();
             for (int i = 0; i < vlist.value_size(); i++) {
                 list.push_back(std::to_string(vlist.value(i)));
             }
-        } else if (type == 2) {
+            return;
+        }
+
+        if (feature.float_list().value_size() > 0) {
             //浮点型
             auto vlist = feature.float_list();
             for (int i = 0; i < vlist.value_size(); i++) {
                 list.push_back(std::to_string(vlist.value(i)));
             }
+            return;
         }
     }
 
     //特征转成float
-    static void feature_to_floats(int type, tensorflow::Feature &feature, std::vector<float> &list) {
-        if (type == 1) {
+    static void feature_to_floats(tensorflow::Feature &feature, std::vector<float> &list) {
+        if (feature.int64_list().value_size() > 0) {
             //整形
             auto vlist = feature.int64_list();
             for (int i = 0; i < vlist.value_size(); i++) {
                 list.push_back(float(vlist.value(i)));
             }
-        } else if (type == 2) {
+            return;
+        }
+        if (feature.float_list().value_size() > 0) {
             //浮点型
             auto vlist = feature.float_list();
             for (int i = 0; i < vlist.value_size(); i++) {
                 list.push_back(vlist.value(i));
             }
+            return;
         }
+    }
+
+    static u_int64_t get_current_time() {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        return u_int64_t(tv.tv_sec * 1000 + tv.tv_usec / 1000);
     }
 } // namespace luban
 

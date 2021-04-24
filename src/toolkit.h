@@ -29,13 +29,9 @@ namespace luban {
     public:
         ToolKit(std::string &config_file) {
             auto global_config = cpptoml::parse_file(config_file);
-            auto single_tables = global_config->get_table_array("singe_features");
+            auto single_tables = global_config->get_table_array("single_features");
             auto cross_tables = global_config->get_table_array("cross_features");
-            auto func_tables = global_config->get_table_array("third_functions");
-            for (const auto &table : *func_tables) {
-                ParamsHelper pfunc(table);
-                //factory.load(pfunc);
-            }
+
 
             for (const auto &table : *single_tables) {
                 std::string feature_key = table->get_as<std::string>("key").value_or("");
@@ -135,6 +131,7 @@ namespace luban {
         //统一处理
         void process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             single_process(features, ret);
+
             cross_process(features, ret);
         }
     };

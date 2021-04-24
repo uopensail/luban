@@ -14,9 +14,12 @@ namespace luban {
     public:
         Factory() {
             single_funcs["kv"] = kv;
-            single_funcs["logint"] = logint;
+            single_funcs["log_int"] = log_int;
             single_funcs["raw"] = raw;
             single_funcs["bucket"] = bucket;
+            single_funcs["hour_diff"] = hour_diff;
+            single_funcs["log_bucket"] = log_bucket;
+            cross_funcs["co_occur"] = co_occur;
             cross_funcs["merge"] = merge;
         }
 
