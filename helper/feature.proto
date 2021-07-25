@@ -101,6 +101,10 @@ message FeatureList {
   repeated Feature feature = 1;
 }
 
+message Example {
+  Features features = 1;
+}
+
 message FeatureLists {
   // Map from feature name to feature list.
   map<string, FeatureList> feature_list = 1;

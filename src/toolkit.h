@@ -32,29 +32,32 @@ namespace luban {
             auto single_tables = global_config->get_table_array("single_features");
             auto cross_tables = global_config->get_table_array("cross_features");
 
-
-            for (const auto &table : *single_tables) {
-                std::string feature_key = table->get_as<std::string>("key").value_or("");
-                std::string func_name = table->get_as<std::string>("func").value_or("");
-                if (func_name == "" || feature_key == "") {
-                    continue;
+            if (single_tables != nullptr) {
+                for (const auto &table : *single_tables) {
+                    std::string feature_key = table->get_as<std::string>("key").value_or("");
+                    std::string func_name = table->get_as<std::string>("func").value_or("");
+                    if (func_name == "" || feature_key == "") {
+                        continue;
+                    }
+                    ParamsHelper p(table->get_table("params"));
+                    struct SingleParams single_params{feature_key, func_name, p};
+                    single_configs.push_back(single_params);
                 }
-                ParamsHelper p(table->get_table("params"));
-                struct SingleParams single_params{feature_key, func_name, p};
-                single_configs.push_back(single_params);
             }
 
-            for (const auto &table : *cross_tables) {
-                std::string feature_keya = table->get_as<std::string>("keyA").value_or("");
-                std::string feature_keyb = table->get_as<std::string>("keyB").value_or("");
+            if (cross_tables != nullptr) {
+                for (const auto &table : *cross_tables) {
+                    std::string feature_keya = table->get_as<std::string>("keyA").value_or("");
+                    std::string feature_keyb = table->get_as<std::string>("keyB").value_or("");
 
-                std::string func_name = table->get_as<std::string>("func").value_or("");
-                if (func_name == "" || feature_keya == "" || feature_keyb == "") {
-                    continue;
+                    std::string func_name = table->get_as<std::string>("func").value_or("");
+                    if (func_name == "" || feature_keya == "" || feature_keyb == "") {
+                        continue;
+                    }
+                    ParamsHelper p(table->get_table("params"));
+                    struct CrossParams cross_params{feature_keya, feature_keyb, func_name, p};
+                    cross_configs.push_back(cross_params);
                 }
-                ParamsHelper p(table->get_table("params"));
-                struct CrossParams cross_params{feature_keya, feature_keyb, func_name, p};
-                cross_configs.push_back(cross_params);
             }
         }
 
@@ -64,7 +67,7 @@ namespace luban {
         }
 
         //单特征处理
-        void single_process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
+        void single_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             auto features_map = features.feature();
             for (auto &v : single_configs) {
                 auto iter = features_map.find(v.key);
@@ -77,7 +80,7 @@ namespace luban {
         }
 
         //交叉特征处理
-        void cross_process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
+        void cross_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             auto features_map = features.feature();
             for (auto &v : cross_configs) {
                 auto iterA = features_map.find(v.keyA);
@@ -129,7 +132,7 @@ namespace luban {
         }
 
         //统一处理
-        void process(tensorflow::Features &features, std::vector<u_int64_t> &ret) {
+        void process(const tensorflow::Features &features, std::vector<u_int64_t> &ret) {
             single_process(features, ret);
 
             cross_process(features, ret);
