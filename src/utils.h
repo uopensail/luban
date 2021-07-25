@@ -14,6 +14,7 @@
 
 #define slot_shift 56
 #define slot_mask 0xffffffffffffff
+#define u_int64_t unsigned long long
 
 namespace luban {
     static u_int64_t mask(u_int64_t &&v, u_int64_t &slot) {
@@ -101,7 +102,7 @@ namespace luban {
     static u_int64_t get_current_time() {
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        return u_int64_t(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+        return (u_int64_t) (tv.tv_sec * 1000 + tv.tv_usec / 1000);
     }
 } // namespace luban
 
