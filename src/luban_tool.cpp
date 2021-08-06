@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
             case 'n':
                 num = std::atoi(optarg);
             default:
-                std::cout << "Error Argv: " << optopt << std::endl;
+                std::cout << "xxx -c config_file -i input_file -o output_file -n thread_num" << std::endl;
         }
     }
     process(config_file, input_file, out_file, num);

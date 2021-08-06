@@ -13,14 +13,14 @@ namespace luban {
 
     public:
         Factory() {
-            single_funcs["kv"] = kv;
-            single_funcs["log_int"] = log_int;
-            single_funcs["raw"] = raw;
-            single_funcs["bucket"] = bucket;
-            single_funcs["hour_diff"] = hour_diff;
-            single_funcs["log_bucket"] = log_bucket;
-            cross_funcs["co_occur"] = co_occur;
-            cross_funcs["merge"] = merge;
+            single_funcs["kv"] = luban::kv;
+            single_funcs["log_int"] = luban::log_int;
+            single_funcs["raw"] = luban::raw;
+            single_funcs["bucket"] = luban::bucket;
+            single_funcs["hour_diff"] = luban::hour_diff;
+            single_funcs["log_bucket"] = luban::log_bucket;
+            cross_funcs["co_occur"] = luban::co_occur;
+            cross_funcs["merge"] = luban::merge;
         }
 
         Factory(const Factory &) = delete;

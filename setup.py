@@ -9,7 +9,6 @@ Created on Mon May 13 17:58:27 2019
 """
 import platform
 import sys
-
 from setuptools import Extension, setup, find_packages
 
 COMPILE_OPTIONS = []
@@ -31,17 +30,20 @@ if is_new_osx():
     # On Mac, use libc++ because Apple deprecated use of
     # libstdc
     COMPILE_OPTIONS.append("-stdlib=libc++")
-    COMPILE_OPTIONS.append("-std=c++14")
+    COMPILE_OPTIONS.append("-std=c++11")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
-
-    # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
-    # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
     LINK_OPTIONS.append("-nodefaultlibs")
+else:
+    COMPILE_OPTIONS.append("-std=c++11")
+    LINK_OPTIONS.append("-lprotobuf")
 
 pylubanmodule = Extension(
     name="_pyluban",
-    sources=["MurmurHash3.cc", "feature.pb.cc", "pyluban.cpp", "luban_wrap.cxx"],
+    sources=["src/MurmurHash3.cc", "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx",
+             "src/basic_fps.cpp", "src/toolkit.cpp", "src/utils.cpp"],
+    include_dirs=["/usr/local/include", "include"],
+    library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,
     extra_link_args=LINK_OPTIONS,
 )
@@ -49,8 +51,8 @@ pylubanmodule = Extension(
 setup(
     name="pyluban",
     version="1.0.0",
-    description="Python wrapper for luban, a set of fast and robust hash functions.",
-    license="License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+    description="Python wrapper for luban.",
+    license="License :: GPL 3",
     author="timepi",
     author_email="",
     url="",
