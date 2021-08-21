@@ -15,7 +15,7 @@
 
 namespace stata {
     const int capacity = 50000;
-    const int interval = 3000;
+    const int interval = 30000;
     enum Status {
         Err = 1,
         OK = 2

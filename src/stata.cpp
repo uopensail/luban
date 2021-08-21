@@ -198,6 +198,8 @@ std::string &stata::Stata::get_status() {
 }
 
 void stata::do_stat_func() {
+    google::InitGoogleLogging("cpp_plugin_log");
+    FLAGS_log_dir = "/tmp";
     while (1) {
         std::this_thread::sleep_for(std::chrono::milliseconds(stata::interval));
         stata::Stata::getStata()->do_stat();
