@@ -89,7 +89,7 @@ void luban::merge(std::string &keyA, tensorflow::Feature &featureA,
     feature_to_strings(featureA, listA);
     feature_to_strings(featureB, listB);
     for (auto &vA:listA) {
-        for (auto &vB:listA) {
+        for (auto &vB:listB) {
             ret.push_back(mask(mmh3("merge|" + keyA + ":" + vA + "|" + keyB + ":" + vB), slot));
         }
     }

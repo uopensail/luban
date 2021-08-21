@@ -187,7 +187,10 @@ void stata::Stata::do_stat() {
         result.push_back(item);
         delete iter.second;
     }
-    stat_info_ = result.dump();
+    if (result.size() > 0) {
+        stat_info_ = result.dump();
+    }
+
 }
 
 std::string &stata::Stata::get_status() {
