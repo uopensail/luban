@@ -38,4 +38,5 @@ pyluban.egg-info/
 dist/
 build/
 *.txt
+.vscode
 

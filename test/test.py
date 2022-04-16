@@ -40,7 +40,7 @@ def test(filename):
     result = toolkit.process(record)
     ret = list(set(result))
     for key in ret:
-        print(key >> 56)
+        print(key >> 56, key)
 
 
 test("test1.txt")
