@@ -1,35 +1,40 @@
 #ifndef LUBAN_STATA_H
 #define LUBAN_STATA_H
 
-#include <string>
-#include <chrono>
-#include <vector>
-#include <atomic>
-#include <thread>
-#include <glog/logging.h>
-#include <unordered_map>
 #include "json.hpp"
+#include <atomic>
+#include <chrono>
+#include <glog/logging.h>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <vector>
 
-#define min(x, y) (x < y ? x : y)
-#define max(x, y) (x > y ? x : y)
+#define min(x, y) ((x) < (y) ? (x) : (y))
+#define max(x, y) ((x) > (y) ? (x) : (y))
 
-namespace stata {
+namespace stata
+{
     const int capacity = 50000;
     const int interval = 30000;
-    enum Status {
+    enum Status
+    {
         Err = 1,
-        OK = 2
+        OK = 2,
+        Miss = 3
     };
 
     void do_stat_func();
 
-    class Unit {
+    class Unit
+    {
     public:
         std::string name_;
         int count_;
         Status status_;
         __int64_t start_;
         __int64_t end_;
+
     public:
         Unit() = delete;
 
@@ -49,12 +54,15 @@ namespace stata {
 
         Unit &MarkErr();
 
+        Unit &MarkMiss();
+
         Unit &SetCount(int count);
 
         void End();
     };
 
-    class Info {
+    class Info
+    {
     public:
         std::string name_;
         Status status_;
@@ -78,7 +86,8 @@ namespace stata {
         ~Info();
     };
 
-    class Stata {
+    class Stata
+    {
     private:
         std::atomic<__int64_t> add_index_;
         __int64_t stat_index_;
@@ -86,6 +95,7 @@ namespace stata {
         std::thread stat_thread_;
         std::vector<Unit *> buffer_;
         static Stata *global_stata_;
+
     private:
         Stata();
 
@@ -110,5 +120,5 @@ namespace stata {
 
         std::string &get_status();
     };
-}//namespace stata
-#endif //LUBAN_STATA_H
+} // namespace stata
+#endif // LUBAN_STATA_H

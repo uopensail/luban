@@ -4,21 +4,27 @@
 #include "MurmurHash3.h"
 #include "feature.pb.h"
 #include <iostream>
+#include <stdio.h>
 #include <string>
+#include <sys/time.h>
+#include <time.h>
 #include <tuple>
 #include <type_traits>
 #include <vector>
-#include <time.h>
-#include <stdio.h>
-#include <sys/time.h>
 
 #define slot_shift 56
 #define slot_mask 0xffffffffffffff
-#define u_int64_t unsigned long long
 
-namespace luban {
-    u_int64_t mask(u_int64_t &&v, u_int64_t &slot);
+#ifdef __APPLE__
+#define u_int64_t __uint64_t
+#elif __linux__
+#define u_int64_t uint64_t
+#endif
 
+#define mask(x, y) (((y) << slot_shift) + (slot_mask & (x)))
+
+namespace luban
+{
     u_int64_t mmh3(std::string &key);
 
     //分桶
@@ -35,4 +41,4 @@ namespace luban {
     u_int64_t get_current_time();
 } // namespace luban
 
-#endif //LUBAN_UTILS_H
+#endif // LUBAN_UTILS_H

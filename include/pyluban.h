@@ -1,14 +1,17 @@
 #ifndef LUBAN_PYLUBAN_H
 #define LUBAN_PYLUBAN_H
 
-#include <vector>
-#include <string>
 #include "toolkit.h"
+#include <string>
+#include <vector>
 
-class PyToolKit {
+class PyToolKit
+{
 private:
     luban::ToolKit *toolkit;
+
 public:
+    PyToolKit() = delete;
     PyToolKit(std::string config_file);
 
     ~PyToolKit();
@@ -18,8 +21,6 @@ public:
     std::vector<unsigned long long> cross_process(char *features, int len);
 
     std::vector<unsigned long long> process(char *features, int len);
-
 };
 
-
-#endif //LUBAN_PYLUBAN_H
+#endif // LUBAN_PYLUBAN_H

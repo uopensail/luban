@@ -1,12 +1,14 @@
 #ifndef LUBAN_LUBAN_H
 #define LUBAN_LUBAN_H
 
-#include <string>
 #include "feature.pb.h"
+#include <string>
 
-class LuBan {
+class LuBan
+{
 private:
     void *toolkit;
+
 public:
     LuBan(std::string config_file);
 
@@ -20,4 +22,4 @@ public:
                          tensorflow::Features &featuresB, std::vector<u_int64_t> &ret);
 };
 
-#endif //LUBAN_LUBAN_H
+#endif // LUBAN_LUBAN_H

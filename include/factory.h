@@ -1,18 +1,21 @@
-#ifndef LUBAN_FACTOR_H__
-#define LUBAN_FACTOR_H__
+#ifndef LUBAN_FACTORY_H__
+#define LUBAN_FACTORY_H__
 
-#include "common.h"
 #include "basic_fps.h"
+#include "common.h"
 #include <unordered_map>
 
-namespace luban {
-    class Factory {
+namespace luban
+{
+    class Factory
+    {
     private:
         std::unordered_map<std::string, single_function> single_funcs;
         std::unordered_map<std::string, cross_function> cross_funcs;
 
     public:
-        Factory() {
+        Factory()
+        {
             single_funcs["kv"] = luban::kv;
             single_funcs["log_int"] = luban::log_int;
             single_funcs["raw"] = luban::raw;
@@ -27,15 +30,18 @@ namespace luban {
 
         Factory &operator=(const Factory &) = delete;
 
-        ~Factory() {
+        ~Factory()
+        {
             single_funcs.clear();
             cross_funcs.clear();
         }
 
         void single_process(std::string &func, std::string &key, tensorflow::Feature &feature, ParamsHelper &params,
-                            std::vector<u_int64_t> &ret) {
+                            std::vector<u_int64_t> &ret)
+        {
             auto iter = single_funcs.find(func);
-            if (iter == single_funcs.end()) {
+            if (iter == single_funcs.end())
+            {
                 return;
             }
             auto foo = iter->second;
@@ -43,9 +49,11 @@ namespace luban {
         }
 
         void cross_process(std::string &func, std::string &keyA, tensorflow::Feature &featureA, std::string &keyB,
-                           tensorflow::Feature &featureB, ParamsHelper &params, std::vector<u_int64_t> &ret) {
+                           tensorflow::Feature &featureB, ParamsHelper &params, std::vector<u_int64_t> &ret)
+        {
             auto iter = cross_funcs.find(func);
-            if (iter == cross_funcs.end()) {
+            if (iter == cross_funcs.end())
+            {
                 return;
             }
             auto foo = iter->second;
@@ -53,4 +61,4 @@ namespace luban {
         }
     };
 } // namespace luban
-#endif //LUBAN_FACTOR_H__
+#endif // LUBAN_FACTORY_H__
