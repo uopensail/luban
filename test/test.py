@@ -43,10 +43,6 @@ def test(filename):
     size = entity.size()
     for i in range(size):
         e = entity.get(i)
-
-        
-        print("index", entity.get_index(i))
-        print("data", entity.get_data(i))
         print(e)
         
        

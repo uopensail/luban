@@ -10,7 +10,6 @@ key = "u_d_topics"
 [single_features.params]
 gid = 1
 
-
 [[single_features]]
 func = "standardize"
 key = "d_r_impValid"
