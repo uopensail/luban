@@ -11,8 +11,7 @@ int main(){
     kit.process((char*)ddata.c_str(),ddata.size(), entity);
     std::cout<<"here"<<entity.size()<<std::endl;
     for(int i = 0;i < entity.size();i++){
-        std::cout<<"size: "<<entity.data_[i]->size<<" gid: "<<entity.data_[i]->gid<<std::endl;
-        print_entity(entity.data_[i]);
+        print_entity(entity.get(i));
     }
    
     return 0;

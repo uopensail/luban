@@ -31,11 +31,13 @@ if is_new_osx():
     # libstdc
     COMPILE_OPTIONS.append("-stdlib=libc++")
     COMPILE_OPTIONS.append("-std=c++17")
+    COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
     LINK_OPTIONS.append("-nodefaultlibs")
 else:
     COMPILE_OPTIONS.append("-std=c++17")
+    COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lprotobuf")
 
 pylubanmodule = Extension(

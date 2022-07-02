@@ -78,7 +78,7 @@ void *luban_single_process(void *ptr, char *feature, int feature_len, void *retu
 void *luban_bicross_process(void *ptr, char *featureA, int feature_lenA,
                             char *featureB, int feature_lenB, void *return_len)
 {
-    assert(ptr != nullptr && feature != nullptr && feature_len > 0);
+    assert(ptr != nullptr && featureA != nullptr && feature_lenA > 0 && featureB != nullptr && feature_lenB > 0);
     auto toolkit = (ToolKit *)ptr;
     tensorflow::Features featuresA, featuresB;
     featuresA.ParseFromArray(featureA, feature_lenA);

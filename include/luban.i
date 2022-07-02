@@ -24,9 +24,26 @@ namespace std
 }
 
 %typemap(out) Entity * {
-  $result = PyTuple_New(2);
+  static bool isEntityTypeInit = false;
+  static PyStructSequence_Field entity_fields[] = {
+      {"gid", "group id of feature"},
+      {"type", "eNumerical is 1, eCategorical is 2"},
+      {"data", "float list or int64 list"},
+      {NULL}};
+  static PyStructSequence_Desc entity__desc = {
+      "Entity",
+      NULL,
+      entity_fields,
+      3};
+  static PyTypeObject EntityType = {{{0, 0}, 0}, 0, 0, 0};
+  if (!isEntityTypeInit)
+  {
+    PyStructSequence_InitType(&EntityType, &entity__desc);
+    isEntityTypeInit = true;
+  }
+  $result = PyStructSequence_New(&EntityType);
+  PyObject *gid = PyLong_FromSsize_t($1->gid);
   PyObject *type = PyLong_FromSsize_t($1->type);
-  PyTuple_SetItem($result, 0, type);
   PyObject *data = PyList_New($1->size);
   if ($1->type == EntityType::eNumerical)
   {
@@ -42,6 +59,8 @@ namespace std
       PyList_SET_ITEM(data, j, PyLong_FromSsize_t($1->index[j]));
     }
   }
-  PyTuple_SetItem($result, 1, data);
+  PyStructSequence_SetItem($result, 0, gid);
+  PyStructSequence_SetItem($result, 1, type);
+  PyStructSequence_SetItem($result, 2, data);
 }
 %include "pyluban.h"

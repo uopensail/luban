@@ -9621,9 +9621,42 @@ SWIGINTERN PyObject *_wrap_PyEntity_get(PyObject *SWIGUNUSEDPARM(self), PyObject
   arg2 = static_cast< int >(val2);
   result = (Entity *)(arg1)->get(arg2);
   {
-    resultobj = PyTuple_New(2);
+    static bool isEntityTypeInit = false;
+    static PyStructSequence_Field entity_fields[] = {
+      {
+        "gid", "group id of feature"
+      },
+      {
+        "type", "eNumerical is 1, eCategorical is 2"
+      },
+      {
+        "data", "float list or int64 list"
+      },
+      {
+        NULL
+      }
+    };
+    static PyStructSequence_Desc entity__desc = {
+      "Entity",
+      NULL,
+      entity_fields,
+      3
+    };
+    static PyTypeObject EntityType = {
+      {
+        {
+          0, 0
+        }, 0
+      }, 0, 0, 0
+    };
+    if (!isEntityTypeInit)
+    {
+      PyStructSequence_InitType(&EntityType, &entity__desc);
+      isEntityTypeInit = true;
+    }
+    resultobj = PyStructSequence_New(&EntityType);
+    PyObject *gid = PyLong_FromSsize_t(result->gid);
     PyObject *type = PyLong_FromSsize_t(result->type);
-    PyTuple_SetItem(resultobj, 0, type);
     PyObject *data = PyList_New(result->size);
     if (result->type == EntityType::eNumerical)
     {
@@ -9639,7 +9672,9 @@ SWIGINTERN PyObject *_wrap_PyEntity_get(PyObject *SWIGUNUSEDPARM(self), PyObject
         PyList_SET_ITEM(data, j, PyLong_FromSsize_t(result->index[j]));
       }
     }
-    PyTuple_SetItem(resultobj, 1, data);
+    PyStructSequence_SetItem(resultobj, 0, gid);
+    PyStructSequence_SetItem(resultobj, 1, type);
+    PyStructSequence_SetItem(resultobj, 2, data);
   }
   return resultobj;
 fail:

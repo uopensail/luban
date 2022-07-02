@@ -41,9 +41,10 @@ def test(filename):
     entity = pyluban.PyEntity()
     toolkit.process(record, entity)
     size = entity.size()
-    for i in range(size):
-        e = entity.get(i)
-        print(e)
+    for j in range(100):
+        for i in range(size):
+            e = entity.get(i)
+            print(e.gid)
         
        
 

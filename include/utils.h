@@ -159,9 +159,9 @@ static void print_entity(Entity *entity)
         std::cout << "]" << std::endl;
         return;
     }
-    if (entity->type == 1)
+    if (entity->type == EntityType::eNumerical)
     {
-        for (int i = 0; i < entity->size; i++)
+        for (size_t i = 0; i < entity->size; i++)
         {
             std::cout << entity->data[i];
             if (i != entity->size - 1)
@@ -170,9 +170,9 @@ static void print_entity(Entity *entity)
             }
         }
     }
-    else
+    else if (entity->type == EntityType::eNumerical)
     {
-        for (int i = 0; i < entity->size; i++)
+        for (size_t i = 0; i < entity->size; i++)
         {
             std::cout << entity->index[i];
             if (i != entity->size - 1)
