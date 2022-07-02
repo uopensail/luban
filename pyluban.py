@@ -337,8 +337,6 @@ _pyluban.FloatVector_swigregister(FloatVector)
 class PyEntity(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
-    data_ = property(_pyluban.PyEntity_data__get, _pyluban.PyEntity_data__set)
-    size_ = property(_pyluban.PyEntity_size__get, _pyluban.PyEntity_size__set)
 
     def __init__(self):
         _pyluban.PyEntity_swiginit(self, _pyluban.new_PyEntity())
@@ -349,12 +347,6 @@ class PyEntity(object):
 
     def get(self, index: "int") -> "Entity *":
         return _pyluban.PyEntity_get(self, index)
-
-    def get_data(self, index: "int") -> "std::vector< float,std::allocator< float > >":
-        return _pyluban.PyEntity_get_data(self, index)
-
-    def get_index(self, index: "int") -> "std::vector< unsigned long long,std::allocator< unsigned long long > >":
-        return _pyluban.PyEntity_get_index(self, index)
 
 # Register PyEntity in _pyluban:
 _pyluban.PyEntity_swigregister(PyEntity)

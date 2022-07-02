@@ -4,7 +4,6 @@
 #include "cpptoml.h"
 #include "feature.pb.h"
 #include <vector>
-#include <iostream>
 
 class ParamsHelper
 {

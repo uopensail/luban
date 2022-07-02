@@ -24,9 +24,7 @@ void standardize(const tensorflow::Feature &feature, const ParamsHelper &params,
     *entity = new_entity(EntityType::eNumerical, size, gid);
     for (int i = 0; i < size; i++)
     {
-        std::cout<<"standardize: "<<get_float(feature, i)<<std::endl;
         (*entity)->data[i] = (get_float(feature, i) - mean_value) / std_value;
-        std::cout<<"standardize: "<<(*entity)->data[i]<<std::endl;
     }
 }
 

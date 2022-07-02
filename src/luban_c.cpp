@@ -8,11 +8,16 @@ void *luban_new(const char *config_file)
 
 void luban_release(void *ptr)
 {
-    delete (ToolKit *)ptr;
+    if (ptr != nullptr)
+    {
+        delete (ToolKit *)ptr;
+        ptr = nullptr;
+    }
 }
 
 void *luban_process(void *ptr, char *feature, int feature_len, void *return_len)
 {
+    assert(ptr != nullptr && feature != nullptr && feature_len > 0);
     auto toolkit = (ToolKit *)ptr;
     tensorflow::Features features;
     features.ParseFromArray(feature, feature_len);
@@ -28,7 +33,7 @@ void *luban_process(void *ptr, char *feature, int feature_len, void *return_len)
         *((int *)return_len) = 0;
         return nullptr;
     }
-    char *data = (char*)malloc(total_size);
+    char *data = (char *)malloc(total_size);
     for (size_t i = 0; i < ret.size(); i++)
     {
         size = get_entity_size(ret[i]);
@@ -42,6 +47,7 @@ void *luban_process(void *ptr, char *feature, int feature_len, void *return_len)
 
 void *luban_single_process(void *ptr, char *feature, int feature_len, void *return_len)
 {
+    assert(ptr != nullptr && feature != nullptr && feature_len > 0);
     auto toolkit = (ToolKit *)ptr;
     tensorflow::Features features;
     features.ParseFromArray(feature, feature_len);
@@ -57,7 +63,7 @@ void *luban_single_process(void *ptr, char *feature, int feature_len, void *retu
         *((int *)return_len) = 0;
         return nullptr;
     }
-    char *data = (char*)malloc(total_size);
+    char *data = (char *)malloc(total_size);
     for (size_t i = 0; i < ret.size(); i++)
     {
         size = get_entity_size(ret[i]);
@@ -72,6 +78,7 @@ void *luban_single_process(void *ptr, char *feature, int feature_len, void *retu
 void *luban_bicross_process(void *ptr, char *featureA, int feature_lenA,
                             char *featureB, int feature_lenB, void *return_len)
 {
+    assert(ptr != nullptr && feature != nullptr && feature_len > 0);
     auto toolkit = (ToolKit *)ptr;
     tensorflow::Features featuresA, featuresB;
     featuresA.ParseFromArray(featureA, feature_lenA);
@@ -88,7 +95,7 @@ void *luban_bicross_process(void *ptr, char *featureA, int feature_lenA,
         *((int *)return_len) = 0;
         return nullptr;
     }
-    char *data = (char*)malloc(total_size);
+    char *data = (char *)malloc(total_size);
     for (size_t i = 0; i < ret.size(); i++)
     {
         size = get_entity_size(ret[i]);

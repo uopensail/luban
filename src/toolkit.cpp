@@ -1,5 +1,4 @@
 #include "toolkit.h"
-#include <iostream>
 ToolKit::ToolKit(const std::string &config_file)
 {
 
@@ -51,7 +50,6 @@ ToolKit::ToolKit(const std::string &config_file)
             cross_configs.emplace_back(CrossFuncParams{feature_keya, feature_keyb, func_name, p});
         }
     }
-
 }
 
 ToolKit::~ToolKit()
@@ -83,8 +81,7 @@ void ToolKit::single_process(const tensorflow::Features &features, std::vector<E
         single_func foo = func_iter->second;
         Entity *entity = nullptr;
         foo(iter->second, v.params, &entity);
-        std::cout << entity->index[0]<<std::endl;
-         if (entity != nullptr)
+        if (entity != nullptr)
         {
             result.push_back(entity);
         }
