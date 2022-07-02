@@ -5,10 +5,31 @@
 #include <string>
 #include <vector>
 
+class PyToolKit;
+
+class PyEntity
+{
+public:
+    Entity **data_;
+    int size_;
+    friend PyToolKit;
+
+private:
+    void init(int size);
+
+public:
+    PyEntity();
+    ~PyEntity();
+    int size();
+     Entity* get(int index);
+    std::vector<float> get_data(int index);
+    std::vector<unsigned long long> get_index(int index);
+};
+
 class PyToolKit
 {
 private:
-    luban::ToolKit *toolkit;
+    ToolKit *toolkit;
 
 public:
     PyToolKit() = delete;
@@ -16,11 +37,11 @@ public:
 
     ~PyToolKit();
 
-    std::vector<unsigned long long> single_process(char *features, int len);
+    void single_process(char *features, int len, PyEntity &entity);
 
-    std::vector<unsigned long long> cross_process(char *features, int len);
+    void cross_process(char *features, int len, PyEntity &entity);
 
-    std::vector<unsigned long long> process(char *features, int len);
+    void process(char *features, int len, PyEntity &entity);
 };
 
 #endif // LUBAN_PYLUBAN_H

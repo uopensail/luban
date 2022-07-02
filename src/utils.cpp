@@ -1,122 +1,71 @@
-
 #include "utils.h"
 
-u_int64_t luban::mmh3(std::string &key)
+u_int64_t mmh3(const std::string &key)
 {
     u_int64_t ret[2];
     MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
     return ret[0];
 }
 
-//分桶
-int luban::get_bucket(float &value, float &low, float &high, int &buckets)
-{
-    if (buckets <= 0 || high <= low)
-    {
-        return 0;
-    }
-    if (value >= high)
-    {
-        return buckets;
-    }
-    else if (value <= low)
-    {
-        return 0;
-    }
-    else
-    {
-        return int((value - low) / (high - low) * buckets);
-    }
-}
-
-u_int64_t luban::mmh3(std::string &&key)
+u_int64_t mmh3(const std::string &&key)
 {
     u_int64_t ret[2];
     MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
     return ret[0];
 }
 
-//特征转成string
-void luban::feature_to_strings(tensorflow::Feature &feature, std::vector<std::string> &list)
+void split(const std::string &s, std::vector<std::string> &tockens, const std::string &delimiters)
 {
-    switch (feature.kind_case())
+    std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
+    std::string::size_type pos = s.find_first_of(delimiters, lastPos);
+    while (std::string::npos != pos || std::string::npos != lastPos)
     {
-    case tensorflow::Feature::KindCase::kBytesList:
-    {
-        auto vlist = feature.bytes_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(vlist.value(i));
-        }
-        break;
-    }
-    case tensorflow::Feature::KindCase::kInt64List:
-    {
-        //整形
-        auto vlist = feature.int64_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(std::to_string(vlist.value(i)));
-        }
-        break;
-    }
-    case tensorflow::Feature::KindCase::kFloatList:
-    {
-        //浮点型
-        auto vlist = feature.float_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(std::to_string(vlist.value(i)));
-        }
-        break;
-    }
-    default:
-        break;
+        tockens.emplace_back(s.substr(lastPos, pos - lastPos));
+        lastPos = s.find_first_not_of(delimiters, pos);
+        pos = s.find_first_of(delimiters, lastPos);
     }
 }
 
-//特征转成float
-void luban::feature_to_floats(tensorflow::Feature &feature, std::vector<float> &list)
-{
-    switch (feature.kind_case())
-    {
-    case tensorflow::Feature::KindCase::kBytesList:
-    {
-        auto vlist = feature.bytes_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(std::stof(vlist.value(i)));
-        }
-        break;
-    }
-    case tensorflow::Feature::KindCase::kInt64List:
-    {
-        //整形
-        auto vlist = feature.int64_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(float(vlist.value(i)));
-        }
-        break;
-    }
-    case tensorflow::Feature::KindCase::kFloatList:
-    {
-        //浮点型
-        auto vlist = feature.float_list();
-        for (int i = 0; i < vlist.value_size(); i++)
-        {
-            list.push_back(vlist.value(i));
-        }
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-u_int64_t luban::get_current_time()
+u_int64_t get_current_time()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (u_int64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+Entity *new_entity(EntityType type, int size, int gid)
+{
+    Entity *entity = nullptr;
+    switch (type)
+    {
+    case EntityType::eCategorical:
+        entity = (Entity *)malloc(sizeof(Entity) + sizeof(u_int64_t) * size);
+        break;
+    case EntityType::eNumerical:
+        entity = (Entity *)malloc(sizeof(Entity) + sizeof(float) * size);
+        break;
+    default:
+        return entity;
+    }
+    entity->type = type;
+    entity->size = size;
+    entity->gid = gid;
+    return entity;
+}
+
+size_t get_entity_size(const Entity *entity)
+{
+    if (entity == nullptr)
+    {
+        return 0;
+    }
+    switch (entity->type)
+    {
+    case EntityType::eCategorical:
+        return sizeof(Entity) + sizeof(u_int64_t) * entity->size;
+    case EntityType::eNumerical:
+        return sizeof(Entity) + sizeof(float) * entity->size;
+    default:
+        return 0;
+    }
 }

@@ -1,7 +1,21 @@
 #include "toolkit.h"
-
-luban::ToolKit::ToolKit(std::string &config_file)
+#include <iostream>
+ToolKit::ToolKit(const std::string &config_file)
 {
+
+    single_funcs["hash"] = hash;
+    single_funcs["bin"] = bin;
+    single_funcs["logint"] = logint;
+    single_funcs["standardize"] = standardize;
+    single_funcs["normalize"] = normalize;
+    single_funcs["binarize"] = binarize;
+    single_funcs["min_max"] = min_max;
+    single_funcs["box_cox"] = box_cox;
+    single_funcs["power"] = power;
+    single_funcs["log"] = log;
+
+    cross_funcs["merge"] = merge;
+
     auto global_config = cpptoml::parse_file(config_file);
     auto single_tables = global_config->get_table_array("single_features");
     auto cross_tables = global_config->get_table_array("cross_features");
@@ -17,11 +31,7 @@ luban::ToolKit::ToolKit(std::string &config_file)
                 continue;
             }
             ParamsHelper p(table->get_table("params"));
-            struct SingleParams single_params
-            {
-                feature_key, func_name, p
-            };
-            single_configs.push_back(single_params);
+            single_configs.emplace_back(SingleFuncParams{feature_key, func_name, p});
         }
     }
 
@@ -38,23 +48,22 @@ luban::ToolKit::ToolKit(std::string &config_file)
                 continue;
             }
             ParamsHelper p(table->get_table("params"));
-            struct CrossParams cross_params
-            {
-                feature_keya, feature_keyb, func_name, p
-            };
-            cross_configs.push_back(cross_params);
+            cross_configs.emplace_back(CrossFuncParams{feature_keya, feature_keyb, func_name, p});
         }
     }
+
 }
 
-luban::ToolKit::~ToolKit()
+ToolKit::~ToolKit()
 {
     single_configs.clear();
     cross_configs.clear();
+    cross_funcs.clear();
+    single_funcs.clear();
 }
 
 //单特征处理
-void luban::ToolKit::single_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret)
+void ToolKit::single_process(const tensorflow::Features &features, std::vector<Entity *> &result)
 {
     auto features_map = features.feature();
     for (auto &v : single_configs)
@@ -64,13 +73,27 @@ void luban::ToolKit::single_process(const tensorflow::Features &features, std::v
         {
             continue;
         }
-        factory.single_process(v.func, v.key, iter->second, v.params, ret);
+
+        auto func_iter = single_funcs.find(v.func);
+        if (func_iter == single_funcs.end())
+        {
+            continue;
+        }
+
+        single_func foo = func_iter->second;
+        Entity *entity = nullptr;
+        foo(iter->second, v.params, &entity);
+        std::cout << entity->index[0]<<std::endl;
+         if (entity != nullptr)
+        {
+            result.push_back(entity);
+        }
     }
     return;
 }
 
 //交叉特征处理
-void luban::ToolKit::cross_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret)
+void ToolKit::cross_process(const tensorflow::Features &features, std::vector<Entity *> &result)
 {
     auto features_map = features.feature();
     for (auto &v : cross_configs)
@@ -86,15 +109,25 @@ void luban::ToolKit::cross_process(const tensorflow::Features &features, std::ve
         {
             continue;
         }
-
-        factory.cross_process(v.func, v.keyA, iterA->second, v.keyB, iterB->second, v.params, ret);
+        auto iter = cross_funcs.find(v.func);
+        if (iter == cross_funcs.end())
+        {
+            continue;
+        }
+        cross_func foo = iter->second;
+        Entity *entity = nullptr;
+        foo(iterA->second, iterB->second, v.params, &entity);
+        if (entity != nullptr)
+        {
+            result.push_back(entity);
+        }
     }
     return;
 }
 
 //交叉特征处理
-void luban::ToolKit::bicross_process(tensorflow::Features &featuresA, tensorflow::Features &featuresB,
-                                     std::vector<u_int64_t> &ret)
+void ToolKit::bicross_process(const tensorflow::Features &featuresA, const tensorflow::Features &featuresB,
+                              std::vector<Entity *> &result)
 {
     auto features_map_A = featuresA.feature();
     auto features_map_B = featuresB.feature();
@@ -123,14 +156,26 @@ void luban::ToolKit::bicross_process(tensorflow::Features &featuresA, tensorflow
             continue;
         }
 
-        factory.cross_process(v.func, v.keyA, iterA->second, v.keyB, iterB->second, v.params, ret);
+        auto iter = cross_funcs.find(v.func);
+        if (iter == cross_funcs.end())
+        {
+            continue;
+        }
+        cross_func foo = iter->second;
+        Entity *entity = nullptr;
+        foo(iterA->second, iterB->second, v.params, &entity);
+
+        if (entity != nullptr)
+        {
+            result.push_back(entity);
+        }
     }
     return;
 }
 
 //统一处理
-void luban::ToolKit::process(const tensorflow::Features &features, std::vector<u_int64_t> &ret)
+void ToolKit::process(const tensorflow::Features &features, std::vector<Entity *> &result)
 {
-    single_process(features, ret);
-    cross_process(features, ret);
+    single_process(features, result);
+    cross_process(features, result);
 }

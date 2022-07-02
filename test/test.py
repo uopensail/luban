@@ -20,12 +20,12 @@ def gen_test_record(filename):
     :return:
     """
     data = open(filename, 'r').read()
-    """
+    
     example = tf.train.Example()
     Parse(data, example)
     record = example.features.SerializeToString()
-    """
-    return base64.b64decode(data)
+    #return base64.b64decode(data)
+    return record
 
 
 def test(filename):
@@ -34,13 +34,22 @@ def test(filename):
     :param filename:
     :return:
     """
-    config_file = 'config.toml'
+    config_file = 'test.toml'
     record = gen_test_record(filename)
+
     toolkit = pyluban.PyToolKit(config_file)
-    result = toolkit.process(record)
-    ret = list(set(result))
-    for key in ret:
-        print(key >> 56, key)
+    entity = pyluban.PyEntity()
+    toolkit.process(record, entity)
+    size = entity.size()
+    for i in range(size):
+        e = entity.get(i)
+
+        
+        print("index", entity.get_index(i))
+        print("data", entity.get_data(i))
+        print(e)
+        
+       
 
 
-test("test1.txt")
+test("test.txt")

@@ -30,18 +30,18 @@ if is_new_osx():
     # On Mac, use libc++ because Apple deprecated use of
     # libstdc
     COMPILE_OPTIONS.append("-stdlib=libc++")
-    COMPILE_OPTIONS.append("-std=c++11")
+    COMPILE_OPTIONS.append("-std=c++17")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
     LINK_OPTIONS.append("-nodefaultlibs")
 else:
-    COMPILE_OPTIONS.append("-std=c++11")
+    COMPILE_OPTIONS.append("-std=c++17")
     LINK_OPTIONS.append("-lprotobuf")
 
 pylubanmodule = Extension(
     name="_pyluban",
     sources=["src/MurmurHash3.cc", "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx",
-             "src/basic_fps.cpp", "src/toolkit.cpp", "src/utils.cpp"],
+             "src/basic_funcs.cpp", "src/basic_trans.cpp","src/toolkit.cpp", "src/utils.cpp"],
     include_dirs=["/usr/local/include", "include"],
     library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,

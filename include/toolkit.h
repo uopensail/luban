@@ -1,48 +1,38 @@
 #ifndef LUBAN_TOOLKIT_H
 #define LUBAN_TOOLKIT_H
 
-#include "factory.h"
+#include "basic_funcs.h"
+#include "common.h"
+#include <unordered_map>
 
-namespace luban {
-    //单特征参数
-    struct SingleParams {
-        std::string key;
-        std::string func;
-        ParamsHelper params;
-    };
+class ToolKit
+{
+private:
+    std::vector<SingleFuncParams> single_configs;
+    std::vector<CrossFuncParams> cross_configs;
+    std::unordered_map<std::string, single_func> single_funcs;
+    std::unordered_map<std::string, cross_func> cross_funcs;
 
-    //交叉特征参数
-    struct CrossParams {
-        std::string keyA;
-        std::string keyB;
-        std::string func;
-        ParamsHelper params;
-    };
+public:
+    ToolKit() = delete;
+    ToolKit(const ToolKit &) = delete;
+    ToolKit(const ToolKit &&) = delete;
+    ToolKit(const std::string &config_file);
 
-    class ToolKit {
-    private:
-        Factory factory;
-        //支持一个特征多个不同的处理方式
-        std::vector<struct SingleParams> single_configs;
-        std::vector<struct CrossParams> cross_configs;
+    ~ToolKit();
 
-    public:
-        ToolKit(std::string &config_file);
+    //单特征处理
+    void single_process(const tensorflow::Features &features, std::vector<Entity *> &result);
 
-        ~ToolKit();
+    //交叉特征处理
+    void cross_process(const tensorflow::Features &features, std::vector<Entity *> &result);
 
-        //单特征处理
-        void single_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret);
+    //交叉特征处理
+    void bicross_process(const tensorflow::Features &featuresA, const tensorflow::Features &featuresB,
+                         std::vector<Entity *> &result);
 
-        //交叉特征处理
-        void cross_process(const tensorflow::Features &features, std::vector<u_int64_t> &ret);
+    //统一处理
+    void process(const tensorflow::Features &features, std::vector<Entity *> &result);
+};
 
-        //交叉特征处理
-        void bicross_process(tensorflow::Features &featuresA, tensorflow::Features &featuresB,
-                             std::vector<u_int64_t> &ret);
-
-        //统一处理
-        void process(const tensorflow::Features &features, std::vector<u_int64_t> &ret);
-    };
-} // namespace luban
-#endif //LUBAN_TOOLKIT_H
+#endif // LUBAN_TOOLKIT_H

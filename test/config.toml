@@ -2,20 +2,21 @@
 func = "log_int"
 key = "d_r_click"
 name = "d_r_click"
-
 [single_features.params]
 slot_id = 0
+
+
+[[single_features]]
+func = "hash"
+key = "d_r_impValid"
+name = "d_r_impValid"
+[single_features.params]
+slot_id = 1
+
+
 [[single_features]]
 func = "log_int"
 key = "d_r_impValid"
-name = "d_r_impValid"
-
-[single_features.params]
-slot_id = 1
-[[single_features]]
-func = "log_int"
-key = "d_r_readTime"
-name = "d_r_readTime"
 
 [single_features.params]
 slot_id = 2

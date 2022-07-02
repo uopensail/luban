@@ -1,63 +1,101 @@
 #include "luban_c.h"
 #include "toolkit.h"
 
-void *luban_new(char *config_file)
+void *luban_new(const char *config_file)
 {
-    std::string config(config_file);
-    return new luban::ToolKit(config);
+    return new ToolKit(config_file);
 }
 
 void luban_release(void *ptr)
 {
-    delete (luban::ToolKit *)ptr;
+    delete (ToolKit *)ptr;
 }
 
 void *luban_process(void *ptr, char *feature, int feature_len, void *return_len)
 {
-    auto toolkit = (luban::ToolKit *)ptr;
+    auto toolkit = (ToolKit *)ptr;
     tensorflow::Features features;
     features.ParseFromArray(feature, feature_len);
-    std::vector<u_int64_t> ret;
+    std::vector<Entity *> ret;
     toolkit->process(features, ret);
-    if (!ret.empty())
+    size_t total_size = 0, offset = 0, size = 0;
+    for (size_t i = 0; i < ret.size(); i++)
     {
-        u_int64_t *ans = (u_int64_t *)malloc(sizeof(u_int64_t) * ret.size());
-        memcpy(ans, ret.data(), sizeof(u_int64_t) * ret.size());
-        return ans;
+        total_size += get_entity_size(ret[i]);
     }
-    return nullptr;
+    if (total_size == 0)
+    {
+        *((int *)return_len) = 0;
+        return nullptr;
+    }
+    char *data = (char*)malloc(total_size);
+    for (size_t i = 0; i < ret.size(); i++)
+    {
+        size = get_entity_size(ret[i]);
+        memcpy(data + offset, ret[i], size);
+        offset += size;
+        safe_delete(ret[i]);
+    }
+    *((int *)return_len) = total_size;
+    return data;
 }
 
 void *luban_single_process(void *ptr, char *feature, int feature_len, void *return_len)
 {
-    auto toolkit = (luban::ToolKit *)ptr;
+    auto toolkit = (ToolKit *)ptr;
     tensorflow::Features features;
     features.ParseFromArray(feature, feature_len);
-    std::vector<u_int64_t> ret;
+    std::vector<Entity *> ret;
     toolkit->single_process(features, ret);
-    if (!ret.empty())
+    size_t total_size = 0, offset = 0, size = 0;
+    for (size_t i = 0; i < ret.size(); i++)
     {
-        u_int64_t *ans = (u_int64_t *)malloc(sizeof(u_int64_t) * ret.size());
-        memcpy(ans, ret.data(), sizeof(u_int64_t) * ret.size());
-        return ans;
+        total_size += get_entity_size(ret[i]);
     }
-    return nullptr;
+    if (total_size == 0)
+    {
+        *((int *)return_len) = 0;
+        return nullptr;
+    }
+    char *data = (char*)malloc(total_size);
+    for (size_t i = 0; i < ret.size(); i++)
+    {
+        size = get_entity_size(ret[i]);
+        memcpy(data + offset, ret[i], size);
+        offset += size;
+        safe_delete(ret[i]);
+    }
+    *((int *)return_len) = total_size;
+    return data;
 }
 
 void *luban_bicross_process(void *ptr, char *featureA, int feature_lenA,
                             char *featureB, int feature_lenB, void *return_len)
 {
-    auto toolkit = (luban::ToolKit *)ptr;
+    auto toolkit = (ToolKit *)ptr;
     tensorflow::Features featuresA, featuresB;
     featuresA.ParseFromArray(featureA, feature_lenA);
     featuresB.ParseFromArray(featureB, feature_lenB);
-    std::vector<u_int64_t> ret;
+    std::vector<Entity *> ret;
     toolkit->bicross_process(featuresA, featuresB, ret);
-    if (!ret.empty())
+    size_t total_size = 0, offset = 0, size = 0;
+    for (size_t i = 0; i < ret.size(); i++)
     {
-        u_int64_t *ans = (u_int64_t *)malloc(sizeof(u_int64_t) * ret.size());
-        memcpy(ans, ret.data(), sizeof(u_int64_t) * ret.size());
-        return ans;
+        total_size += get_entity_size(ret[i]);
     }
-    return nullptr;
+    if (total_size == 0)
+    {
+        *((int *)return_len) = 0;
+        return nullptr;
+    }
+    char *data = (char*)malloc(total_size);
+    for (size_t i = 0; i < ret.size(); i++)
+    {
+        size = get_entity_size(ret[i]);
+        memcpy(data + offset, ret[i], size);
+        offset += size;
+        safe_delete(ret[i]);
+    }
+    *((int *)return_len) = total_size;
+    return data;
 }

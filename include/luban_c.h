@@ -5,7 +5,7 @@
 extern "C"
 {
 #endif
-    void *luban_new(char *config_file);
+    void *luban_new(const char *config_file);
     void luban_release(void *ptr);
     void *luban_process(void *ptr, char *feature, int feature_len, void *return_len);
     void *luban_single_process(void *ptr, char *feature, int feature_len, void *return_len);
