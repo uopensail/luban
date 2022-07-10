@@ -8,8 +8,8 @@
 
 //处理成数值类型
 // z-score
-void standardize(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
-// l2 = 1
+void z_score(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
+// l1,l2,lp
 void normalize(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 // 1 or 0
 void binarize(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
@@ -21,6 +21,8 @@ void box_cox(const tensorflow::Feature &feature, const ParamsHelper &params, Ent
 void power(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 // ln(x)
 void log(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
+//exp(x)
+void exp(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 //将值转化为字符串后hash
 void hash(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 //分箱

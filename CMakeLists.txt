@@ -25,6 +25,9 @@ src/basic_funcs.cpp src/luban.cpp src/toolkit.cpp)
 #SET(STATA_INCLUDE include/json.hpp include/stata.h)
 #SET(STATA_SOURCE src/stata.cpp)
 
+SET(METRIC_INCLUDE include/metric.h)
+SET(METRIC_SOURCE src/metric.cpp)
+
 add_library(luban SHARED ${LUBAN_INCLUDE} ${LUBAN_SOURCE})
 add_library(toolkit SHARED ${TOOLKIT_INCLUDE} ${TOOLKIT_SOURCE})
 
@@ -34,6 +37,8 @@ add_executable(toolkit_test ${TOOLKIT_INCLUDE} ${TOOLKIT_SOURCE} src/base64.cpp 
 #add_executable(luban_tool ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/luban_tool.cpp)
 #add_executable(test_stata ${STATA_INCLUDE} ${STATA_SOURCE} src/test_stata.cpp)
 
+add_executable(test_metric ${METRIC_INCLUDE} ${METRIC_SOURCE} src/test_metric.cpp)
+
 target_link_libraries(luban protobuf)
 #target_link_libraries(luban_tool protobuf)
 target_link_libraries(toolkit protobuf)
@@ -41,3 +46,4 @@ target_link_libraries(toolkit_test protobuf)
 
 #target_link_libraries(stata glog)
 #target_link_libraries(test_stata glog)
+target_link_libraries(test_metric glog)

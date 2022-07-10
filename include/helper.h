@@ -39,6 +39,19 @@ public:
     }
 
     template <typename T>
+    T get(std::string key, T value) const
+    {
+        if (param_table_ptr->contains(key))
+        {
+            return *(param_table_ptr->get_as<T>(key));
+        }
+        else
+        {
+            return value;
+        }
+    }
+
+    template <typename T>
     std::vector<T> get_array(const std::string &key) const
     {
         if (param_table_ptr->contains(key))

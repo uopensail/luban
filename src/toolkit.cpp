@@ -5,14 +5,14 @@ ToolKit::ToolKit(const std::string &config_file)
     single_funcs["hash"] = hash;
     single_funcs["bin"] = bin;
     single_funcs["logint"] = logint;
-    single_funcs["standardize"] = standardize;
+    single_funcs["z-score"] = z_score;
     single_funcs["normalize"] = normalize;
     single_funcs["binarize"] = binarize;
     single_funcs["min_max"] = min_max;
     single_funcs["box_cox"] = box_cox;
     single_funcs["power"] = power;
     single_funcs["log"] = log;
-
+    single_funcs["exp"] = exp;
     cross_funcs["merge"] = merge;
 
     auto global_config = cpptoml::parse_file(config_file);

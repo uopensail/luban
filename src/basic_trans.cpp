@@ -14,7 +14,7 @@ void min_max(const tensorflow::Feature &feature, const ParamsHelper &params, Ent
         (*entity)->data[i] = (get_float(feature, i) - min_value) / diff;
     }
 }
-void standardize(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity)
+void z_score(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity)
 {
     int size = value_size(feature);
     int gid = params.get<int>("gid");
@@ -32,9 +32,16 @@ void normalize(const tensorflow::Feature &feature, const ParamsHelper &params, E
 {
     int size = value_size(feature);
     int gid = params.get<int>("gid");
-    float norm_value = params.get<double>("norm");
-    assert(norm_value > 0 && size > 0);
+    float norm = params.get<double>("norm", 2);
+    assert(norm >= 1 && size > 0);
     *entity = new_entity(EntityType::eNumerical, size, gid);
+    float norm_value = 0.0;
+    for (int i = 0; i < size; i++)
+    {
+        norm_value += powf(abs(get_float(feature, i)), norm);
+    }
+    norm_value = powf(norm_value, 1.0 / norm);
+
     for (int i = 0; i < size; i++)
     {
         (*entity)->data[i] = get_float(feature, i) / norm_value;
@@ -95,5 +102,17 @@ void log(const tensorflow::Feature &feature, const ParamsHelper &params, Entity 
     for (int i = 0; i < size; i++)
     {
         (*entity)->data[i] = logf(get_float(feature, i));
+    }
+}
+
+void exp(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity)
+{
+    int size = value_size(feature);
+    assert(size > 0);
+    int gid = params.get<int>("gid");
+    *entity = new_entity(EntityType::eNumerical, size, gid);
+    for (int i = 0; i < size; i++)
+    {
+        (*entity)->data[i] = expf(get_float(feature, i));
     }
 }
