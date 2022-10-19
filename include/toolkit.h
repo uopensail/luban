@@ -1,6 +1,8 @@
 #ifndef LUBAN_TOOLKIT_H
 #define LUBAN_TOOLKIT_H
 
+#pragma once
+
 #include "basic_funcs.h"
 #include "common.h"
 #include <unordered_map>

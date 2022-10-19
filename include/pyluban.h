@@ -1,6 +1,8 @@
 #ifndef LUBAN_PYLUBAN_H
 #define LUBAN_PYLUBAN_H
 
+#pragma once
+
 #include "toolkit.h"
 #include <string>
 #include <vector>
@@ -38,6 +40,7 @@ public:
     void single_process(char *features, int len, PyEntity &entity);
     void cross_process(char *features, int len, PyEntity &entity);
     void process(char *features, int len, PyEntity &entity);
+    void process_file(std::string input_file, std::string output_file);
 };
 
 #endif // LUBAN_PYLUBAN_H

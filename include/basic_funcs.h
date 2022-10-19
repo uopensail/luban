@@ -1,6 +1,8 @@
 #ifndef LUBAN_BASIC_FUNCS_H
 #define LUBAN_BASIC_FUNCS_H
 
+#pragma once
+
 #include "common.h"
 #include "helper.h"
 #include "utils.h"
@@ -21,7 +23,7 @@ void box_cox(const tensorflow::Feature &feature, const ParamsHelper &params, Ent
 void power(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 // ln(x)
 void log(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
-//exp(x)
+// exp(x)
 void exp(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);
 //将值转化为字符串后hash
 void hash(const tensorflow::Feature &feature, const ParamsHelper &params, Entity **entity);

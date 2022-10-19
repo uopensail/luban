@@ -1,5 +1,7 @@
-#ifndef __LUBAN_BOX_HELPER_H__
-#define __LUBAN_BOX_HELPER_H__
+#ifndef LUBAN_BOX_HELPER_H
+#define LUBAN_BOX_HELPER_H
+
+#pragma once
 
 #include "cpptoml.h"
 #include "feature.pb.h"
@@ -137,4 +139,4 @@ static int value_size(const tensorflow::Feature &feature)
     }
 }
 
-#endif //__LUBAN_BOX_HELPER_H__
+#endif // LUBAN_BOX_HELPER_H

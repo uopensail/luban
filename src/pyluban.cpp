@@ -96,3 +96,7 @@ void PyToolKit::process(char *features, int len, PyEntity &entity)
         entity.data_[i] = ret[i];
     }
 }
+
+void PyToolKit::process_file(std::string input_file, std::string output_file)
+{
+}

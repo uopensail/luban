@@ -1,5 +1,7 @@
-#ifndef __LUBAN_BOX_COMMON_H__
-#define __LUBAN_BOX_COMMON_H__
+#ifndef LUBAN_BOX_COMMON_H
+#define LUBAN_BOX_COMMON_H
+
+#pragma once
 
 #include "cpptoml.h"
 #include "feature.pb.h"
@@ -18,4 +20,4 @@ using cross_func = void (*)(const tensorflow::Feature &featureA,
                             const tensorflow::Feature &featureB,
                             const ParamsHelper &params, Entity **entity);
 
-#endif //__LUBAN_BOX_COMMON_H__
+#endif //LUBAN_BOX_COMMON_H

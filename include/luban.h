@@ -1,6 +1,8 @@
 #ifndef LUBAN_LUBAN_H
 #define LUBAN_LUBAN_H
 
+#pragma once
+
 #include "common.h"
 #include <string>
 
