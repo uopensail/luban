@@ -19,7 +19,7 @@ public:
     ~FunctionParameterHelper() {}
     void *get()
     {
-        return (void *)params_[index_++].get();
+        return (void *)this->params_[this->index_++].get();
     }
 };
 
@@ -55,13 +55,13 @@ static SharedFeaturePtr agg_call(const SharedFeaturePtr &feature, T (*func)(cons
 
 //调用cross算子函数
 template <typename T, typename U, typename W>
-static SharedFeaturePtr hadamard_cross_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, T (*func)(U, W), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr cartesian_cross_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, T (*func)(U, W), std::vector<RunTimeParameter> &params)
 {
     return cross_func<T, U, W>(featureA, featureB, func);
 }
 
 template <typename T, typename U, typename W, typename... ArgsType>
-static SharedFeaturePtr hadamard_cross_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, T (*func)(U, W, ArgsType...), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr cartesian_cross_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, T (*func)(U, W, ArgsType...), std::vector<RunTimeParameter> &params)
 {
     FunctionParameterHelper fp(params);
     auto myfunc = std::bind(func, std::placeholders::_1, std::placeholders::_2, *(ArgsType *)fp.get()...);
@@ -111,10 +111,10 @@ static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, cons
         return agg_call(feature, x, params);                                                                                 \
     }
 
-#define cross_function_wrapper(x)                                                                                                                                          \
-    static SharedFeaturePtr hadamard_cross_function_wrapper_##x(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &params) \
-    {                                                                                                                                                                      \
-        return hadamard_cross_call(featureA, featureB, x, params);                                                                                                         \
+#define cross_function_wrapper(x)                                                                                                                                           \
+    static SharedFeaturePtr cartesian_cross_function_wrapper_##x(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &params) \
+    {                                                                                                                                                                       \
+        return cartesian_cross_call(featureA, featureB, x, params);                                                                                                         \
     }
 
 #define hadamard_map_function_wrapper(x)                                                                                                                                 \
@@ -139,9 +139,9 @@ static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, cons
     {                                               \
         global_oprs[#x] = agg_function_wrapper_##x; \
     }
-#define add_hadamard_cross_func_to_global_oprs(global_oprs, x) \
-    {                                                          \
-        global_oprs[#x] = hadamard_cross_function_wrapper_##x; \
+#define add_cartesian_cross_func_to_global_oprs(global_oprs, x) \
+    {                                                           \
+        global_oprs[#x] = cartesian_cross_function_wrapper_##x; \
     }
 #define add_hadamard_map_func_to_global_oprs(global_oprs, x) \
     {                                                        \

@@ -42,45 +42,45 @@ class RunTimeFeatures
 {
 private:
     SharedFeaturesPtr origin_;
-    SharedFeaturesPtr named_;
+    SharedFeaturesPtr selected_;
     SharedFeaturesPtr anonymous_;
 
 public:
     RunTimeFeatures() = delete;
-    RunTimeFeatures(const RunTimeFeatures &features) : origin_(features.origin_), named_(features.named_), anonymous_(features.anonymous_) {}
+    RunTimeFeatures(const RunTimeFeatures &features) : origin_(features.origin_), selected_(features.selected_), anonymous_(features.anonymous_) {}
     RunTimeFeatures &operator=(const RunTimeFeatures &features)
     {
         if (this == &features)
         {
             return *this;
         }
-        origin_ = features.origin_;
-        named_ = features.named_;
-        anonymous_ = features.anonymous_;
+        this->origin_ = features.origin_;
+        this->selected_ = features.selected_;
+        this->anonymous_ = features.anonymous_;
         return *this;
     }
     RunTimeFeatures(const SharedFeaturesPtr &features) : origin_(features),
-                                                         named_(new tensorflow::Features{}),
+                                                         selected_(new tensorflow::Features{}),
                                                          anonymous_(new tensorflow::Features{})
 
     {
     }
     ~RunTimeFeatures() {}
-    const SharedFeaturesPtr &get_origin() { return origin_; }
-    const SharedFeaturesPtr &get_named() { return named_; }
-    const SharedFeaturesPtr &get_anonymous() { return anonymous_; }
+    const SharedFeaturesPtr &get_origin() { return this->origin_; }
+    const SharedFeaturesPtr &get_selected() { return this->selected_; }
+    const SharedFeaturesPtr &get_anonymous() { return this->anonymous_; }
 
     //添加一个值
     void add_value(VariableType type, const std::string &key, const SharedFeaturePtr &feature)
     {
-        assert(type == VariableType::VT_Anonymous_Feature || type == VariableType::VT_Named_Feature);
+        assert(type == VariableType::VT_Anonymous_Feature || type == VariableType::VT_Selected_Feature);
         switch (type)
         {
         case VariableType::VT_Anonymous_Feature:
-            (*anonymous_->mutable_feature())[key] = *feature;
+            (*this->anonymous_->mutable_feature())[key] = *feature;
             return;
-        case VariableType::VT_Named_Feature:
-            (*named_->mutable_feature())[key] = *feature;
+        case VariableType::VT_Selected_Feature:
+            (*this->selected_->mutable_feature())[key] = *feature;
             return;
         default:
             return;
@@ -90,15 +90,15 @@ public:
     //取某个特征
     SharedFeaturePtr get(VariableType type, const std::string &key)
     {
-        assert(type == VariableType::VT_Anonymous_Feature || type == VariableType::VT_Named_Feature || type == VariableType::VT_Origin_Feature);
+        assert(type == VariableType::VT_Anonymous_Feature || type == VariableType::VT_Selected_Feature || type == VariableType::VT_Origin_Feature);
         switch (type)
         {
         case VariableType::VT_Anonymous_Feature:
-            return get_feature_by_key(anonymous_, key);
-        case VariableType::VT_Named_Feature:
-            return get_feature_by_key(named_, key);
+            return get_feature_by_key(this->anonymous_, key);
+        case VariableType::VT_Selected_Feature:
+            return get_feature_by_key(this->selected_, key);
         case VariableType::VT_Origin_Feature:
-            return get_feature_by_key(origin_, key);
+            return get_feature_by_key(this->origin_, key);
         default:
             return nullptr;
         }
@@ -116,11 +116,10 @@ private:
     std::vector<int64_t> int_list_;
     std::vector<float> float_list_;
     std::vector<std::string> str_list_;
-    SharedFeaturePtr feature_;
 
 public:
     RunTimeParameter() = delete;
-    RunTimeParameter(ConfigureParameter &p, RunTimeFeatures &features) : type_(p.get_type())
+    RunTimeParameter(ConfigureParameter &p) : type_(p.get_type())
     {
         std::string name;
         const SharedFeaturePtr &data = p.get_data();
@@ -145,17 +144,8 @@ public:
             to_array<std::string>(data, this->str_list_);
             break;
         case VariableType::VT_RunTime_Int:
-            name = to_scalar<std::string>(data);
-            int_ = get_runtime_integer_variable(name);
-            break;
-        case VariableType::VT_RunTime_Float:
-        case VariableType::VT_RunTime_String:
-            break;
-        case VariableType::VT_Anonymous_Feature:
-        case VariableType::VT_Named_Feature:
-        case VariableType::VT_Origin_Feature:
-            name = to_scalar<std::string>(p.get_data());
-            feature_ = features.get(type_, name);
+            this->name = to_scalar<std::string>(data);
+            this->int_ = get_runtime_integer_variable(name);
             break;
         default:
             break;
@@ -164,27 +154,25 @@ public:
 
     ~RunTimeParameter() {}
 
-    SharedFeaturePtr get_feature() { return feature_; }
-
     void *get()
     {
         switch (type_)
         {
         case VariableType::VT_Constant_Int:
         case VariableType::VT_RunTime_Int:
-            return &int_;
+            return &this->int_;
         case VariableType::VT_Constant_Float:
         case VariableType::VT_RunTime_Float:
-            return &float_;
+            return &this->float_;
         case VariableType::VT_Constant_String:
         case VariableType::VT_RunTime_String:
-            return &str_;
+            return &this->str_;
         case VariableType::VT_Constant_IntList:
-            return &int_list_;
+            return &this->int_list_;
         case VariableType::VT_Constant_FloatList:
-            return &float_list_;
+            return &this->float_list_;
         case VariableType::VT_Constant_StringList:
-            return &str_list_;
+            return &this->str_list_;
         default:
             return nullptr;
         }

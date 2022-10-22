@@ -4,8 +4,12 @@
 #pragma once
 
 // feature.pb.h中的一些扩展的函数
-#include "utils.h"
 #include <functional>
+
+//判断类型
+#define is_int(T) (std::is_same<T, long long>::value || std::is_same<T, int>::value || std::is_same<T, long>::value || std::is_same<T, unsigned long long>::value)
+#define is_float(T) (std::is_same<T, float>::value || std::is_same<T, double>::value)
+#define is_str(T) (std::is_same<T, std::string>::value)
 
 //空的析构函数
 static void delete_do_nothing(void *) {}
@@ -157,7 +161,7 @@ static SharedFeaturePtr map_func(const SharedFeaturePtr &feature, std::function<
     return nullptr;
 }
 
-//处理feature, cross处理
+//处理feature, 笛卡尔积的处理
 template <typename U, typename V, typename W>
 static SharedFeaturePtr cartesian_cross_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<U(V, W)> func)
 {

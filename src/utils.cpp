@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <chrono>
 
 //把gid添加到hashid中的前8位
 u_int64_t mask_gid(u_int64_t hash_id, int gid)

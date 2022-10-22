@@ -6,6 +6,67 @@
 #include "cpptoml.h"
 #include "feature.pb.h"
 #include <vector>
+#include <iostream>
+#include <typeinfo>
+#include <functional>
+
+//定义特征的智能指针类型
+#define SharedFeaturePtr std::shared_ptr<tensorflow::Feature>
+#define SharedFeaturesPtr std::shared_ptr<tensorflow::Features>
+
+#define SingleMapFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &)>
+
+std::function < SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &) >> map_oprs_;
+std::function < SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &) >> agg_oprs_;
+std::function < SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &) >> hadamard_cross_oprs_;
+std::function < SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &) >> hadamard_map_oprs_;
+#define HadamardAggFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &)>
+
+//打印模板类型，用于调试
+template <typename T>
+constexpr std::string_view type_name()
+{
+    std::string_view name, prefix, suffix;
+#ifdef __clang__
+    name = __PRETTY_FUNCTION__;
+    prefix = "auto type_name() [T = ";
+    suffix = "]";
+#elif defined(__GNUC__)
+    name = __PRETTY_FUNCTION__;
+    prefix = "constexpr auto type_name() [with T = ";
+    suffix = "]";
+#elif defined(_MSC_VER)
+    name = __FUNCSIG__;
+    prefix = "auto __cdecl type_name<";
+    suffix = ">(void)";
+#endif
+    name.remove_prefix(prefix.size());
+    name.remove_suffix(suffix.size());
+    return name;
+}
+
+#define PRINT_TYPE(X) std::cout << type_name<X>() << std::endl;
+
+template <typename T>
+void print_template_type()
+{
+    PRINT_TYPE(T);
+}
+
+template <typename T1, typename T2, typename... Ts>
+void print_template_type()
+{
+    if (sizeof...(Ts) == 0)
+    {
+        PRINT_TYPE(T1);
+        PRINT_TYPE(T2);
+    }
+    else
+    {
+        PRINT_TYPE(T1);
+        print_template_type<T2, Ts...>();
+    }
+}
 
 class ParamsHelper
 {
@@ -54,7 +115,7 @@ public:
     }
 
     template <typename T>
-    std::vector<T> get_array(const std::string &key) const
+    const std::vector<T> &get_array(const std::string &key)
     {
         if (param_table_ptr->contains(key))
         {
