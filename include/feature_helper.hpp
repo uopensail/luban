@@ -4,6 +4,7 @@
 #pragma once
 
 // feature.pb.h中的一些扩展的函数
+#include "helper.h"
 #include <functional>
 
 //判断类型
@@ -128,15 +129,20 @@ static void add_value(const SharedFeaturePtr &feature, const T &v)
 
 //处理feature, agg处理
 template <typename U, typename V>
-static SharedFeaturePtr agg_func(const SharedFeaturePtr &feature, std::function<U(const std::vector<V> &)> func)
+static SharedFeaturePtr unary_agg_func(const SharedFeaturePtr &feature, std::function<void(const std::vector<V>, std::vector<U> &)> func)
 {
-    if constexpr (is_int(V) || is_float(V) || is_str(V))
+    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(U) || is_float(U) || is_str(U)))
     {
         SharedFeaturePtr ret(new tensorflow::Feature());
         std::vector<V> data;
+        std::vector<U> ret_vec;
         to_array<V>(feature, data);
-        U value = func(data);
-        add_value(ret, value);
+        func(data, ret_vec);
+        for (auto &v : ret_vec)
+        {
+            add_value<U>(ret, v);
+        }
+
         return ret;
     }
     return nullptr;
@@ -144,9 +150,9 @@ static SharedFeaturePtr agg_func(const SharedFeaturePtr &feature, std::function<
 
 //处理feature, map处理
 template <typename U, typename V>
-static SharedFeaturePtr map_func(const SharedFeaturePtr &feature, std::function<U(V)> func)
+static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature, std::function<U(V)> func)
 {
-    if constexpr (is_int(V) || is_float(V) || is_str(V))
+    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(U) || is_float(U) || is_str(U)))
     {
         SharedFeaturePtr ret(new tensorflow::Feature());
         std::vector<V> data;
@@ -165,7 +171,7 @@ static SharedFeaturePtr map_func(const SharedFeaturePtr &feature, std::function<
 template <typename U, typename V, typename W>
 static SharedFeaturePtr cartesian_cross_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<U(V, W)> func)
 {
-    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)))
+    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
         SharedFeaturePtr ret(new tensorflow::Feature());
         std::vector<V> dataA;
@@ -189,7 +195,7 @@ static SharedFeaturePtr cartesian_cross_func(const SharedFeaturePtr &featureA, c
 template <typename U, typename V, typename W>
 static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<U(V, W)> func)
 {
-    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)))
+    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
         SharedFeaturePtr ret(new tensorflow::Feature());
         std::vector<V> dataA;
@@ -215,9 +221,9 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA, cons
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>
-static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<U(const std::vector<V> &, const std::vector<W> &)> func)
+static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<void(const std::vector<V> &, const std::vector<W> &, std::vector<U> &)> func)
 {
-    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)))
+    if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
         SharedFeaturePtr ret(new tensorflow::Feature());
         std::vector<V> dataA;
@@ -232,10 +238,13 @@ static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, cons
             return nullptr;
         }
 
-        auto tmp = func(dataA, dataB);
-        add_value<U>(ret, tmp);
+        std::vector<U> ret_vec;
+        func(dataA, dataB, ret_vec);
 
-        return ret;
+        for (auto &v : ret_vec)
+        {
+            add_value<U>(ret, v);
+        }
     }
     return nullptr;
 }

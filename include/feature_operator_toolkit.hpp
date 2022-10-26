@@ -6,7 +6,6 @@
 #include "feature_operator_handler.hpp"
 #include "feature_operators.h"
 #include <unordered_map>
-#include "feature_operators.h"
 //定义各类函数的类型
 #define SingleMapFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &)>
 #define SingleAggFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &)>
@@ -43,7 +42,22 @@ private:
         }
     }
 
-    void call_map_func(ConfigureOperator &o, RunTimeFeatures &features)
+    void call_realtime_func(ConfigureOperator &o, RunTimeFeatures &features)
+    {
+        const std::string &func = o.get_function();
+        const std::string &name = o.get_name();
+        //处理常用的内置函数
+        if ("timestamp" == func)
+        {
+            SharedFeaturePtr feature(new tensorflow::Feature());
+            auto tmp = timestamp();
+            add_value<int64_t>(feature, tmp);
+            features.add_value(VariableType::VT_Anonymous_Feature, name, feature);
+            return;
+        }
+    }
+
+    void call_unary_map_func(ConfigureOperator &o, RunTimeFeatures &features)
     {
         auto &cfg_params = o.get_parameters();
         const std::string &func = o.get_function();
@@ -75,7 +89,7 @@ private:
         }
     }
 
-    void call_agg_func(ConfigureOperator &o, RunTimeFeatures &features)
+    void call_unary_agg_func(ConfigureOperator &o, RunTimeFeatures &features)
     {
         auto &cfg_params = o.get_parameters();
         const std::string &func = o.get_function();
@@ -202,7 +216,40 @@ private:
 public:
     FeatureOperatorToolkit()
     {
-        add_map_func_to_global_oprs(this->map_oprs_, s_map_add);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _add_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _add_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _add_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _add_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _sub_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _sub_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _sub_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _sub_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _mul_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _mul_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mul_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mul_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _div_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _div_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _div_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _div_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _pow_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _pow_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _pow_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _pow_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _mod_0_1);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, _mod_1_0);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mod_1_1);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mod_1_1);
+
+        add_unary_map_func_to_global_oprs(this->map_oprs_, floorf);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, ceilf);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, logf);
+        add_unary_map_func_to_global_oprs(this->map_oprs_, expf);
     }
 
     ~FeatureOperatorToolkit() {}
@@ -210,20 +257,23 @@ public:
     {
         switch (o.get_function_type())
         {
-        case FunctionType::FT_Single_Mapper:
-            this->call_map_func(o, features);
+        case FunctionType::FT_Unary_Mapper_Func:
+            this->call_unary_map_func(o, features);
             return;
-        case FunctionType::FT_Single_Aggregate:
-            this->call_agg_func(o, features);
+        case FunctionType::FT_Unary_Aggregate_Func:
+            this->call_unary_agg_func(o, features);
             return;
-        case FunctionType::FT_Cartesian_Cross:
+        case FunctionType::FT_Cartesian_Cross_Func:
             this->call_cartesian_cross_func(o, features);
             return;
-        case FunctionType::FT_Hadamard_Mapper:
+        case FunctionType::FT_Hadamard_Mapper_Func:
             this->call_hadamard_map_func(o, features);
             return;
-        case FunctionType::FT_Hadamard_Aggregate:
+        case FunctionType::FT_Hadamard_Aggregate_Func:
             this->call_hadamard_agg_func(o, features);
+            return;
+        case FunctionType::FT_RealTime_Func:
+            this->call_realtime_func(o, features);
             return;
         default:
             return;

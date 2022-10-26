@@ -5,22 +5,14 @@
 
 #include "cpptoml.h"
 #include "feature.pb.h"
-#include <vector>
+#include <functional>
 #include <iostream>
 #include <typeinfo>
-#include <functional>
+#include <vector>
 
 //定义特征的智能指针类型
 #define SharedFeaturePtr std::shared_ptr<tensorflow::Feature>
 #define SharedFeaturesPtr std::shared_ptr<tensorflow::Features>
-
-#define SingleMapFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &)>
-
-std::function < SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &) >> map_oprs_;
-std::function < SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &) >> agg_oprs_;
-std::function < SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &) >> hadamard_cross_oprs_;
-std::function < SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &) >> hadamard_map_oprs_;
-#define HadamardAggFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::vector<RunTimeParameter> &)>
 
 //打印模板类型，用于调试
 template <typename T>

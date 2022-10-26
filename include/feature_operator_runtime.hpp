@@ -6,37 +6,6 @@
 #include "feature_operator_configure.hpp"
 #include <chrono>
 
-const std::string RT_TimeStampMs = "__RT_I_TIMESTAMP_MS__";
-const std::string RT_TimeStampS = "__RT_I_TIMESTAMP_S__";
-
-//获得时间戳, 毫秒
-static int64_t get_timestamp_millisecond()
-{
-    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    return now.count();
-}
-
-//获得时间戳, 秒
-static int64_t get_timestamp_second()
-{
-    return get_timestamp_millisecond() / 1000;
-}
-
-//获得运行时整型特征值
-static int64_t get_runtime_integer_variable(const std::string &var_name)
-{
-    if (var_name == RT_TimeStampMs)
-    {
-        return get_timestamp_millisecond();
-    }
-    else if (var_name == RT_TimeStampS)
-    {
-        return get_timestamp_second();
-    }
-
-    return 0;
-}
-
 //运行时的特征
 class RunTimeFeatures
 {
@@ -125,27 +94,23 @@ public:
         const SharedFeaturePtr &data = p.get_data();
         switch (this->type_)
         {
-        case VariableType::VT_Constant_Int:
+        case VariableType::VT_Int:
             this->int_ = to_scalar<int64_t>(data);
             break;
-        case VariableType::VT_Constant_Float:
+        case VariableType::VT_Float:
             this->float_ = to_scalar<float>(data);
             break;
-        case VariableType::VT_Constant_String:
+        case VariableType::VT_String:
             this->str_ = to_scalar<std::string>(data);
             break;
-        case VariableType::VT_Constant_IntList:
+        case VariableType::VT_IntList:
             to_array<int64_t>(data, this->int_list_);
             break;
-        case VariableType::VT_Constant_FloatList:
+        case VariableType::VT_FloatList:
             to_array<float>(data, this->float_list_);
             break;
-        case VariableType::VT_Constant_StringList:
+        case VariableType::VT_StringList:
             to_array<std::string>(data, this->str_list_);
-            break;
-        case VariableType::VT_RunTime_Int:
-            this->name = to_scalar<std::string>(data);
-            this->int_ = get_runtime_integer_variable(name);
             break;
         default:
             break;
@@ -158,20 +123,17 @@ public:
     {
         switch (type_)
         {
-        case VariableType::VT_Constant_Int:
-        case VariableType::VT_RunTime_Int:
+        case VariableType::VT_Int:
             return &this->int_;
-        case VariableType::VT_Constant_Float:
-        case VariableType::VT_RunTime_Float:
+        case VariableType::VT_Float:
             return &this->float_;
-        case VariableType::VT_Constant_String:
-        case VariableType::VT_RunTime_String:
+        case VariableType::VT_String:
             return &this->str_;
-        case VariableType::VT_Constant_IntList:
+        case VariableType::VT_IntList:
             return &this->int_list_;
-        case VariableType::VT_Constant_FloatList:
+        case VariableType::VT_FloatList:
             return &this->float_list_;
-        case VariableType::VT_Constant_StringList:
+        case VariableType::VT_StringList:
             return &this->str_list_;
         default:
             return nullptr;
