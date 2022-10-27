@@ -1,3 +1,23 @@
+//
+// `LuBan` - 'c++ tool for transformating and hashing features'
+// Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+//
+// This file is part of `LuBan`.
+// //
+// `LuBan` is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// `LuBan` is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 #ifndef LUBAN_FEATURE_HELPER_HPP
 #define LUBAN_FEATURE_HELPER_HPP
 
@@ -133,7 +153,7 @@ static SharedFeaturePtr unary_agg_func(const SharedFeaturePtr &feature, std::fun
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(U) || is_float(U) || is_str(U)))
     {
-        SharedFeaturePtr ret(new tensorflow::Feature());
+        SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
         std::vector<V> data;
         std::vector<U> ret_vec;
         to_array<V>(feature, data);
@@ -154,7 +174,7 @@ static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature, std::fun
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(U) || is_float(U) || is_str(U)))
     {
-        SharedFeaturePtr ret(new tensorflow::Feature());
+        SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
         std::vector<V> data;
         to_array<V>(feature, data);
         for (size_t i = 0; i < data.size(); i++)
@@ -173,7 +193,7 @@ static SharedFeaturePtr cartesian_cross_func(const SharedFeaturePtr &featureA, c
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
-        SharedFeaturePtr ret(new tensorflow::Feature());
+        SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
         std::vector<V> dataA;
         std::vector<V> dataB;
         to_array<V>(featureA, dataA);
@@ -197,7 +217,7 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA, cons
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
-        SharedFeaturePtr ret(new tensorflow::Feature());
+        SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
         std::vector<V> dataA;
         std::vector<V> dataB;
         to_array<V>(featureA, dataA);
@@ -225,7 +245,7 @@ static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, cons
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {
-        SharedFeaturePtr ret(new tensorflow::Feature());
+        SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
         std::vector<V> dataA;
         std::vector<V> dataB;
         to_array<V>(featureA, dataA);

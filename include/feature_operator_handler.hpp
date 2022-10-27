@@ -1,3 +1,23 @@
+//
+// `LuBan` - 'c++ tool for transformating and hashing features'
+// Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+//
+// This file is part of `LuBan`.
+// //
+// `LuBan` is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// `LuBan` is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 #ifndef LUBAN_FEATURE_OPERATOR_HANDLER_HPP
 #define LUBAN_FEATURE_OPERATOR_HANDLER_HPP
 
@@ -40,13 +60,13 @@ static SharedFeaturePtr unary_map_call(const SharedFeaturePtr &feature, T (*func
 
 //调用agg算子函数
 template <typename T, typename U>
-static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(const std::vector<U> &, std::vector<T> &), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(std::vector<T> &, const std::vector<U> &), std::vector<RunTimeParameter> &params)
 {
     return unary_agg_func<T, U>(feature, func);
 }
 
 template <typename T, typename U, typename... ArgsType>
-static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(const std::vector<U> &, std::vector<T> &, ArgsType...), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(std::vector<T> &, const std::vector<U> &, ArgsType...), std::vector<RunTimeParameter> &params)
 {
     FunctionParameterHelper fp(params);
     auto myfunc = std::bind(func, std::placeholders::_1, std::placeholders::_2, *(ArgsType *)fp.get()...);
@@ -85,13 +105,13 @@ static SharedFeaturePtr hadamard_map_call(const SharedFeaturePtr &featureA, cons
 
 //调用hadamard_map算子函数
 template <typename T, typename U, typename W>
-static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(const std::vector<U> &, const std::vector<W> &, std::vector<T> &), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(std::vector<T> &, const std::vector<U> &, const std::vector<W> &, std::vector<RunTimeParameter> &params)
 {
     return hadamard_agg_func<T, U, W>(featureA, featureB, func);
 }
 
 template <typename T, typename U, typename W, typename... ArgsType>
-static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(const std::vector<U> &, const std::vector<W> &, std::vector<T> &, ArgsType...), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(std::vector<T> &,const std::vector<U> &, const std::vector<W> &, ArgsType...), std::vector<RunTimeParameter> &params)
 {
     FunctionParameterHelper fp(params);
     auto myfunc = std::bind(func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, *(ArgsType *)fp.get()...);

@@ -1,5 +1,25 @@
-#ifndef LUBAN_OPR_HPP
-#define LUBAN_OPR_HPP
+//
+// `LuBan` - 'c++ tool for transformating and hashing features'
+// Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+//
+// This file is part of `LuBan`.
+// //
+// `LuBan` is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// `LuBan` is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+#ifndef LUBAN_FEATURE_OPREATOR_TOOLKIT_HPP
+#define LUBAN_FEATURE_OPREATOR_TOOLKIT_HPP
 
 #pragma once
 
@@ -16,8 +36,8 @@
 class FeatureOperatorToolkit
 {
 private:
-    std::unordered_map<std::string, SingleMapFunction> map_oprs_;
-    std::unordered_map<std::string, SingleAggFunction> agg_oprs_;
+    std::unordered_map<std::string, SingleMapFunction> unary_map_oprs_;
+    std::unordered_map<std::string, SingleAggFunction> unary_agg_oprs_;
     std::unordered_map<std::string, CartesianCrossFunction> cartesian_cross_oprs_;
     std::unordered_map<std::string, HadamardMapFunction> hadamard_map_oprs_;
     std::unordered_map<std::string, HadamardAggFunction> hadamard_agg_oprs_;
@@ -49,9 +69,17 @@ private:
         //处理常用的内置函数
         if ("timestamp" == func)
         {
-            SharedFeaturePtr feature(new tensorflow::Feature());
+            SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
             auto tmp = timestamp();
             add_value<int64_t>(feature, tmp);
+            features.add_value(VariableType::VT_Anonymous_Feature, name, feature);
+            return;
+        }
+        else if ("date" == func)
+        {
+            SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
+            auto tmp = date();
+            add_value<std::string>(feature, tmp);
             features.add_value(VariableType::VT_Anonymous_Feature, name, feature);
             return;
         }
@@ -63,8 +91,8 @@ private:
         const std::string &func = o.get_function();
         const std::string &name = o.get_name();
         VariableType type = o.get_type();
-        auto iter = this->map_oprs_.find(func);
-        if (iter == this->map_oprs_.end())
+        auto iter = this->unary_map_oprs_.find(func);
+        if (iter == this->unary_map_oprs_.end())
         {
             return;
         }
@@ -95,8 +123,8 @@ private:
         const std::string &func = o.get_function();
         const std::string &name = o.get_name();
         VariableType type = o.get_type();
-        auto iter = this->agg_oprs_.find(func);
-        if (iter == this->agg_oprs_.end())
+        auto iter = this->unary_agg_oprs_.find(func);
+        if (iter == this->unary_agg_oprs_.end())
         {
             return;
         }
@@ -216,40 +244,53 @@ private:
 public:
     FeatureOperatorToolkit()
     {
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _add_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _add_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _add_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _add_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _add_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _add);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _add);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _add);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _sub_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _sub_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _sub_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _sub_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _sub_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _sub);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _sub);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _sub);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _mul_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _mul_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mul_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mul_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mul_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mul);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mul);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mul);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _div_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _div_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _div_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _div_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _div_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _div);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _div);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _div);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _pow_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _pow_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _pow_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _pow_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _pow_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _pow);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _pow);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _pow);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _mod_0_1);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, _mod_1_0);
-        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mod_1_1);
-        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mod_1_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mod_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mod);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mod);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, _mod);
 
-        add_unary_map_func_to_global_oprs(this->map_oprs_, floorf);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, ceilf);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, logf);
-        add_unary_map_func_to_global_oprs(this->map_oprs_, expf);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, concat_0_1);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, concat);
+        add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, concat);
+        add_cartesian_cross_func_to_global_oprs(this->cartesian_cross_oprs_, concat);
+
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, floorf);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, ceilf);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, logf);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, expf);
+
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, min_max);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, z_score);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, binarize);
+        add_unary_map_func_to_global_oprs(this->unary_map_oprs_, box_cox);
+
+        add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, normalize);
+        add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, topk);
     }
 
     ~FeatureOperatorToolkit() {}
@@ -281,4 +322,4 @@ public:
     }
 };
 
-#endif // LUBAN_OPR_HPP
+#endif // LUBAN_FEATURE_OPREATOR_TOOLKIT_HPP
