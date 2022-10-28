@@ -24,7 +24,7 @@
 #pragma once
 
 #include "feature_operator_handler.hpp"
-#include "feature_operators.h"
+#include "feature_builtin_operators.hpp"
 #include <unordered_map>
 //定义各类函数的类型
 #define SingleMapFunction std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, std::vector<RunTimeParameter> &)>
@@ -97,7 +97,7 @@ private:
             return;
         }
         //获得特征
-        SharedFeaturePtr feature = this->get(cfg_params->at(0));
+        SharedFeaturePtr feature = this->get(cfg_params->at(0),features);
         if (feature == nullptr)
         {
             return;
@@ -129,7 +129,7 @@ private:
             return;
         }
         //获得特征
-        SharedFeaturePtr feature = this->get(cfg_params->at(0));
+        SharedFeaturePtr feature = this->get(cfg_params->at(0),features);
         if (feature == nullptr)
         {
             return;
@@ -159,8 +159,8 @@ private:
             return;
         }
         //获得特征
-        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0));
-        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1));
+        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0),features);
+        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1),features);
         if (feature_1 == nullptr || feature_2 == nullptr)
         {
             return;
@@ -190,8 +190,8 @@ private:
             return;
         }
         //获得特征
-        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0));
-        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1));
+        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0),features);
+        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1),features);
         if (feature_1 == nullptr || feature_2 == nullptr)
         {
             return;
@@ -200,7 +200,7 @@ private:
         std::vector<RunTimeParameter> parameters;
         for (size_t i = 2; i < cfg_params->size(); i++)
         {
-            parameters.push_back({cfg_params->at(i), features});
+            parameters.push_back({cfg_params->at(i)});
         }
         auto tmp = iter->second(feature_1, feature_2, parameters);
         if (tmp != nullptr)
@@ -221,8 +221,8 @@ private:
             return;
         }
         //获得特征
-        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0));
-        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1));
+        SharedFeaturePtr feature_1 = this->get(cfg_params->at(0),features);
+        SharedFeaturePtr feature_2 = this->get(cfg_params->at(1),features);
         if (feature_1 == nullptr || feature_2 == nullptr)
         {
             return;
@@ -232,7 +232,7 @@ private:
         std::vector<RunTimeParameter> parameters;
         for (size_t i = 2; i < cfg_params->size(); i++)
         {
-            parameters.push_back({cfg_params->at(i), features});
+            parameters.push_back({cfg_params->at(i)});
         }
         auto tmp = iter->second(feature_1, feature_2, parameters);
         if (tmp != nullptr)

@@ -24,7 +24,6 @@
 #pragma once
 #include "feature_helper.hpp"
 #include "feature_operator_configure.hpp"
-#include <chrono>
 
 //运行时的特征
 class RunTimeFeatures
@@ -49,10 +48,11 @@ public:
         return *this;
     }
     RunTimeFeatures(const SharedFeaturesPtr &features) : origin_(features),
-                                                         selected_(std::make_shared<tensorflow::Feature>()),
-                                                         anonymous_(std::make_shared<tensorflow::Feature>())
+                                                         selected_(std::make_shared<tensorflow::Features>()),
+                                                         anonymous_(std::make_shared<tensorflow::Features>())
 
     {
+      
     }
     ~RunTimeFeatures() {}
     const SharedFeaturesPtr &get_origin() { return this->origin_; }
@@ -141,7 +141,7 @@ public:
 
     void *get()
     {
-        switch (type_)
+        switch (this->type_)
         {
         case VariableType::VT_Int:
             return &this->int_;

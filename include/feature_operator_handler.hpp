@@ -66,7 +66,7 @@ static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*f
 }
 
 template <typename T, typename U, typename... ArgsType>
-static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(std::vector<T> &, const std::vector<U> &, ArgsType...), std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature, void (*func)(std::vector<T> &,  std::vector<U> &, ArgsType...), std::vector<RunTimeParameter> &params)
 {
     FunctionParameterHelper fp(params);
     auto myfunc = std::bind(func, std::placeholders::_1, std::placeholders::_2, *(ArgsType *)fp.get()...);
@@ -105,7 +105,7 @@ static SharedFeaturePtr hadamard_map_call(const SharedFeaturePtr &featureA, cons
 
 //调用hadamard_map算子函数
 template <typename T, typename U, typename W>
-static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(std::vector<T> &, const std::vector<U> &, const std::vector<W> &, std::vector<RunTimeParameter> &params)
+static SharedFeaturePtr hadamard_agg_call(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, void (*func)(std::vector<T> &, const std::vector<U> &, const std::vector<W> &), std::vector<RunTimeParameter> &params)
 {
     return hadamard_agg_func<T, U, W>(featureA, featureB, func);
 }

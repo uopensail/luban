@@ -149,7 +149,7 @@ static void add_value(const SharedFeaturePtr &feature, const T &v)
 
 //处理feature, agg处理
 template <typename U, typename V>
-static SharedFeaturePtr unary_agg_func(const SharedFeaturePtr &feature, std::function<void(const std::vector<V>, std::vector<U> &)> func)
+static SharedFeaturePtr unary_agg_func(const SharedFeaturePtr &feature, std::function<void(  std::vector<U>&, std::vector<V> &)> func)
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(U) || is_float(U) || is_str(U)))
     {
@@ -241,7 +241,7 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA, cons
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>
-static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<void(const std::vector<V> &, const std::vector<W> &, std::vector<U> &)> func)
+static SharedFeaturePtr hadamard_agg_func(const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, std::function<void( std::vector<U> &,  std::vector<V> &, std::vector<W> &)> func)
 {
     if constexpr ((is_int(V) || is_float(V) || is_str(V)) || (is_int(W) || is_float(W) || is_str(W)) || (is_int(U) || is_float(U) || is_str(U)))
     {

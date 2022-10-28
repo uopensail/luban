@@ -1,5 +1,5 @@
-#ifndef LUBAN_BOX_HELPER_H
-#define LUBAN_BOX_HELPER_H
+#ifndef LUBAN_HELPER_H
+#define LUBAN_HELPER_H
 
 #pragma once
 
@@ -120,4 +120,4 @@ public:
     }
 };
 
-#endif // LUBAN_BOX_HELPER_H
+#endif // LUBAN_HELPER_H
