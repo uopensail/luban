@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(luban)
 
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(include)
 include_directories(/usr/local/include)
+include_directories(/usr/include)
 
 link_directories(/usr/local/lib)
 

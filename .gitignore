@@ -39,4 +39,5 @@ dist/
 build/
 *.txt
 .vscode
+.cache/
 
