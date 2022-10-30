@@ -33,7 +33,6 @@ static float _add(float &a, float &b) { return a + b; }
 static float _add_0_1(float &a, float &b) { return a + b; }
 unary_map_function_wrapper(_add);
 unary_map_function_wrapper(_add_0_1);
-cartesian_cross_function_wrapper(_add);
 hadamard_map_function_wrapper(_add);
 
 // sub
@@ -41,7 +40,6 @@ static float _sub(float &a, float &b) { return a - b; }
 static float _sub_0_1(float &a, float &b) { return b - a; }
 unary_map_function_wrapper(_sub);
 unary_map_function_wrapper(_sub_0_1);
-cartesian_cross_function_wrapper(_sub);
 hadamard_map_function_wrapper(_sub);
 
 // mul
@@ -49,7 +47,6 @@ static float _mul(float &a, float &b) { return a * b; }
 static float _mul_0_1(float &a, float &b) { return a * b; }
 unary_map_function_wrapper(_mul);
 unary_map_function_wrapper(_mul_0_1);
-cartesian_cross_function_wrapper(_mul);
 hadamard_map_function_wrapper(_mul);
 
 // div
@@ -63,7 +60,6 @@ static float _div_0_1(float &a, float &b) {
 }
 unary_map_function_wrapper(_div);
 unary_map_function_wrapper(_div_0_1);
-cartesian_cross_function_wrapper(_div);
 hadamard_map_function_wrapper(_div);
 
 // mod
@@ -77,7 +73,6 @@ static int64_t _mod_0_1(int64_t &a, int64_t &b) {
 }
 unary_map_function_wrapper(_mod);
 unary_map_function_wrapper(_mod_0_1);
-cartesian_cross_function_wrapper(_mod);
 hadamard_map_function_wrapper(_mod);
 
 // pow
@@ -85,7 +80,6 @@ static float _pow(float &a, float &b) { return powf(a, b); }
 static float _pow_0_1(float &a, float &b) { return powf(b, a); }
 unary_map_function_wrapper(_pow);
 unary_map_function_wrapper(_pow_0_1);
-cartesian_cross_function_wrapper(_pow);
 hadamard_map_function_wrapper(_pow);
 
 static float _floor(float &v) { return floorf(v); }
@@ -125,8 +119,16 @@ static int64_t binarize(float &v, float &threshold) {
 
   return v < threshold ? 0.0 : 1.0;
 }
-
 unary_map_function_wrapper(binarize);
+
+//分桶
+static int64_t bucketize(float &v, std::vector<float> &boundaries) {
+  auto start = boundaries.data();
+  auto end = start + boundaries.size();
+  return std::upper_bound(start, end, v) - start;
+}
+
+unary_map_function_wrapper(bucketize);
 
 static float box_cox(float &v, float &lambda) {
   return lambda == 0.0 ? logf(v) : (powf(v, lambda) - 1.0f) / lambda;
@@ -152,15 +154,29 @@ static std::string concat_0_1(std::string &a, std::string &b) {
   v += a;
   return v;
 }
+
+static std::vector<std::string> *c_concat(std::vector<std::string> &a,
+                                          std::vector<std::string> &b) {
+  std::vector<std::string> *dst = new std::vector<std::string>();
+  dst->reserve(a.size() * b.size());
+  for (size_t i = 0; i < a.size(); i++) {
+    for (size_t j = 0; j < b.size(); j++) {
+      dst->push_back(a[i] + b[j]);
+    }
+  }
+  return dst;
+}
+
 unary_map_function_wrapper(concat);
 unary_map_function_wrapper(concat_0_1);
-cartesian_cross_function_wrapper(concat);
+// cartesian_cross_function_wrapper(concat);
 hadamard_map_function_wrapper(concat);
+hadamard_agg_function_wrapper(c_concat);
 
-static void normalize(std::vector<float> &dst, std::vector<float> &src,
-                      float &norm) {
+static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
   assert(norm >= 1);
-  dst.reserve(src.size());
+  std::vector<float> *dst = new std::vector<float>();
+  dst->reserve(src.size());
   float norm_value = 0.0;
   for (auto &v : src) {
     norm_value += powf(abs(v), norm);
@@ -168,22 +184,24 @@ static void normalize(std::vector<float> &dst, std::vector<float> &src,
   norm_value = powf(norm_value, 1.0 / norm);
 
   for (auto &v : src) {
-    dst.push_back(v / norm_value);
+    dst->push_back(v / norm_value);
   }
+  return dst;
 }
 unary_agg_function_wrapper(normalize);
 
-static void topk(std::vector<std::string> &dst, std::vector<std::string> &src,
-                 size_t &k) {
-  dst.clear();
-  dst.reserve(k);
+static std::vector<std::string> *topk(std::vector<std::string> &src,
+                                      size_t &k) {
+  std::vector<std::string> *dst = new std::vector<std::string>();
+  dst->reserve(k);
   size_t count = 0;
   for (auto &v : src) {
     if (count < k) {
-      dst.push_back(v);
+      dst->push_back(v);
       count++;
     }
   }
+  return dst;
 }
 unary_agg_function_wrapper(topk);
 

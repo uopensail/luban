@@ -40,4 +40,7 @@ build/
 *.txt
 .vscode
 .cache/
+__pycache__/
+*.toml
+
 

@@ -61,7 +61,6 @@ enum FunctionType {
   FT_RealTime_Func,
   FT_Unary_Mapper_Func,
   FT_Unary_Aggregate_Func,
-  FT_Cartesian_Cross_Func,
   FT_Hadamard_Mapper_Func,
   FT_Hadamard_Aggregate_Func
 };
@@ -169,8 +168,7 @@ public:
 
   ConfigureOperator(const std::shared_ptr<cpptoml::table> &table) {
     assert(table->contains("name") && table->contains("func") &&
-           table->contains("params") && table->contains("type") &&
-           table->contains("func_type"));
+           table->contains("type") && table->contains("func_type"));
     ParamsHelper params(table);
     this->name_ = params.get<std::string>("name");
     this->function_ = params.get<std::string>("func");
@@ -179,8 +177,10 @@ public:
     this->parameters_ = std::shared_ptr<std::vector<ConfigureParameter>>(
         new std::vector<ConfigureParameter>());
 
-    for (const auto &t : *table->get_table_array("params")) {
-      this->parameters_->push_back(ConfigureParameter{t});
+    if (table->contains("params")) {
+      for (const auto &t : *table->get_table_array("params")) {
+        this->parameters_->push_back(ConfigureParameter{t});
+      }
     }
   }
   ~ConfigureOperator() {}

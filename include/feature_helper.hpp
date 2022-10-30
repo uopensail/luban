@@ -125,18 +125,17 @@ static void add_value(const SharedFeaturePtr &feature, const T &v) {
 template <typename U, typename V>
 static SharedFeaturePtr
 unary_agg_func(const SharedFeaturePtr &feature,
-               std::function<void(std::vector<U> &, std::vector<V> &)> func) {
+               std::function<std::vector<U> *(std::vector<V> &)> func) {
   if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
                 (is_int(U) || is_float(U) || is_str(U))) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> data;
-    std::vector<U> ret_vec;
     to_array<V>(feature, data);
-    func(data, ret_vec);
-    for (auto &v : ret_vec) {
+    std::vector<U> *ret_vec = func(data);
+    for (auto &v : *ret_vec) {
       add_value<U>(ret, v);
     }
-
+    delete ret_vec;
     return ret;
   }
   return nullptr;
@@ -161,28 +160,29 @@ static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature,
 }
 
 //处理feature, 笛卡尔积的处理
-template <typename U, typename V, typename W>
-static SharedFeaturePtr cartesian_cross_func(const SharedFeaturePtr &featureA,
-                                             const SharedFeaturePtr &featureB,
-                                             std::function<U(V &, W &)> func) {
-  if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-                (is_int(W) || is_float(W) || is_str(W)) ||
-                (is_int(U) || is_float(U) || is_str(U))) {
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
-    std::vector<V> dataA;
-    std::vector<V> dataB;
-    to_array<V>(featureA, dataA);
-    to_array<W>(featureB, dataB);
-    for (size_t i = 0; i < dataA.size(); i++) {
-      for (size_t j = 0; j < dataB.size(); j++) {
-        auto tmp = func(dataA[i], dataB[j]);
-        add_value<U>(ret, tmp);
-      }
-    }
-    return ret;
-  }
-  return nullptr;
-}
+// template <typename U, typename V, typename W>
+// static SharedFeaturePtr cartesian_cross_func(
+//     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
+//     std::function<std::vector<U> *(std::vector<V> &, std::vector<W> &)> func)
+//     {
+//   if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
+//                 (is_int(W) || is_float(W) || is_str(W)) ||
+//                 (is_int(U) || is_float(U) || is_str(U))) {
+//     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+//     std::vector<V> dataA;
+//     std::vector<V> dataB;
+//     to_array<V>(featureA, dataA);
+//     to_array<W>(featureB, dataB);
+//     for (size_t i = 0; i < dataA.size(); i++) {
+//       for (size_t j = 0; j < dataB.size(); j++) {
+//         auto tmp = func(dataA[i], dataB[j]);
+//         add_value<U>(ret, tmp);
+//       }
+//     }
+//     return ret;
+//   }
+//   return nullptr;
+// }
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>
@@ -198,16 +198,29 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA,
     to_array<V>(featureA, dataA);
     to_array<W>(featureB, dataB);
     size_t lenA = dataA.size();
-    size_t lenB = dataA.size();
+    size_t lenB = dataB.size();
 
-    if (lenA != lenB) {
-      return nullptr;
+    if (lenA == lenB) {
+      for (size_t i = 0; i < lenA; i++) {
+        auto tmp = func(dataA[i], dataB[i]);
+        add_value<U>(ret, tmp);
+      }
+      return ret;
     }
-    for (size_t i = 0; i < lenA; i++) {
-      auto tmp = func(dataA[i], dataB[i]);
-      add_value<U>(ret, tmp);
+    if (lenA == 1) {
+      for (size_t i = 0; i < lenB; i++) {
+        auto tmp = func(dataA[0], dataB[i]);
+        add_value<U>(ret, tmp);
+      }
+      return ret;
     }
-    return ret;
+    if (lenB == 1) {
+      for (size_t i = 0; i < lenA; i++) {
+        auto tmp = func(dataA[i], dataB[0]);
+        add_value<U>(ret, tmp);
+      }
+      return ret;
+    }
   }
   return nullptr;
 }
@@ -216,8 +229,7 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA,
 template <typename U, typename V, typename W>
 static SharedFeaturePtr hadamard_agg_func(
     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
-    std::function<void(std::vector<U> &, std::vector<V> &, std::vector<W> &)>
-        func) {
+    std::function<std::vector<U> *(std::vector<V> &, std::vector<W> &)> func) {
   if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
                 (is_int(W) || is_float(W) || is_str(W)) ||
                 (is_int(U) || is_float(U) || is_str(U))) {
@@ -233,12 +245,13 @@ static SharedFeaturePtr hadamard_agg_func(
       return nullptr;
     }
 
-    std::vector<U> ret_vec;
-    func(dataA, dataB, ret_vec);
+    std::vector<U> *ret_vec = func(dataA, dataB);
 
-    for (auto &v : ret_vec) {
+    for (auto &v : *ret_vec) {
       add_value<U>(ret, v);
     }
+
+    delete ret_vec;
   }
   return nullptr;
 }

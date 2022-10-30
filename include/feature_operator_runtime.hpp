@@ -24,11 +24,13 @@
 #pragma once
 #include "feature_helper.hpp"
 #include "feature_operator_configure.hpp"
+#include <initializer_list>
+#include <unordered_map>
 
 //运行时的特征
 class RunTimeFeatures {
 private:
-  SharedFeaturesPtr origin_;
+  std::unordered_map<std::string, SharedFeaturePtr> origin_;
   SharedFeaturesPtr selected_;
   SharedFeaturesPtr anonymous_;
 
@@ -46,15 +48,77 @@ public:
     this->anonymous_ = features.anonymous_;
     return *this;
   }
-  RunTimeFeatures(const SharedFeaturesPtr &features)
-      : origin_(features), selected_(std::make_shared<tensorflow::Features>()),
-        anonymous_(std::make_shared<tensorflow::Features>())
+  RunTimeFeatures(const SharedFeaturesPtr &features) {
+    selected_ = std::make_shared<tensorflow::Features>();
+    anonymous_ = std::make_shared<tensorflow::Features>();
+    const auto &fea = features->feature();
+    for (auto &kv : fea) {
+      origin_[kv.first] = SharedFeaturePtr{
+          (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+    }
+  }
 
-  {}
-  ~RunTimeFeatures() {}
-  const SharedFeaturesPtr &get_origin() { return this->origin_; }
+  RunTimeFeatures(const tensorflow::Features &features) {
+    selected_ = std::make_shared<tensorflow::Features>();
+    anonymous_ = std::make_shared<tensorflow::Features>();
+    const auto &fea = features.feature();
+    for (auto &kv : fea) {
+      origin_[kv.first] = SharedFeaturePtr{
+          (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+    }
+  }
+
+  RunTimeFeatures(std::initializer_list<tensorflow::Features> &features_list) {
+
+    for (auto &it : features_list) {
+      const auto &features = it.feature();
+      for (auto &kv : features) {
+        origin_[kv.first] = SharedFeaturePtr{
+            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      }
+    }
+  }
+
+  RunTimeFeatures(std::initializer_list<SharedFeaturesPtr> &features_list) {
+    selected_ = std::make_shared<tensorflow::Features>();
+    anonymous_ = std::make_shared<tensorflow::Features>();
+    for (auto &it : features_list) {
+      const auto &features = it->feature();
+      for (auto &kv : features) {
+        origin_[kv.first] = SharedFeaturePtr{
+            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      }
+    }
+  }
+
+  RunTimeFeatures(std::vector<SharedFeaturesPtr> &features_list) {
+    selected_ = std::make_shared<tensorflow::Features>();
+    anonymous_ = std::make_shared<tensorflow::Features>();
+    for (auto &it : features_list) {
+      const auto &features = it->feature();
+      for (auto &kv : features) {
+        origin_[kv.first] = SharedFeaturePtr{
+            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      }
+    }
+  }
+
+  RunTimeFeatures(std::vector<tensorflow::Features *> &features_list) {
+    selected_ = std::make_shared<tensorflow::Features>();
+    anonymous_ = std::make_shared<tensorflow::Features>();
+    for (auto &it : features_list) {
+      const auto &features = it->feature();
+      for (auto &kv : features) {
+        origin_[kv.first] = SharedFeaturePtr{
+            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      }
+    }
+  }
+
+  ~RunTimeFeatures() { this->origin_.clear(); }
+  //   const SharedFeaturesPtr &get_origin() { return this->origin_; }
   const SharedFeaturesPtr &get_selected() { return this->selected_; }
-  const SharedFeaturesPtr &get_anonymous() { return this->anonymous_; }
+  //   const SharedFeaturesPtr &get_anonymous() { return this->anonymous_; }
 
   //添加一个值
   void add_value(VariableType type, const std::string &key,
@@ -83,8 +147,14 @@ public:
       return get_feature_by_key(this->anonymous_, key);
     case VariableType::VT_Selected_Feature:
       return get_feature_by_key(this->selected_, key);
-    case VariableType::VT_Origin_Feature:
-      return get_feature_by_key(this->origin_, key);
+    case VariableType::VT_Origin_Feature: {
+      auto iter = this->origin_.find(key);
+      if (iter != this->origin_.end()) {
+        return iter->second;
+      } else {
+        return nullptr;
+      }
+    }
     default:
       return nullptr;
     }

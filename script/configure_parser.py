@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 """
 author: random
@@ -16,6 +16,7 @@ descripton: 利用Python将配置文件进行解析,给C++代码使用.
     +,-,*,/,%,**
 
 """
+from enum import Enum
 import os
 import ast
 import sys
@@ -23,11 +24,11 @@ import toml
 import types
 import inspect
 import argparse
-from enum import IntEnum
+import function_def
 from typing import Any, List, Union
 
 
-class VariableType(IntEnum):
+class VariableType:
     """
     变量的类型.
 
@@ -49,48 +50,51 @@ class VariableType(IntEnum):
     VT_IntList = 4
     VT_FloatList = 5
     VT_StringList = 6
-    VT_Origin_Feature = 8
-    VT_Selected_Feature = 9
-    VT_Anonymous_Feature = 10
+    VT_Origin_Feature = 7
+    VT_Selected_Feature = 8
+    VT_Anonymous_Feature = 9
+
+    def __init__(self, dtype: int) -> None:
+        self.type = dtype
+
+    def is_constant_scalar(self) -> bool:
+        """是否是常量."""
+        if self.type in (VariableType.VT_Int, VariableType.VT_Float,
+                         VariableType.VT_String):
+            return True
+        return False
+
+    def is_constant_array(self) -> bool:
+        """是否是常量数组."""
+        if self.type in (VariableType.VT_IntList, VariableType.VT_FloatList,
+                         VariableType.VT_StringList):
+            return True
+        return False
+
+    def is_constant(self) -> bool:
+        return self.is_constant_scalar() or self.is_constant_array()
+
+    def is_variable(self) -> bool:
+        """是否是变量."""
+        if self.type in (VariableType.VT_Anonymous_Feature,
+                         VariableType.VT_Origin_Feature,
+                         VariableType.VT_Selected_Feature):
+            return True
+        return False
+
+
+class FunctionType(Enum):
+    # 函数的类型
+    FT_Not_Defined = 0
+    FT_RealTime_Func = 1
+    FT_Unary_Mapper_Func = 2
+    FT_Unary_Aggregate_Func = 3
+    FT_Hadamard_Mapper_Func = 4
+    FT_Hadamard_Aggregate_Func = 5
 
 
 # 内置函数二元操作符函数的定义
-GLOBAL_FUNCTION_DEFINITIONS = {
-    # 加法
-    "_add_1_0": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_add_0_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_add_1_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-
-    # 减法
-    "_sub_1_0": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_sub_0_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_sub_1_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-
-    # 乘法
-    "_mul_1_0": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_mul_0_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_mul_1_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-
-    # 除发
-    "_div_1_0": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_div_0_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_div_1_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-
-    # 取模
-    "_mod_1_0": {"return": VariableType.VT_Int, "argvs": [VariableType.VT_Int, VariableType.VT_Int]},
-    "_mod_0_1": {"return": VariableType.VT_Int, "argvs": [VariableType.VT_Int, VariableType.VT_Int]},
-    "_mod_1_1": {"return": VariableType.VT_Int, "argvs": [VariableType.VT_Int, VariableType.VT_Int]},
-
-    # 次方
-    "_pow_1_0": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_pow_0_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-    "_pow_1_1": {"return": VariableType.VT_Float, "argvs": [VariableType.VT_Float, VariableType.VT_Float]},
-
-    # 时间戳
-    "timestamp": {"return": VariableType.VT_Int, "argvs": []},
-    "date": {"return": VariableType.VT_String, "argvs": []},
-
-}
+GLOBAL_FUNCTION_DEFINITIONS = {}
 
 
 class Parameter:
@@ -120,12 +124,85 @@ class Operator:
     def __init__(self, name: str, function: str, parameters: List[Parameter]):
         # 内置函数的类型匹配
         global GLOBAL_FUNCTION_DEFINITIONS
-        self.name, self.function, self.parameters = name, function, parameters
+        self.name, self.function, self.parameters, self.func_type = name, function, parameters, FunctionType.FT_Not_Defined
+
         assert (self.function in GLOBAL_FUNCTION_DEFINITIONS)
+        assert (len(GLOBAL_FUNCTION_DEFINITIONS[self.function]['argvs']) == len(
+            self.parameters))
         for i, p in enumerate(self.parameters):
-            if p.type in (VariableType.VT_Int, VariableType.VT_Float, VariableType.VT_String,
-                          VariableType.VT_IntList, VariableType.VT_FloatList, VariableType.VT_StringList):
+            if p.type.is_constant():
                 p.type = GLOBAL_FUNCTION_DEFINITIONS[self.function]['argvs'][i]
+
+    def __get_varibale_count__(self) -> int:
+        if not self.__check__():
+            return 0
+        if len(self.parameters) == 0:
+            return 0
+        if len(self.parameters) == 1:
+            return 1
+        var_count = 0
+        for p in self.parameters:
+            if p.type.is_variable():
+                var_count += 1
+        return var_count
+
+    def __check__(self) -> bool:
+        """check"""
+
+        if len(self.parameters) == 0:
+            return False
+        if len(self.parameters) == 1:
+            return self.parameters[0].type.is_variable()
+        var_count = 0
+        for p in self.parameters:
+            if p.type.is_variable():
+                if p.index >= 2:
+                    # variable's index must <= 1
+                    return False
+                var_count += 1
+        if var_count > 2 or var_count == 0:
+            # variable count must <= 2
+            return False
+        return True
+
+    def __swap_if_need__(self):
+        if not self.__check__():
+            return
+        if len(self.parameters) >= 2 and self.parameters[0].type.is_constant() \
+                and self.parameters[0].type.is_variable() \
+            and self.function in ["_add", "_sub", "_mul", "_div", "_mod", "_pow", "concat"]:
+            self.parameters[0], self.parameters[1] = self.parameters[1], self.parameters[0]
+            self.function += "_0_1"
+
+    def __builtin_function_rename__(self):
+        if self.function in ["floor", "ceil", "log", "exp", "log"]:
+            self.function = f"_{self.function}"
+
+    def __update_function_type__(self):
+        global GLOBAL_FUNCTION_DEFINITIONS
+        if len(self.parameters) == 0:
+            self.func_type = FunctionType.FT_RealTime_Func
+            return
+        func_info = GLOBAL_FUNCTION_DEFINITIONS[self.function]
+        var_count = self.__get_varibale_count__()
+        if func_info['return'].is_constant_array():
+            if var_count == 2:
+                self.func_type = FunctionType.FT_Hadamard_Aggregate_Func
+            else:
+                self.func_type = FunctionType.FT_Unary_Aggregate_Func
+            return
+        if func_info['return'].is_constant_scalar():
+            if var_count == 2:
+                self.func_type = FunctionType.FT_Hadamard_Mapper_Func
+            else:
+                self.func_type = FunctionType.FT_Unary_Mapper_Func
+            return
+
+    def update(self):
+        """update other information."""
+        self.__update_function_type__()
+        self.__swap_if_need__()
+        self.__builtin_function_rename__()
 
     def __eq__(self, __o: object) -> bool:
         """
@@ -150,12 +227,14 @@ class Operator:
     def __repr__(self) -> str:
         """转成字符串."""
         params = []
+        if len(self.parameters) == 0:
+            return f'{self.name} = {self.function}()'
         for p in self.parameters:
-            if p.type == VariableType.VT_Anonymous_Feature:
+            if p.type.type == VariableType.VT_Anonymous_Feature:
                 params.append(f'`{p.value.name}`')
-            elif p.type in (VariableType.VT_Selected_Feature, VariableType.VT_Origin_Feature):
+            elif p.type.type in (VariableType.VT_Selected_Feature, VariableType.VT_Origin_Feature):
                 params.append(f'`{p.value}`')
-            elif p.type == VariableType.VT_String:
+            elif p.type.type == VariableType.VT_String:
                 params.append(f'"{p.value}"')
             else:
                 params.append(str(p.value))
@@ -164,7 +243,7 @@ class Operator:
 
 def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
     """处理参数——名称"""
-    return Parameter(index=index, type=VariableType.VT_Selected_Feature,
+    return Parameter(index=index, type=VariableType(VariableType.VT_Selected_Feature),
                      value=argv.id)
 
 
@@ -184,13 +263,13 @@ def parse_argv_constant(index: int, argv: Union[ast.Constant, ast.Str, ast.Num])
     """处理参数——常量"""
     value = value_of_constant(argv)
     if isinstance(value, str):
-        return Parameter(index=index, type=VariableType.VT_String,
+        return Parameter(index=index, type=VariableType(VariableType.VT_String),
                          value=value)
     elif isinstance(value, float):
-        return Parameter(index=index, type=VariableType.VT_Float,
+        return Parameter(index=index, type=VariableType(VariableType.VT_Float),
                          value=value)
     elif isinstance(value, int):
-        return Parameter(index=index, type=VariableType.VT_Int,
+        return Parameter(index=index, type=VariableType(VariableType.VT_Int),
                          value=value)
     else:
         raise TypeError(f"not support type:{type(value)}")
@@ -198,21 +277,21 @@ def parse_argv_constant(index: int, argv: Union[ast.Constant, ast.Str, ast.Num])
 
 def parse_argv_list(index: int, argv: ast.List) -> Parameter:
     """处理参数——常量列表"""
-    assert(len(argv.elts) > 0)
-    elt, dtype = argv.elts[0], VariableType.VT_Not_Defined
+    assert (len(argv.elts) > 0)
+    elt, dtype = argv.elts[0], VariableType(VariableType.VT_Not_Defined)
     fv = value_of_constant(elt)
     if isinstance(fv, str):
-        dtype = VariableType.VT_StringList
+        dtype = VariableType(VariableType.VT_StringList)
     elif isinstance(fv, float):
-        dtype = VariableType.VT_FloatList
+        dtype = VariableType(VariableType.VT_FloatList)
     elif isinstance(fv, int):
-        dtype = VariableType.VT_IntList
+        dtype = VariableType(VariableType.VT_IntList)
     else:
         raise TypeError(f"not support type:{type(fv)}")
 
     argvs = list(map(value_of_constant, argv.elts))
     for v in argvs:
-        assert(type(fv) == type(v))
+        assert (type(fv) == type(v))
 
     return Parameter(index=index, type=dtype,
                      value=argvs)
@@ -220,8 +299,9 @@ def parse_argv_list(index: int, argv: ast.List) -> Parameter:
 
 def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
     """处理参数——函数调用"""
-    assert(isinstance(argv.func, ast.Name))
+    assert (isinstance(argv.func, ast.Name))
     function, params = argv.func.id, []
+
     for i, argv in enumerate(argv.args):
         if isinstance(argv, (ast.Constant, ast.Num, ast.Str)):
             params.append(parse_argv_constant(index=i, argv=argv))
@@ -237,9 +317,9 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
         else:
             raise TypeError(f"not support type:{type(argv)}")
 
-    opr = Operator(name=f"anonymous_{id(argv)}",
+    opr = Operator(name=f"anonymous_{id(params)}",
                    function=function, parameters=params)
-    return Parameter(index=index, type=VariableType.VT_Anonymous_Feature,
+    return Parameter(index=index, type=VariableType(VariableType.VT_Anonymous_Feature),
                      value=opr)
 
 
@@ -248,45 +328,35 @@ def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
 
     其中必须至少有一个参数是输入的遍历, 不能都是常量.
     """
-    marks, function, params = [], None, []
+    function, params = None, []
 
     # 是不是字面值常量
     def is_literal_constant(v: Any):
         return isinstance(v, (ast.Constant, ast.Num, ast.Str, ast.List))
-    need_swap = False
-    if not is_literal_constant(argv.left) and not is_literal_constant(argv.right):
-        marks = ["1", "1"]
-    elif not is_literal_constant(argv.left) and is_literal_constant(argv.right):
-        marks = ["1", "0"]
-    elif is_literal_constant(argv.left) and not is_literal_constant(argv.right):
-        marks, need_swap = ["0", "1"], True
-    else:
+    if is_literal_constant(argv.left) and is_literal_constant(argv.right):
         raise RuntimeError("binop must have at least one variable")
 
     if isinstance(argv.op, ast.Div):
-        function = f"_div_{'_'.join(marks)}"
+        function = f"_div"
     elif isinstance(argv.op, ast.Add):
-        function = f"_add_{'_'.join(marks)}"
+        function = f"_add"
     elif isinstance(argv.op, ast.Sub):
-        function = f"_sub_{'_'.join(marks)}"
+        function = f"_sub"
     elif isinstance(argv.op, ast.Mult):
-        function = f"_mul_{'_'.join(marks)}"
+        function = f"_mul"
     elif isinstance(argv.op, ast.Mod):
-        function = f"_mod_{'_'.join(marks)}"
+        function = f"_mod"
     elif isinstance(argv.op, ast.Pow):
-        function = f"_pow_{'_'.join(marks)}"
+        function = f"_pow"
     else:
         raise TypeError(f"not support: {type(argv.op)}")
-    if need_swap:
-        params.append(parse_argv(0, argv.right))
-        params.append(parse_argv(1, argv.left))
-    else:
-        params.append(parse_argv(0, argv.left))
-        params.append(parse_argv(1, argv.right))
+
+    params.append(parse_argv(0, argv.left))
+    params.append(parse_argv(1, argv.right))
 
     opr = Operator(name=f"anonymous_{id(argv)}",
                    function=function, parameters=params)
-    return Parameter(index=index, type=VariableType.VT_Anonymous_Feature,
+    return Parameter(index=index, type=VariableType(VariableType.VT_Anonymous_Feature),
                      value=opr)
 
 
@@ -310,15 +380,15 @@ def parse_expression(expression: str) -> Operator:
 
     module = ast.parse(expression)
     # 做一些必要的检查
-    assert(isinstance(module, ast.Module))
-    assert(isinstance(module.body, list) and len(module.body) == 1)
+    assert (isinstance(module, ast.Module))
+    assert (isinstance(module.body, list) and len(module.body) == 1)
     assign_expr = module.body[0]
-    assert(isinstance(assign_expr, ast.Assign))
+    assert (isinstance(assign_expr, ast.Assign))
     assign_children = list(ast.iter_child_nodes(assign_expr))
-    assert(isinstance(assign_children, list) and len(assign_children) == 2)
+    assert (isinstance(assign_children, list) and len(assign_children) == 2)
 
     # 获得左边变量的名字
-    assert(isinstance(assign_children[0], ast.Name))
+    assert (isinstance(assign_children[0], ast.Name))
     feature_name = assign_children[0].id
 
     # 处理右边函数表达式
@@ -331,7 +401,7 @@ def parse_expression(expression: str) -> Operator:
         my_opr = tmp.value
     else:
         raise TypeError(f"not support type:{type(assign_children[1])}")
-    assert(isinstance(tmp.value, Operator))
+    assert (isinstance(tmp.value, Operator))
     my_opr.name = feature_name
     return my_opr
 
@@ -341,7 +411,7 @@ def parse_expressions(expressions: List[str]):
     # 遍历所有的opr
     def walk(my_opr: Operator, opr_list: list):
         for p in my_opr.parameters:
-            if p.type == VariableType.VT_Anonymous_Feature:
+            if p.type.type == VariableType.VT_Anonymous_Feature:
                 walk(p.value, opr_list)
         opr_list.append(my_opr)
     oprs = []
@@ -364,7 +434,7 @@ def parse_expressions(expressions: List[str]):
             opr.name = f"anonymous_{anonymous_index}"
             anonymous_index += 1
         opr_list.append(opr)
-
+    print(opr_list)
     return opr_list
 
 
@@ -377,23 +447,23 @@ class Parser:
 
         def python_type_to_variable_type(t: type):
             if t == float:
-                return VariableType.VT_Float
+                return VariableType(VariableType.VT_Float)
             elif t == int:
-                return VariableType.VT_Int
+                return VariableType(VariableType.VT_Int)
             elif t == str:
-                return VariableType.VT_String
+                return VariableType(VariableType.VT_String)
             elif t == List[float]:
-                return VariableType.VT_FloatList
+                return VariableType(VariableType.VT_FloatList)
             elif t == List[int]:
-                return VariableType.VT_IntList
+                return VariableType(VariableType.VT_IntList)
             elif t == List[str]:
-                return VariableType.VT_StringList
+                return VariableType(VariableType.VT_StringList)
             raise TypeError(f"not support type:{t}")
 
         function_def_module = sys.__dict__['modules'][name]
         for k, v in function_def_module.__dict__.items():
             if isinstance(v, types.FunctionType):
-                assert(v.__name__ == k and "return" in v.__annotations__)
+                assert (v.__name__ == k and "return" in v.__annotations__)
 
                 tmp = {"return": python_type_to_variable_type(
                     v.__annotations__["return"]), "argvs": []}
@@ -415,23 +485,36 @@ class Parser:
         configs = {}
 
         for op in ops:
-            config = {'name': op.name, 'func': op.function, 'params': []}
+            print(op)
+            config = {'name': op.name, 'params': []}
             for p in op.parameters:
-                param = {'type': p.type.value, 'index': p.index}
-                if p.type == VariableType.VT_Anonymous_Feature:
+                param = {'type': p.type.type, 'index': p.index}
+                if p.type.type == VariableType.VT_Anonymous_Feature:
                     if p.value.name not in configs:
                         raise ValueError(f"{p.value.name} unkown")
-                    param['value'] = p.value.name
+                    param['data'] = p.value.name
                 else:
-                    param['value'] = p.value
-                    if p.type == VariableType.VT_Selected_Feature:
+                    param['data'] = p.value
+                    if p.type.type == VariableType.VT_Selected_Feature:
                         if p.value not in configs:
-                            p.type = VariableType.VT_Origin_Feature
-                            param['type'] = p.type.value
+                            p.type.type = VariableType.VT_Origin_Feature
+                            param['type'] = p.type.type
                 config['params'].append(param)
+            op.update()
+            config['func_type'] = op.func_type.value
+            config['func'] = op.function
+            if len(config['params']) == 0:
+                del config['params']
+            if op.name.startswith("anonymous_"):
+                config['type'] = VariableType.VT_Anonymous_Feature
+            else:
+                config['type'] = VariableType.VT_Selected_Feature
             configs[op.name] = config
             print(op)
-        return configs
+        ret = []
+        for _, conf in configs.items():
+            ret.append(conf)
+        return ret
 
 
 if __name__ == "__main__":
@@ -445,11 +528,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
+    # 加载function_def
+    Parser.load_function_definitions("function_def")
     if args.function is not None:
         # 动态引入文件
         dir_path, base_name = os.path.dirname(
             args.function), os.path.basename(args.function)
-        assert(base_name.endswith('.py'))
+        assert (base_name.endswith('.py'))
         name = base_name[:-3]
         sys.path.append(dir_path)
         exec(f"import {name}")
@@ -464,4 +549,4 @@ if __name__ == "__main__":
     configs = Parser.do(expressions)
 
     # 写入配置文件
-    toml.dump(configs, open(args.output, 'w'))
+    toml.dump({"operators": configs}, open(args.output, 'w'))

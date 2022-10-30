@@ -13,9 +13,9 @@ SET(LUBAN_INCLUDE include/MurmurHash3.h include/feature.pb.h
 include/cpptoml.h include/helper.h  include/feature_builtin_operators.hpp
 include/feature_helper.hpp include/feature_operator_handler.hpp
 include/feature_operator_runtime.hpp include/feature_operator_toolkit.hpp
-include/utils.h)
+include/utils.h include/base64.h)
 
-SET(LUBAN_SOURCE  src/MurmurHash3.cc src/feature.pb.cc)
+SET(LUBAN_SOURCE  src/MurmurHash3.cc src/base64.cpp  src/feature.pb.cc)
 
 #SET(TOOLKIT_INCLUDE include/MurmurHash3.h include/feature.pb.h 
 #include/common.h include/cpptoml.h include/helper.h 
@@ -41,7 +41,7 @@ add_executable(optoolkit_test ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/test_operator
 
 #add_executable(test_metric ${METRIC_INCLUDE} ${METRIC_SOURCE} src/test_metric.cpp)
 
-target_link_libraries(optoolkit_test protobuf)
+target_link_libraries(optoolkit_test protobuf pthread)
 #target_link_libraries(luban_tool protobuf)
 #target_link_libraries(toolkit protobuf)
 #target_link_libraries(toolkit_test protobuf)
