@@ -334,22 +334,22 @@ class FloatVector(object):
 # Register FloatVector in _pyluban:
 _pyluban.FloatVector_swigregister(FloatVector)
 
-class PyEntity(object):
+class PyEntityArray(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
     def __init__(self):
-        _pyluban.PyEntity_swiginit(self, _pyluban.new_PyEntity())
-    __swig_destroy__ = _pyluban.delete_PyEntity
+        _pyluban.PyEntityArray_swiginit(self, _pyluban.new_PyEntityArray())
+    __swig_destroy__ = _pyluban.delete_PyEntityArray
 
     def size(self) -> "int":
-        return _pyluban.PyEntity_size(self)
+        return _pyluban.PyEntityArray_size(self)
 
     def get(self, index: "int") -> "Entity *":
-        return _pyluban.PyEntity_get(self, index)
+        return _pyluban.PyEntityArray_get(self, index)
 
-# Register PyEntity in _pyluban:
-_pyluban.PyEntity_swigregister(PyEntity)
+# Register PyEntityArray in _pyluban:
+_pyluban.PyEntityArray_swigregister(PyEntityArray)
 
 class PyToolKit(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -359,14 +359,11 @@ class PyToolKit(object):
         _pyluban.PyToolKit_swiginit(self, _pyluban.new_PyToolKit(config_file))
     __swig_destroy__ = _pyluban.delete_PyToolKit
 
-    def single_process(self, features: "char *", entity: "PyEntity") -> "void":
-        return _pyluban.PyToolKit_single_process(self, features, entity)
-
-    def cross_process(self, features: "char *", entity: "PyEntity") -> "void":
-        return _pyluban.PyToolKit_cross_process(self, features, entity)
-
-    def process(self, features: "char *", entity: "PyEntity") -> "void":
+    def process(self, features: "char *", entity: "PyEntityArray") -> "void":
         return _pyluban.PyToolKit_process(self, features, entity)
+
+    def process_file(self, input_file: "std::string", output_file: "std::string") -> "void":
+        return _pyluban.PyToolKit_process_file(self, input_file, output_file)
 
 # Register PyToolKit in _pyluban:
 _pyluban.PyToolKit_swigregister(PyToolKit)

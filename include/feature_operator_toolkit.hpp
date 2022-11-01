@@ -23,33 +23,34 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "feature_builtin_operators.hpp"
 #include "feature_operator_handler.hpp"
-#include <unordered_map>
 //定义各类函数的类型
-#define SingleMapFunction                                                      \
-  std::function<SharedFeaturePtr(const SharedFeaturePtr &feature,              \
-                                 std::vector<RunTimeParameter> &)>
-#define SingleAggFunction                                                      \
-  std::function<SharedFeaturePtr(const SharedFeaturePtr &feature,              \
-                                 std::vector<RunTimeParameter> &)>
-#define HadamardMapFunction                                                    \
-  std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA,             \
-                                 const SharedFeaturePtr &featureB,             \
-                                 std::vector<RunTimeParameter> &)>
-#define HadamardAggFunction                                                    \
-  std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA,             \
-                                 const SharedFeaturePtr &featureB,             \
-                                 std::vector<RunTimeParameter> &)>
+#define SingleMapFunction                                         \
+  std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, \
+                                 const SharedArgumentsPtr &)>
+#define SingleAggFunction                                         \
+  std::function<SharedFeaturePtr(const SharedFeaturePtr &feature, \
+                                 const SharedArgumentsPtr &)>
+#define HadamardMapFunction                                        \
+  std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA, \
+                                 const SharedFeaturePtr &featureB, \
+                                 const SharedArgumentsPtr &)>
+#define HadamardAggFunction                                        \
+  std::function<SharedFeaturePtr(const SharedFeaturePtr &featureA, \
+                                 const SharedFeaturePtr &featureB, \
+                                 const SharedArgumentsPtr &)>
 
 class FeatureOperatorToolkit {
-private:
+ private:
   std::unordered_map<std::string, SingleMapFunction> unary_map_oprs_;
   std::unordered_map<std::string, SingleAggFunction> unary_agg_oprs_;
-  std::unordered_map<std::string, HadamardMapFunction> hadamard_map_oprs_;
-  std::unordered_map<std::string, HadamardAggFunction> hadamard_agg_oprs_;
+  std::unordered_map<std::string, HadamardMapFunction> binary_map_oprs_;
+  std::unordered_map<std::string, HadamardAggFunction> binary_agg_oprs_;
 
-private:
+ private:
   //获得特征
   SharedFeaturePtr get(ConfigureParameter &p, RunTimeFeatures &features) {
     auto &data = p.get_data();
@@ -62,20 +63,18 @@ private:
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
     VariableType type = o.get_type();
-    std::cout << 111111 << std::endl;
     //处理常用的内置函数
     if ("timestamp" == func) {
       SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
       auto tmp = timestamp();
       add_value<int64_t>(feature, tmp);
-      features.add_value(type, name, feature);
+      features.insert(type, name, feature);
       return;
     } else if ("date" == func) {
       SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
       auto tmp = date();
-      std::cout << tmp << std::endl;
       add_value<std::string>(feature, tmp);
-      features.add_value(type, name, feature);
+      features.insert(type, name, feature);
       return;
     }
   }
@@ -96,14 +95,10 @@ private:
     }
     std::cout << feature->DebugString() << std::endl;
 
-    //生成参数
-    std::vector<RunTimeParameter> parameters;
-    for (size_t i = 1; i < cfg_params->size(); i++) {
-      parameters.push_back({cfg_params->at(i)});
-    }
-    auto tmp = iter->second(feature, parameters);
+    auto tmp = iter->second(feature, o.get_arguments());
+
     if (tmp != nullptr) {
-      features.add_value(type, name, tmp);
+      features.insert(type, name, tmp);
     }
   }
 
@@ -121,50 +116,21 @@ private:
     if (feature == nullptr) {
       return;
     }
-    //生成参数
-    std::vector<RunTimeParameter> parameters;
-    for (size_t i = 1; i < cfg_params->size(); i++) {
-      parameters.push_back({cfg_params->at(i)});
-    }
-    auto tmp = iter->second(feature, parameters);
+
+    auto tmp = iter->second(feature, o.get_arguments());
+
     if (tmp != nullptr) {
-      features.add_value(type, name, tmp);
+      features.insert(type, name, tmp);
     }
   }
 
-  void call_hadamard_map_func(ConfigureOperator &o, RunTimeFeatures &features) {
+  void call_binary_map_func(ConfigureOperator &o, RunTimeFeatures &features) {
     auto &cfg_params = o.get_parameters();
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
     VariableType type = o.get_type();
-    auto iter = this->hadamard_map_oprs_.find(func);
-    if (iter == this->hadamard_map_oprs_.end()) {
-      return;
-    }
-    //获得特征
-    SharedFeaturePtr feature_1 = this->get(cfg_params->at(0), features);
-    SharedFeaturePtr feature_2 = this->get(cfg_params->at(1), features);
-    if (feature_1 == nullptr || feature_2 == nullptr) {
-      return;
-    }
-    //生成参数
-    std::vector<RunTimeParameter> parameters;
-    for (size_t i = 2; i < cfg_params->size(); i++) {
-      parameters.push_back({cfg_params->at(i)});
-    }
-    auto tmp = iter->second(feature_1, feature_2, parameters);
-    if (tmp != nullptr) {
-      features.add_value(type, name, tmp);
-    }
-  }
-
-  void call_hadamard_agg_func(ConfigureOperator &o, RunTimeFeatures &features) {
-    auto &cfg_params = o.get_parameters();
-    const std::string &func = o.get_function();
-    const std::string &name = o.get_name();
-    VariableType type = o.get_type();
-    auto iter = this->hadamard_agg_oprs_.find(func);
-    if (iter == this->hadamard_agg_oprs_.end()) {
+    auto iter = this->binary_map_oprs_.find(func);
+    if (iter == this->binary_map_oprs_.end()) {
       return;
     }
     //获得特征
@@ -174,47 +140,66 @@ private:
       return;
     }
 
-    //生成参数
-    std::vector<RunTimeParameter> parameters;
-    for (size_t i = 2; i < cfg_params->size(); i++) {
-      parameters.push_back({cfg_params->at(i)});
-    }
-    auto tmp = iter->second(feature_1, feature_2, parameters);
+    auto tmp = iter->second(feature_1, feature_2, o.get_arguments());
+
     if (tmp != nullptr) {
-      features.add_value(type, name, tmp);
+      features.insert(type, name, tmp);
     }
   }
 
-public:
+  void call_binary_agg_func(ConfigureOperator &o, RunTimeFeatures &features) {
+    auto &cfg_params = o.get_parameters();
+    const std::string &func = o.get_function();
+    const std::string &name = o.get_name();
+    VariableType type = o.get_type();
+    auto iter = this->binary_agg_oprs_.find(func);
+    if (iter == this->binary_agg_oprs_.end()) {
+      return;
+    }
+    //获得特征
+    SharedFeaturePtr feature_1 = this->get(cfg_params->at(0), features);
+    SharedFeaturePtr feature_2 = this->get(cfg_params->at(1), features);
+    if (feature_1 == nullptr || feature_2 == nullptr) {
+      return;
+    }
+
+    auto tmp = iter->second(feature_1, feature_2, o.get_arguments());
+
+    if (tmp != nullptr) {
+      features.insert(type, name, tmp);
+    }
+  }
+
+ public:
   FeatureOperatorToolkit() {
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _add_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _add);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _add);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _add);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _sub_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _sub);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _sub);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _sub);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mul_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mul);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mul);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _mul);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _div_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _div);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _div);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _div);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _pow_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _pow);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _pow);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _pow);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mod_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _mod);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, _mod);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, _mod);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, concat_0_1);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, concat);
-    add_hadamard_map_func_to_global_oprs(this->hadamard_map_oprs_, concat);
-    add_hadamard_agg_func_to_global_oprs(this->hadamard_agg_oprs_, c_concat);
+    add_binary_map_func_to_global_oprs(this->binary_map_oprs_, concat);
+    add_binary_agg_func_to_global_oprs(this->binary_agg_oprs_, c_concat);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _floor);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _ceil);
@@ -228,32 +213,34 @@ public:
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, box_cox);
 
     add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, normalize);
-    add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, topk);
+    add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, topki);
+    add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, topkf);
+    add_unary_agg_func_to_global_oprs(this->unary_agg_oprs_, topks);
   }
 
   ~FeatureOperatorToolkit() {}
   void call(ConfigureOperator &o, RunTimeFeatures &features) {
     std::cout << o.get_function_type() << std::endl;
     switch (o.get_function_type()) {
-    case FunctionType::FT_Unary_Mapper_Func:
-      this->call_unary_map_func(o, features);
-      return;
-    case FunctionType::FT_Unary_Aggregate_Func:
-      this->call_unary_agg_func(o, features);
-      return;
-    case FunctionType::FT_Hadamard_Mapper_Func:
-      this->call_hadamard_map_func(o, features);
-      return;
-    case FunctionType::FT_Hadamard_Aggregate_Func:
-      this->call_hadamard_agg_func(o, features);
-      return;
-    case FunctionType::FT_RealTime_Func:
-      this->call_realtime_func(o, features);
-      return;
-    default:
-      return;
+      case FunctionType::FT_Unary_Mapper_Func:
+        this->call_unary_map_func(o, features);
+        return;
+      case FunctionType::FT_Unary_Aggregate_Func:
+        this->call_unary_agg_func(o, features);
+        return;
+      case FunctionType::FT_binary_Mapper_Func:
+        this->call_binary_map_func(o, features);
+        return;
+      case FunctionType::FT_binary_Aggregate_Func:
+        this->call_binary_agg_func(o, features);
+        return;
+      case FunctionType::FT_RealTime_Func:
+        this->call_realtime_func(o, features);
+        return;
+      default:
+        return;
     }
   }
 };
 
-#endif // LUBAN_FEATURE_OPREATOR_TOOLKIT_HPP
+#endif  // LUBAN_FEATURE_OPREATOR_TOOLKIT_HPP

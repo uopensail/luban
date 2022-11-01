@@ -28,30 +28,30 @@
 
 //函数参数的辅助类
 class FunctionParameterHelper {
-private:
-  std::vector<RunTimeParameter> &params_;
+ private:
+  const SharedArgumentsPtr &params_;
   int index_;
 
-public:
+ public:
   FunctionParameterHelper() = delete;
-  FunctionParameterHelper(std::vector<RunTimeParameter> &params)
+  FunctionParameterHelper(const SharedArgumentsPtr &params)
       : params_(params), index_(0) {}
   ~FunctionParameterHelper() {}
-  void *get() { return (void *)this->params_[this->index_++].get(); }
+  void *get() { return (void *)(*this->params_)[this->index_++].get(); }
 };
 
 //调用map算子函数
 template <typename T, typename U>
 static SharedFeaturePtr unary_map_call(const SharedFeaturePtr &feature,
                                        T (*func)(U &),
-                                       std::vector<RunTimeParameter> &params) {
+                                       const SharedArgumentsPtr &params) {
   return unary_map_func<T, U>(feature, func);
 }
 
 template <typename T, typename U, typename... ArgsType>
 static SharedFeaturePtr unary_map_call(const SharedFeaturePtr &feature,
                                        T (*func)(U &, ArgsType &...),
-                                       std::vector<RunTimeParameter> &params) {
+                                       const SharedArgumentsPtr &params) {
   FunctionParameterHelper fp(params);
 
   auto myfunc = [&](U &u) -> T { return func(u, *(ArgsType *)fp.get()...); };
@@ -62,10 +62,9 @@ static SharedFeaturePtr unary_map_call(const SharedFeaturePtr &feature,
 
 //调用agg算子函数
 template <typename T, typename U>
-static SharedFeaturePtr
-unary_agg_call(const SharedFeaturePtr &feature,
-               std::vector<T> *(*func)(std::vector<U> &),
-               std::vector<RunTimeParameter> &params) {
+static SharedFeaturePtr unary_agg_call(
+    const SharedFeaturePtr &feature, std::vector<T> *(*func)(std::vector<U> &),
+    const SharedArgumentsPtr &params) {
   return unary_agg_func<T, U>(feature, func);
 }
 
@@ -73,7 +72,7 @@ template <typename T, typename U, typename... ArgsType>
 static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature,
                                        std::vector<T> *(*func)(std::vector<U> &,
                                                                ArgsType &...),
-                                       std::vector<RunTimeParameter> &params) {
+                                       const SharedArgumentsPtr &params) {
   FunctionParameterHelper fp(params);
   auto myfunc = [&](std::vector<U> &u) -> std::vector<T> * {
     return func(u, *(ArgsType *)fp.get()...);
@@ -82,44 +81,20 @@ static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature,
   return unary_agg_func<T, U>(feature, myfunc);
 }
 
-//调用cross算子函数
-// template <typename T, typename U, typename W>
-// static SharedFeaturePtr
-// cartesian_cross_call(const SharedFeaturePtr &featureA,
-//                      const SharedFeaturePtr &featureB, T (*func)(U &, W &),
-//                      std::vector<RunTimeParameter> &params) {
-//   return cartesian_cross_func<T, U, W>(featureA, featureB, func);
-// }
-
-// template <typename T, typename U, typename W, typename... ArgsType>
-// static SharedFeaturePtr cartesian_cross_call(
-//     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
-//     T (*func)(U &, W &, ArgsType &...), std::vector<RunTimeParameter>
-//     &params) {
-//   FunctionParameterHelper fp(params);
-//   // use lamdba, then compile knows how to optimize
-//   auto myfunc = [&](U &u, W &w) -> T {
-//     return func(u, w, *(ArgsType *)fp.get()...);
-//   };
-//   //   auto myfunc = std::bind(func, std::placeholders::_1,
-//   //   std::placeholders::_2,
-//   //                           *(ArgsType *)fp.get()...);
-//   return cartesian_cross_func<T, U, W>(featureA, featureB, myfunc);
-// }
-
-//调用hadamard_map算子函数
+//调用binary_map算子函数
 template <typename T, typename U, typename W>
-static SharedFeaturePtr
-hadamard_map_call(const SharedFeaturePtr &featureA,
-                  const SharedFeaturePtr &featureB, T (*func)(U &, W &),
-                  std::vector<RunTimeParameter> &params) {
-  return hadamard_map_func<T, U, W>(featureA, featureB, func);
+static SharedFeaturePtr binary_map_call(const SharedFeaturePtr &featureA,
+                                        const SharedFeaturePtr &featureB,
+                                        T (*func)(U &, W &),
+                                        const SharedArgumentsPtr &params) {
+  return binary_map_func<T, U, W>(featureA, featureB, func);
 }
 
 template <typename T, typename U, typename W, typename... ArgsType>
-static SharedFeaturePtr hadamard_map_call(
-    const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
-    T (*func)(U &, W &, ArgsType &...), std::vector<RunTimeParameter> &params) {
+static SharedFeaturePtr binary_map_call(const SharedFeaturePtr &featureA,
+                                        const SharedFeaturePtr &featureB,
+                                        T (*func)(U &, W &, ArgsType &...),
+                                        const SharedArgumentsPtr &params) {
   FunctionParameterHelper fp(params);
   auto myfunc = [&](U &u, W &w) -> T {
     return func(u, w, *(ArgsType *)fp.get()...);
@@ -128,45 +103,42 @@ static SharedFeaturePtr hadamard_map_call(
   //   auto myfunc = std::bind(func, std::placeholders::_1,
   //   std::placeholders::_2,
   //                           *(ArgsType *)fp.get()...);
-  return hadamard_map_func<T, U, W>(featureA, featureB, myfunc);
+  return binary_map_func<T, U, W>(featureA, featureB, myfunc);
 }
 
-//调用hadamard_map算子函数
+//调用binary_map算子函数
 template <typename T, typename U, typename W>
-static SharedFeaturePtr
-hadamard_agg_call(const SharedFeaturePtr &featureA,
-                  const SharedFeaturePtr &featureB,
-                  std::vector<T> *(*func)(std::vector<U> &, std::vector<W> &),
-                  std::vector<RunTimeParameter> &params) {
-  return hadamard_agg_func<T, U, W>(featureA, featureB, func);
+static SharedFeaturePtr binary_agg_call(
+    const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
+    std::vector<T> *(*func)(std::vector<U> &, std::vector<W> &),
+    const SharedArgumentsPtr &params) {
+  return binary_agg_func<T, U, W>(featureA, featureB, func);
 }
 
 template <typename T, typename U, typename W, typename... ArgsType>
-static SharedFeaturePtr hadamard_agg_call(
+static SharedFeaturePtr binary_agg_call(
     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
     std::vector<T> *(*func)(std::vector<U> &, std::vector<W> &, ArgsType...),
-    std::vector<RunTimeParameter> &params) {
+    const SharedArgumentsPtr &params) {
   FunctionParameterHelper fp(params);
   auto myfunc = [&](std::vector<U> &u, std::vector<W> &w) -> std::vector<T> * {
     return func(u, w, *(ArgsType *)fp.get()...);
   };
 
-  return hadamard_map_func<T, U, W>(featureA, featureB, myfunc);
+  return binary_map_func<T, U, W>(featureA, featureB, myfunc);
 }
 
 //函数外面做一下封装, 为了统一放在map中个进行管理
-#define unary_map_function_wrapper(x)                                          \
-  static SharedFeaturePtr unary_map_function_wrapper_##x(                      \
-      const SharedFeaturePtr &feature,                                         \
-      std::vector<RunTimeParameter> &params) {                                 \
-    return unary_map_call(feature, x, params);                                 \
+#define unary_map_function_wrapper(x)                                      \
+  static SharedFeaturePtr unary_map_function_wrapper_##x(                  \
+      const SharedFeaturePtr &feature, const SharedArgumentsPtr &params) { \
+    return unary_map_call(feature, x, params);                             \
   }
 
-#define unary_agg_function_wrapper(x)                                          \
-  static SharedFeaturePtr unary_agg_function_wrapper_##x(                      \
-      const SharedFeaturePtr &feature,                                         \
-      std::vector<RunTimeParameter> &params) {                                 \
-    return unary_agg_call(feature, x, params);                                 \
+#define unary_agg_function_wrapper(x)                                      \
+  static SharedFeaturePtr unary_agg_function_wrapper_##x(                  \
+      const SharedFeaturePtr &feature, const SharedArgumentsPtr &params) { \
+    return unary_agg_call(feature, x, params);                             \
   }
 
 // #define cartesian_cross_function_wrapper(x)                                    \
@@ -176,31 +148,31 @@ static SharedFeaturePtr hadamard_agg_call(
 //     return cartesian_cross_call(featureA, featureB, x, params);                \
 //   }
 
-#define hadamard_map_function_wrapper(x)                                       \
-  static SharedFeaturePtr hadamard_map_function_wrapper_##x(                   \
-      const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,      \
-      std::vector<RunTimeParameter> &params) {                                 \
-    return hadamard_map_call(featureA, featureB, x, params);                   \
+#define binary_map_function_wrapper(x)                                    \
+  static SharedFeaturePtr binary_map_function_wrapper_##x(                \
+      const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, \
+      const SharedArgumentsPtr &params) {                                 \
+    return binary_map_call(featureA, featureB, x, params);                \
   }
 
-#define hadamard_agg_function_wrapper(x)                                       \
-  static SharedFeaturePtr hadamard_agg_function_wrapper_##x(                   \
-      const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,      \
-      std::vector<RunTimeParameter> &params) {                                 \
-    return hadamard_agg_call(featureA, featureB, x, params);                   \
+#define binary_agg_function_wrapper(x)                                    \
+  static SharedFeaturePtr binary_agg_function_wrapper_##x(                \
+      const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB, \
+      const SharedArgumentsPtr &params) {                                 \
+    return binary_agg_call(featureA, featureB, x, params);                \
   }
 
 //把封装的函数添加到全局map中
-#define add_unary_map_func_to_global_oprs(global_oprs, x)                      \
+#define add_unary_map_func_to_global_oprs(global_oprs, x) \
   { global_oprs[#x] = unary_map_function_wrapper_##x; }
 
-#define add_unary_agg_func_to_global_oprs(global_oprs, x)                      \
+#define add_unary_agg_func_to_global_oprs(global_oprs, x) \
   { global_oprs[#x] = unary_agg_function_wrapper_##x; }
 // #define add_cartesian_cross_func_to_global_oprs(global_oprs, x)                \
 //   { global_oprs[#x] = cartesian_cross_function_wrapper_##x; }
-#define add_hadamard_map_func_to_global_oprs(global_oprs, x)                   \
-  { global_oprs[#x] = hadamard_map_function_wrapper_##x; }
+#define add_binary_map_func_to_global_oprs(global_oprs, x) \
+  { global_oprs[#x] = binary_map_function_wrapper_##x; }
 
-#define add_hadamard_agg_func_to_global_oprs(global_oprs, x)                   \
-  { global_oprs[#x] = hadamard_agg_function_wrapper_##x; }
-#endif // LUBAN_FEATURE_OPERATOR_HANDLER_HPP
+#define add_binary_agg_func_to_global_oprs(global_oprs, x) \
+  { global_oprs[#x] = binary_agg_function_wrapper_##x; }
+#endif  // LUBAN_FEATURE_OPERATOR_HANDLER_HPP

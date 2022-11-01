@@ -23,22 +23,25 @@
 
 #pragma once
 
-// feature.pb.h中的一些扩展的函数
-#include "helper.h"
+// some help functions for feature.pb.h
 #include <functional>
 
-//判断类型
-#define is_int(T)                                                              \
-  (std::is_same<T, long long>::value || std::is_same<T, int>::value ||         \
+#include "helper.h"
+
+// if is int/float/string type
+#define is_int(T)                                                      \
+  (std::is_same<T, long long>::value || std::is_same<T, int>::value || \
    std::is_same<T, long>::value || std::is_same<T, unsigned long long>::value)
-#define is_float(T)                                                            \
+#define is_float(T) \
   (std::is_same<T, float>::value || std::is_same<T, double>::value)
 #define is_str(T) (std::is_same<T, std::string>::value)
 
-//空的析构函数
+#define is_simple_type(T) (is_int(T) || is_float(T) || is_str(T))
+
+// release a pointer and do nothing
 static void delete_do_nothing(void *) {}
 
-//通过key来查找某个feature
+// get a feature by key
 static SharedFeaturePtr get_feature_by_key(const SharedFeaturesPtr &features,
                                            const std::string &key) {
   auto &feas_map = features->feature();
@@ -47,29 +50,35 @@ static SharedFeaturePtr get_feature_by_key(const SharedFeaturesPtr &features,
     return nullptr;
   }
 
-  //上层的features交给shared ptr托管, 所以具体特征就不设置析构函数
+  // iter->second do not need to release
   return SharedFeaturePtr{(tensorflow::Feature *)(&(iter->second)),
                           delete_do_nothing};
 }
 
-//将特征转化为数组
+// fetch the data and tranform to array
 template <typename T>
 static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
   if constexpr (is_int(T)) {
     assert(feature->has_int64_list());
+    ret.clear();
+    ret.reserve(feature->int64_list().value_size());
     for (int i = 0; i < feature->int64_list().value_size(); i++) {
       ret.push_back(static_cast<T>(feature->int64_list().value(i)));
     }
     return;
   } else if constexpr (is_float(T)) {
     assert(feature->has_int64_list() || feature->has_float_list());
-    //这里兼容, 会把整型转为浮点型
+    // int64_t type can cast as float
     if (feature->has_int64_list()) {
+      ret.clear();
+      ret.reserve(feature->int64_list().value_size());
       for (int i = 0; i < feature->int64_list().value_size(); i++) {
         ret.push_back(static_cast<T>(feature->int64_list().value(i)));
       }
       return;
     } else if (feature->has_float_list()) {
+      ret.clear();
+      ret.reserve(feature->float_list().value_size());
       for (int i = 0; i < feature->float_list().value_size(); i++) {
         ret.push_back(static_cast<T>(feature->float_list().value(i)));
       }
@@ -77,6 +86,8 @@ static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
     }
   } else if constexpr (is_str(T)) {
     assert(feature->has_bytes_list());
+    ret.clear();
+    ret.reserve(feature->bytes_list().value_size());
     for (int i = 0; i < feature->bytes_list().value_size(); i++) {
       ret.push_back(feature->bytes_list().value(i));
     }
@@ -85,13 +96,14 @@ static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
   throw std::runtime_error("feature value error");
 }
 
-//将特征转化为标量, 取list中的第一个值
-template <typename T> static T to_scalar(const SharedFeaturePtr &feature) {
+// get the first data for list
+template <typename T>
+static T to_scalar(const SharedFeaturePtr &feature) {
   if constexpr (is_int(T)) {
     assert(feature->has_int64_list());
     return static_cast<T>(feature->int64_list().value(0));
   } else if constexpr (is_float(T)) {
-    //这里兼容, 会把整型转为浮点型
+    // int64_t can cast as float
     assert(feature->has_int64_list() || feature->has_float_list());
     if (feature->has_int64_list()) {
       return static_cast<T>(feature->int64_list().value(0));
@@ -105,7 +117,7 @@ template <typename T> static T to_scalar(const SharedFeaturePtr &feature) {
   throw std::runtime_error("feature value error");
 }
 
-//特征添加值
+// add value to feature
 template <typename T>
 static void add_value(const SharedFeaturePtr &feature, const T &v) {
   if constexpr (is_int(T)) {
@@ -123,11 +135,10 @@ static void add_value(const SharedFeaturePtr &feature, const T &v) {
 
 //处理feature, agg处理
 template <typename U, typename V>
-static SharedFeaturePtr
-unary_agg_func(const SharedFeaturePtr &feature,
-               std::function<std::vector<U> *(std::vector<V> &)> func) {
-  if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-                (is_int(U) || is_float(U) || is_str(U))) {
+static SharedFeaturePtr unary_agg_func(
+    const SharedFeaturePtr &feature,
+    std::function<std::vector<U> *(std::vector<V> &)> func) {
+  if constexpr (is_simple_type(V) && is_simple_type(U)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> data;
     to_array<V>(feature, data);
@@ -145,8 +156,7 @@ unary_agg_func(const SharedFeaturePtr &feature,
 template <typename U, typename V>
 static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature,
                                        std::function<U(V &)> func) {
-  if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-                (is_int(U) || is_float(U) || is_str(U))) {
+  if constexpr (is_simple_type(V) && is_simple_type(U)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> data;
     to_array<V>(feature, data);
@@ -186,12 +196,10 @@ static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature,
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>
-static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA,
-                                          const SharedFeaturePtr &featureB,
-                                          std::function<U(V &, W &)> func) {
-  if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-                (is_int(W) || is_float(W) || is_str(W)) ||
-                (is_int(U) || is_float(U) || is_str(U))) {
+static SharedFeaturePtr binary_map_func(const SharedFeaturePtr &featureA,
+                                        const SharedFeaturePtr &featureB,
+                                        std::function<U(V &, W &)> func) {
+  if constexpr (is_simple_type(U) && is_simple_type(V) && is_simple_type(W)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> dataA;
     std::vector<V> dataB;
@@ -227,12 +235,10 @@ static SharedFeaturePtr hadamard_map_func(const SharedFeaturePtr &featureA,
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>
-static SharedFeaturePtr hadamard_agg_func(
+static SharedFeaturePtr binary_agg_func(
     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
     std::function<std::vector<U> *(std::vector<V> &, std::vector<W> &)> func) {
-  if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-                (is_int(W) || is_float(W) || is_str(W)) ||
-                (is_int(U) || is_float(U) || is_str(U))) {
+  if constexpr (is_simple_type(U) && is_simple_type(V) && is_simple_type(W)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> dataA;
     std::vector<V> dataB;
@@ -256,4 +262,4 @@ static SharedFeaturePtr hadamard_agg_func(
   return nullptr;
 }
 
-#endif // LUBAN_FEATURE_HELPER_HPP
+#endif  // LUBAN_FEATURE_HELPER_HPP

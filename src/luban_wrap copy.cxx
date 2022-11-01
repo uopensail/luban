@@ -2692,7 +2692,7 @@ SWIGINTERN PyObject *SWIG_PyStaticMethod_New(PyObject *SWIGUNUSEDPARM(self), PyO
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_PyEntityArray swig_types[0]
+#define SWIGTYPE_p_PyEntity swig_types[0]
 #define SWIGTYPE_p_PyToolKit swig_types[1]
 #define SWIGTYPE_p_allocator_type swig_types[2]
 #define SWIGTYPE_p_char swig_types[3]
@@ -9539,33 +9539,33 @@ SWIGINTERN PyObject *FloatVector_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObje
   return SWIG_Python_InitShadowInstance(args);
 }
 
-SWIGINTERN PyObject *_wrap_new_PyEntityArray(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_PyEntity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  PyEntityArray *result = 0 ;
+  PyEntity *result = 0 ;
   
-  if (!SWIG_Python_UnpackTuple(args, "new_PyEntityArray", 0, 0, 0)) SWIG_fail;
-  result = (PyEntityArray *)new PyEntityArray();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PyEntityArray, SWIG_POINTER_NEW |  0 );
+  if (!SWIG_Python_UnpackTuple(args, "new_PyEntity", 0, 0, 0)) SWIG_fail;
+  result = (PyEntity *)new PyEntity();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PyEntity, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_delete_PyEntityArray(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_delete_PyEntity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  PyEntityArray *arg1 = (PyEntityArray *) 0 ;
+  PyEntity *arg1 = (PyEntity *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject *swig_obj[1] ;
   
   if (!args) SWIG_fail;
   swig_obj[0] = args;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntityArray, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntity, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_PyEntityArray" "', argument " "1"" of type '" "PyEntityArray *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_PyEntity" "', argument " "1"" of type '" "PyEntity *""'"); 
   }
-  arg1 = reinterpret_cast< PyEntityArray * >(argp1);
+  arg1 = reinterpret_cast< PyEntity * >(argp1);
   delete arg1;
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -9574,9 +9574,9 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_PyEntityArray_size(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_PyEntity_size(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  PyEntityArray *arg1 = (PyEntityArray *) 0 ;
+  PyEntity *arg1 = (PyEntity *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject *swig_obj[1] ;
@@ -9584,11 +9584,11 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_size(PyObject *SWIGUNUSEDPARM(self), Py
   
   if (!args) SWIG_fail;
   swig_obj[0] = args;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntityArray, 0 |  0 );
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntity, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyEntityArray_size" "', argument " "1"" of type '" "PyEntityArray *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyEntity_size" "', argument " "1"" of type '" "PyEntity *""'"); 
   }
-  arg1 = reinterpret_cast< PyEntityArray * >(argp1);
+  arg1 = reinterpret_cast< PyEntity * >(argp1);
   result = (int)(arg1)->size();
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
@@ -9597,9 +9597,9 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_PyEntity_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  PyEntityArray *arg1 = (PyEntityArray *) 0 ;
+  PyEntity *arg1 = (PyEntity *) 0 ;
   int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -9608,15 +9608,15 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject *swig_obj[2] ;
   Entity *result = 0 ;
   
-  if (!SWIG_Python_UnpackTuple(args, "PyEntityArray_get", 2, 2, swig_obj)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntityArray, 0 |  0 );
+  if (!SWIG_Python_UnpackTuple(args, "PyEntity_get", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyEntity, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyEntityArray_get" "', argument " "1"" of type '" "PyEntityArray *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyEntity_get" "', argument " "1"" of type '" "PyEntity *""'"); 
   }
-  arg1 = reinterpret_cast< PyEntityArray * >(argp1);
+  arg1 = reinterpret_cast< PyEntity * >(argp1);
   ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "PyEntityArray_get" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "PyEntity_get" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
   result = (Entity *)(arg1)->get(arg2);
@@ -9627,7 +9627,10 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyO
         "gid", "group id of feature"
       },
       {
-        "data", "uint64 list"
+        "type", "eNumerical is 1, eCategorical is 2"
+      },
+      {
+        "data", "float list or int64 list"
       },
       {
         NULL
@@ -9637,7 +9640,7 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyO
       "Entity",
       NULL,
       entity_fields,
-      2
+      3
     };
     static PyTypeObject EntityType = {
       {
@@ -9653,13 +9656,25 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyO
     }
     resultobj = PyStructSequence_New(&EntityType);
     PyObject *gid = PyLong_FromSsize_t(result->gid);
+    PyObject *type = PyLong_FromSsize_t(result->type);
     PyObject *data = PyList_New(result->size);
-    for (size_t j = 0; j < result->size; ++j)
+    if (result->type == EntityType::eNumerical)
     {
-      PyList_SET_ITEM(data, j, PyLong_FromSsize_t(result->data[j]));
+      for (size_t j = 0; j < result->size; ++j)
+      {
+        PyList_SET_ITEM(data, j, PyFloat_FromDouble(result->data[j]));
+      }
+    }
+    else if (result->type == EntityType::eCategorical)
+    {
+      for (size_t j = 0; j < result->size; ++j)
+      {
+        PyList_SET_ITEM(data, j, PyLong_FromSsize_t(result->index[j]));
+      }
     }
     PyStructSequence_SetItem(resultobj, 0, gid);
-    PyStructSequence_SetItem(resultobj, 1, data);
+    PyStructSequence_SetItem(resultobj, 1, type);
+    PyStructSequence_SetItem(resultobj, 2, data);
   }
   return resultobj;
 fail:
@@ -9667,14 +9682,14 @@ fail:
 }
 
 
-SWIGINTERN PyObject *PyEntityArray_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *PyEntity_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_PyEntityArray, SWIG_NewClientData(obj));
+  SWIG_TypeNewClientData(SWIGTYPE_p_PyEntity, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *PyEntityArray_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *PyEntity_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   return SWIG_Python_InitShadowInstance(args);
 }
 
@@ -9725,12 +9740,88 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_PyToolKit_single_process(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyToolKit *arg1 = (PyToolKit *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  PyEntity *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "PyToolKit_single_process", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyToolKit, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyToolKit_single_process" "', argument " "1"" of type '" "PyToolKit *""'"); 
+  }
+  arg1 = reinterpret_cast< PyToolKit * >(argp1);
+  {
+    arg2 = PyString_AsString(swig_obj[1]);
+    arg3 = PyString_Size(swig_obj[1]);
+  }
+  res4 = SWIG_ConvertPtr(swig_obj[2], &argp4, SWIGTYPE_p_PyEntity,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "PyToolKit_single_process" "', argument " "4"" of type '" "PyEntity &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "PyToolKit_single_process" "', argument " "4"" of type '" "PyEntity &""'"); 
+  }
+  arg4 = reinterpret_cast< PyEntity * >(argp4);
+  (arg1)->single_process(arg2,arg3,*arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PyToolKit_cross_process(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyToolKit *arg1 = (PyToolKit *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  PyEntity *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "PyToolKit_cross_process", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyToolKit, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyToolKit_cross_process" "', argument " "1"" of type '" "PyToolKit *""'"); 
+  }
+  arg1 = reinterpret_cast< PyToolKit * >(argp1);
+  {
+    arg2 = PyString_AsString(swig_obj[1]);
+    arg3 = PyString_Size(swig_obj[1]);
+  }
+  res4 = SWIG_ConvertPtr(swig_obj[2], &argp4, SWIGTYPE_p_PyEntity,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "PyToolKit_cross_process" "', argument " "4"" of type '" "PyEntity &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "PyToolKit_cross_process" "', argument " "4"" of type '" "PyEntity &""'"); 
+  }
+  arg4 = reinterpret_cast< PyEntity * >(argp4);
+  (arg1)->cross_process(arg2,arg3,*arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_PyToolKit_process(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   PyToolKit *arg1 = (PyToolKit *) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  PyEntityArray *arg4 = 0 ;
+  PyEntity *arg4 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp4 = 0 ;
@@ -9747,56 +9838,15 @@ SWIGINTERN PyObject *_wrap_PyToolKit_process(PyObject *SWIGUNUSEDPARM(self), PyO
     arg2 = PyString_AsString(swig_obj[1]);
     arg3 = PyString_Size(swig_obj[1]);
   }
-  res4 = SWIG_ConvertPtr(swig_obj[2], &argp4, SWIGTYPE_p_PyEntityArray,  0 );
+  res4 = SWIG_ConvertPtr(swig_obj[2], &argp4, SWIGTYPE_p_PyEntity,  0 );
   if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "PyToolKit_process" "', argument " "4"" of type '" "PyEntityArray &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "PyToolKit_process" "', argument " "4"" of type '" "PyEntity &""'"); 
   }
   if (!argp4) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "PyToolKit_process" "', argument " "4"" of type '" "PyEntityArray &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "PyToolKit_process" "', argument " "4"" of type '" "PyEntity &""'"); 
   }
-  arg4 = reinterpret_cast< PyEntityArray * >(argp4);
+  arg4 = reinterpret_cast< PyEntity * >(argp4);
   (arg1)->process(arg2,arg3,*arg4);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_PyToolKit_process_file(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  PyToolKit *arg1 = (PyToolKit *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject *swig_obj[3] ;
-  
-  if (!SWIG_Python_UnpackTuple(args, "PyToolKit_process_file", 3, 3, swig_obj)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PyToolKit, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PyToolKit_process_file" "', argument " "1"" of type '" "PyToolKit *""'"); 
-  }
-  arg1 = reinterpret_cast< PyToolKit * >(argp1);
-  {
-    std::string *ptr = (std::string *)0;
-    int res = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "PyToolKit_process_file" "', argument " "2"" of type '" "std::string""'"); 
-    }
-    arg2 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  {
-    std::string *ptr = (std::string *)0;
-    int res = SWIG_AsPtr_std_string(swig_obj[2], &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "PyToolKit_process_file" "', argument " "3"" of type '" "std::string""'"); 
-    }
-    arg3 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  (arg1)->process_file(arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -9905,16 +9955,17 @@ static PyMethodDef SwigMethods[] = {
 	 { "delete_FloatVector", _wrap_delete_FloatVector, METH_O, NULL},
 	 { "FloatVector_swigregister", FloatVector_swigregister, METH_O, NULL},
 	 { "FloatVector_swiginit", FloatVector_swiginit, METH_VARARGS, NULL},
-	 { "new_PyEntityArray", _wrap_new_PyEntityArray, METH_NOARGS, NULL},
-	 { "delete_PyEntityArray", _wrap_delete_PyEntityArray, METH_O, NULL},
-	 { "PyEntityArray_size", _wrap_PyEntityArray_size, METH_O, NULL},
-	 { "PyEntityArray_get", _wrap_PyEntityArray_get, METH_VARARGS, NULL},
-	 { "PyEntityArray_swigregister", PyEntityArray_swigregister, METH_O, NULL},
-	 { "PyEntityArray_swiginit", PyEntityArray_swiginit, METH_VARARGS, NULL},
+	 { "new_PyEntity", _wrap_new_PyEntity, METH_NOARGS, NULL},
+	 { "delete_PyEntity", _wrap_delete_PyEntity, METH_O, NULL},
+	 { "PyEntity_size", _wrap_PyEntity_size, METH_O, NULL},
+	 { "PyEntity_get", _wrap_PyEntity_get, METH_VARARGS, NULL},
+	 { "PyEntity_swigregister", PyEntity_swigregister, METH_O, NULL},
+	 { "PyEntity_swiginit", PyEntity_swiginit, METH_VARARGS, NULL},
 	 { "new_PyToolKit", _wrap_new_PyToolKit, METH_O, NULL},
 	 { "delete_PyToolKit", _wrap_delete_PyToolKit, METH_O, NULL},
+	 { "PyToolKit_single_process", _wrap_PyToolKit_single_process, METH_VARARGS, NULL},
+	 { "PyToolKit_cross_process", _wrap_PyToolKit_cross_process, METH_VARARGS, NULL},
 	 { "PyToolKit_process", _wrap_PyToolKit_process, METH_VARARGS, NULL},
-	 { "PyToolKit_process_file", _wrap_PyToolKit_process_file, METH_VARARGS, NULL},
 	 { "PyToolKit_swigregister", PyToolKit_swigregister, METH_O, NULL},
 	 { "PyToolKit_swiginit", PyToolKit_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
@@ -9927,7 +9978,7 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
-static swig_type_info _swigt__p_PyEntityArray = {"_p_PyEntityArray", "PyEntityArray *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_PyEntity = {"_p_PyEntity", "PyEntity *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_PyToolKit = {"_p_PyToolKit", "PyToolKit *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
@@ -9951,7 +10002,7 @@ static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "unsigned
 static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
-  &_swigt__p_PyEntityArray,
+  &_swigt__p_PyEntity,
   &_swigt__p_PyToolKit,
   &_swigt__p_allocator_type,
   &_swigt__p_char,
@@ -9975,7 +10026,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_value_type,
 };
 
-static swig_cast_info _swigc__p_PyEntityArray[] = {  {&_swigt__p_PyEntityArray, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_PyEntity[] = {  {&_swigt__p_PyEntity, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PyToolKit[] = {  {&_swigt__p_PyToolKit, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -9999,7 +10050,7 @@ static swig_cast_info _swigc__p_unsigned_short[] = {  {&_swigt__p_unsigned_short
 static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
-  _swigc__p_PyEntityArray,
+  _swigc__p_PyEntity,
   _swigc__p_PyToolKit,
   _swigc__p_allocator_type,
   _swigc__p_char,

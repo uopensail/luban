@@ -25,11 +25,12 @@
 
 //特征处理算子的配置处理
 
+#include <iostream>
+#include <string>
+
 #include "cpptoml.h"
 #include "feature_helper.hpp"
 #include "helper.h"
-#include <iostream>
-#include <string>
 
 /*
     VT_Int: 字面整型常量
@@ -61,18 +62,18 @@ enum FunctionType {
   FT_RealTime_Func,
   FT_Unary_Mapper_Func,
   FT_Unary_Aggregate_Func,
-  FT_Hadamard_Mapper_Func,
-  FT_Hadamard_Aggregate_Func
+  FT_binary_Mapper_Func,
+  FT_binary_Aggregate_Func
 };
 
 //配置中的参数
 class ConfigureParameter {
-private:
+ private:
   int index_;
   VariableType type_;
   SharedFeaturePtr data_;
 
-public:
+ public:
   ConfigureParameter() = delete;
   ConfigureParameter(int index, VariableType type, const SharedFeaturePtr &data)
       : index_(index), type_(type), data_(data) {}
@@ -90,38 +91,39 @@ public:
     this->data_ = SharedFeaturePtr(new tensorflow::Feature());
 
     switch (this->type_) {
-    case VariableType::VT_Int:
-      this->data_->mutable_int64_list()->add_value(params.get<int64_t>("data"));
-      break;
-    case VariableType::VT_IntList:
-      for (const auto &v : params.get_array<int64_t>("data")) {
-        this->data_->mutable_int64_list()->add_value(v);
-      }
-      break;
-    case VariableType::VT_Float:
-      this->data_->mutable_float_list()->add_value(
-          static_cast<float>(params.get<double>("data")));
-      break;
-    case VariableType::VT_FloatList:
-      for (const auto &v : params.get_array<double>("data")) {
-        this->data_->mutable_float_list()->add_value(static_cast<float>(v));
-      }
-      break;
-    case VariableType::VT_StringList:
-      for (const auto &v : params.get_array<std::string>("data")) {
-        this->data_->mutable_bytes_list()->add_value(v);
-      }
-      break;
+      case VariableType::VT_Int:
+        this->data_->mutable_int64_list()->add_value(
+            params.get<int64_t>("data"));
+        break;
+      case VariableType::VT_IntList:
+        for (const auto &v : params.get_array<int64_t>("data")) {
+          this->data_->mutable_int64_list()->add_value(v);
+        }
+        break;
+      case VariableType::VT_Float:
+        this->data_->mutable_float_list()->add_value(
+            static_cast<float>(params.get<double>("data")));
+        break;
+      case VariableType::VT_FloatList:
+        for (const auto &v : params.get_array<double>("data")) {
+          this->data_->mutable_float_list()->add_value(static_cast<float>(v));
+        }
+        break;
+      case VariableType::VT_StringList:
+        for (const auto &v : params.get_array<std::string>("data")) {
+          this->data_->mutable_bytes_list()->add_value(v);
+        }
+        break;
 
-    case VariableType::VT_String:
-    case VariableType::VT_Origin_Feature:
-    case VariableType::VT_Selected_Feature:
-    case VariableType::VT_Anonymous_Feature:
-      this->data_->mutable_bytes_list()->add_value(
-          params.get<std::string>("data"));
-      break;
-    default:
-      break;
+      case VariableType::VT_String:
+      case VariableType::VT_Origin_Feature:
+      case VariableType::VT_Selected_Feature:
+      case VariableType::VT_Anonymous_Feature:
+        this->data_->mutable_bytes_list()->add_value(
+            params.get<std::string>("data"));
+        break;
+      default:
+        break;
     }
   }
 
@@ -140,20 +142,142 @@ public:
   const SharedFeaturePtr &get_data() { return this->data_; }
 };
 
+//字面参数
+class LiteralArgument {
+ private:
+  VariableType type_;
+  int64_t int_;
+  float float_;
+  std::string str_;
+  std::vector<int64_t> int_list_;
+  std::vector<float> float_list_;
+  std::vector<std::string> str_list_;
+
+ public:
+  LiteralArgument() = delete;
+  ~LiteralArgument() {}
+  LiteralArgument(const LiteralArgument &p) {
+    switch (this->type_) {
+      case VariableType::VT_Int:
+        this->int_ = p.int_;
+        break;
+      case VariableType::VT_Float:
+        this->float_ = p.float_;
+        break;
+      case VariableType::VT_String:
+        this->str_ = p.str_;
+        break;
+      case VariableType::VT_IntList:
+        this->int_list_.assign(p.int_list_.begin(), p.int_list_.end());
+        break;
+      case VariableType::VT_FloatList:
+        this->float_list_.assign(p.float_list_.begin(), p.float_list_.end());
+        break;
+      case VariableType::VT_StringList:
+        this->str_list_.assign(p.str_list_.begin(), p.str_list_.end());
+        break;
+      default:
+        break;
+    }
+  }
+
+  LiteralArgument &operator=(const LiteralArgument &p) {
+    if (this == &p) {
+      return *this;
+    }
+    switch (this->type_) {
+      case VariableType::VT_Int:
+        this->int_ = p.int_;
+        break;
+      case VariableType::VT_Float:
+        this->float_ = p.float_;
+        break;
+      case VariableType::VT_String:
+        this->str_ = p.str_;
+        break;
+      case VariableType::VT_IntList:
+        this->int_list_.assign(p.int_list_.begin(), p.int_list_.end());
+        break;
+      case VariableType::VT_FloatList:
+        this->float_list_.assign(p.float_list_.begin(), p.float_list_.end());
+        break;
+      case VariableType::VT_StringList:
+        this->str_list_.assign(p.str_list_.begin(), p.str_list_.end());
+        break;
+      default:
+        break;
+    }
+    return *this;
+  }
+  LiteralArgument(ConfigureParameter &p) : type_(p.get_type()) {
+    std::string name;
+    const SharedFeaturePtr &data = p.get_data();
+    switch (this->type_) {
+      case VariableType::VT_Int:
+        this->int_ = to_scalar<int64_t>(data);
+        break;
+      case VariableType::VT_Float:
+        this->float_ = to_scalar<float>(data);
+        break;
+      case VariableType::VT_String:
+        this->str_ = to_scalar<std::string>(data);
+        break;
+      case VariableType::VT_IntList:
+        to_array<int64_t>(data, this->int_list_);
+        break;
+      case VariableType::VT_FloatList:
+        to_array<float>(data, this->float_list_);
+        break;
+      case VariableType::VT_StringList:
+        to_array<std::string>(data, this->str_list_);
+        break;
+      default:
+        break;
+    }
+  }
+
+  void *get() {
+    switch (this->type_) {
+      case VariableType::VT_Int:
+        return &this->int_;
+      case VariableType::VT_Float:
+        return &this->float_;
+      case VariableType::VT_String:
+        return &this->str_;
+      case VariableType::VT_IntList:
+        return &this->int_list_;
+      case VariableType::VT_FloatList:
+        return &this->float_list_;
+      case VariableType::VT_StringList:
+        return &this->str_list_;
+      default:
+        return nullptr;
+    }
+  }
+};
+
+#define SharedArgumentsPtr std ::shared_ptr<std::vector<LiteralArgument>>
+#define SharedParametersPtr std::shared_ptr<std::vector<ConfigureParameter>>
+
 //配置中的operator
 class ConfigureOperator {
-private:
+ private:
   VariableType type_;
   FunctionType func_type_;
   std::string name_;
   std::string function_;
-  std::shared_ptr<std::vector<ConfigureParameter>> parameters_;
+  SharedParametersPtr parameters_;
+  SharedArgumentsPtr arguments_;
 
-public:
+ public:
   ConfigureOperator() = delete;
   ConfigureOperator(const ConfigureOperator &o)
-      : type_(o.type_), func_type_(o.func_type_), name_(o.name_),
-        function_(o.function_), parameters_(o.parameters_) {}
+      : type_(o.type_),
+        func_type_(o.func_type_),
+        name_(o.name_),
+        function_(o.function_),
+        parameters_(o.parameters_),
+        arguments_(o.arguments_) {}
   ConfigureOperator &operator=(const ConfigureOperator &o) {
     if (this == &o) {
       return *this;
@@ -163,6 +287,7 @@ public:
     this->parameters_ = o.parameters_;
     this->type_ = o.type_;
     this->func_type_ = o.func_type_;
+    this->arguments_ = o.arguments_;
     return *this;
   }
 
@@ -174,12 +299,32 @@ public:
     this->function_ = params.get<std::string>("func");
     this->type_ = static_cast<VariableType>(params.get<int>("type"));
     this->func_type_ = static_cast<FunctionType>(params.get<int>("func_type"));
-    this->parameters_ = std::shared_ptr<std::vector<ConfigureParameter>>(
-        new std::vector<ConfigureParameter>());
+    this->parameters_ = std::make_shared<std::vector<ConfigureParameter>>();
+    this->arguments_ = std::make_shared<std::vector<LiteralArgument>>();
 
     if (table->contains("params")) {
       for (const auto &t : *table->get_table_array("params")) {
         this->parameters_->push_back(ConfigureParameter{t});
+      }
+      auto get_literal_argv_start_index = [](FunctionType type) -> size_t {
+        switch (type) {
+          case FunctionType::FT_Unary_Mapper_Func:
+          case FunctionType::FT_Unary_Aggregate_Func:
+            return 1;
+          case FunctionType::FT_binary_Mapper_Func:
+          case FunctionType::FT_binary_Aggregate_Func:
+            return 2;
+          case FunctionType::FT_RealTime_Func:
+            return 0;
+          default:
+            return 0;
+        }
+      };
+
+      //这里就把字面值的常量参数生成好
+      size_t index = get_literal_argv_start_index(this->func_type_);
+      for (size_t i = index; i < this->parameters_->size(); i++) {
+        this->arguments_->push_back({(*this->parameters_)[i]});
       }
     }
   }
@@ -188,9 +333,10 @@ public:
   const std::string &get_function() { return this->function_; }
   const VariableType &get_type() { return this->type_; }
   const FunctionType &get_function_type() { return this->func_type_; }
-  const std::shared_ptr<std::vector<ConfigureParameter>> &get_parameters() {
+  const SharedArgumentsPtr &get_arguments() const { return this->arguments_; }
+  const SharedParametersPtr &get_parameters() const {
     return this->parameters_;
   }
 };
 
-#endif // LUBAN_FEATURE_OPREATOR_CONFIGURE_HPP
+#endif  // LUBAN_FEATURE_OPREATOR_CONFIGURE_HPP

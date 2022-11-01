@@ -23,31 +23,33 @@
 
 #pragma once
 
-#include "feature_operator_handler.hpp"
 #include <math.h>
+
 #include <string>
 #include <vector>
+
+#include "feature_operator_handler.hpp"
 
 // add
 static float _add(float &a, float &b) { return a + b; }
 static float _add_0_1(float &a, float &b) { return a + b; }
 unary_map_function_wrapper(_add);
 unary_map_function_wrapper(_add_0_1);
-hadamard_map_function_wrapper(_add);
+binary_map_function_wrapper(_add);
 
 // sub
 static float _sub(float &a, float &b) { return a - b; }
 static float _sub_0_1(float &a, float &b) { return b - a; }
 unary_map_function_wrapper(_sub);
 unary_map_function_wrapper(_sub_0_1);
-hadamard_map_function_wrapper(_sub);
+binary_map_function_wrapper(_sub);
 
 // mul
 static float _mul(float &a, float &b) { return a * b; }
 static float _mul_0_1(float &a, float &b) { return a * b; }
 unary_map_function_wrapper(_mul);
 unary_map_function_wrapper(_mul_0_1);
-hadamard_map_function_wrapper(_mul);
+binary_map_function_wrapper(_mul);
 
 // div
 static float _div(float &a, float &b) {
@@ -60,7 +62,7 @@ static float _div_0_1(float &a, float &b) {
 }
 unary_map_function_wrapper(_div);
 unary_map_function_wrapper(_div_0_1);
-hadamard_map_function_wrapper(_div);
+binary_map_function_wrapper(_div);
 
 // mod
 static int64_t _mod(int64_t &a, int64_t &b) {
@@ -73,14 +75,14 @@ static int64_t _mod_0_1(int64_t &a, int64_t &b) {
 }
 unary_map_function_wrapper(_mod);
 unary_map_function_wrapper(_mod_0_1);
-hadamard_map_function_wrapper(_mod);
+binary_map_function_wrapper(_mod);
 
 // pow
 static float _pow(float &a, float &b) { return powf(a, b); }
 static float _pow_0_1(float &a, float &b) { return powf(b, a); }
 unary_map_function_wrapper(_pow);
 unary_map_function_wrapper(_pow_0_1);
-hadamard_map_function_wrapper(_pow);
+binary_map_function_wrapper(_pow);
 
 static float _floor(float &v) { return floorf(v); }
 unary_map_function_wrapper(_floor);
@@ -116,7 +118,6 @@ static float z_score(float &v, float &mean, float &stdv) {
 unary_map_function_wrapper(z_score);
 
 static int64_t binarize(float &v, float &threshold) {
-
   return v < threshold ? 0.0 : 1.0;
 }
 unary_map_function_wrapper(binarize);
@@ -170,8 +171,8 @@ static std::vector<std::string> *c_concat(std::vector<std::string> &a,
 unary_map_function_wrapper(concat);
 unary_map_function_wrapper(concat_0_1);
 // cartesian_cross_function_wrapper(concat);
-hadamard_map_function_wrapper(concat);
-hadamard_agg_function_wrapper(c_concat);
+binary_map_function_wrapper(concat);
+binary_agg_function_wrapper(c_concat);
 
 static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
   assert(norm >= 1);
@@ -190,8 +191,8 @@ static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
 }
 unary_agg_function_wrapper(normalize);
 
-static std::vector<std::string> *topk(std::vector<std::string> &src,
-                                      size_t &k) {
+static std::vector<std::string> *topks(std::vector<std::string> &src,
+                                       size_t &k) {
   std::vector<std::string> *dst = new std::vector<std::string>();
   dst->reserve(k);
   size_t count = 0;
@@ -203,6 +204,34 @@ static std::vector<std::string> *topk(std::vector<std::string> &src,
   }
   return dst;
 }
-unary_agg_function_wrapper(topk);
+unary_agg_function_wrapper(topks);
 
-#endif // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP
+static std::vector<int64_t> *topki(std::vector<int64_t> &src, size_t &k) {
+  std::vector<int64_t> *dst = new std::vector<int64_t>();
+  dst->reserve(k);
+  size_t count = 0;
+  for (auto &v : src) {
+    if (count < k) {
+      dst->push_back(v);
+      count++;
+    }
+  }
+  return dst;
+}
+unary_agg_function_wrapper(topki);
+
+static std::vector<float> *topkf(std::vector<float> &src, size_t &k) {
+  std::vector<float> *dst = new std::vector<float>();
+  dst->reserve(k);
+  size_t count = 0;
+  for (auto &v : src) {
+    if (count < k) {
+      dst->push_back(v);
+      count++;
+    }
+  }
+  return dst;
+}
+unary_agg_function_wrapper(topkf);
+
+#endif  // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP

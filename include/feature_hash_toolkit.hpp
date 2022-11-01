@@ -21,14 +21,15 @@
 #ifndef LUBAN_FEATURE_HASH_TOOLKIT_HPP
 #define LUBAN_FEATURE_HASH_TOOLKIT_HPP
 
-#include "feature_helper.hpp"
-#include "utils.h"
+#pragma once
 #include <math.h>
+
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#pragma once
+#include "MurmurHash3.h"
+#include "feature_helper.hpp"
 
 #ifdef __APPLE__
 #define u_int64_t __uint64_t
@@ -43,29 +44,32 @@
 #pragma pack(push)
 #pragma pack(1)
 typedef struct Entity {
-  size_t gid;  //特征组id
-  size_t size; //返回结果的长度
+  size_t gid;   // feature group id
+  size_t size;  // length of data
   u_int64_t data[];
 } Entity;
 
 typedef struct EntityArray {
-  size_t size; //返回结果的长度
+  size_t size;  // length of array
   Entity *array[];
 } EntityArray;
 
 #pragma pack(pop)
 
-//新建entity
+// create an entity
 static Entity *new_entity(size_t size, size_t gid) {
-  return (Entity *)malloc(sizeof(Entity) + sizeof(u_int64_t) * size);
+  auto entity = (Entity *)malloc(sizeof(Entity) + sizeof(u_int64_t) * size);
+  entity->gid = gid;
+  entity->size = size;
+  return entity;
 }
 static void del_entity(Entity *entity) {
   if (entity != nullptr) {
     free(entity);
+    entity = nullptr;
   }
 }
 
-//新建entity
 static EntityArray *new_entity_array(size_t size) {
   EntityArray *array =
       (EntityArray *)calloc(1, sizeof(EntityArray) + sizeof(Entity *) * size);
@@ -79,6 +83,7 @@ static void del_entity_array(EntityArray *array) {
       del_entity(array->array[i]);
     }
     free(array);
+    array = nullptr;
   }
 }
 
@@ -102,9 +107,9 @@ static u_int64_t mask_gid(u_int64_t &hash_id, u_int64_t &gid) {
   assert(gid >= 0 && gid < MAX_GID);
   return (gid << (64 - FEATURE_GID_BITS)) + (hash_id & FEAUTRE_HASH_MASK);
 }
-// u_int64_t mmh3(const std::string &&key) {}
+
 class FeatureHashToolkit {
-private:
+ private:
   void hash_float_feature(const tensorflow::Feature &feature, Entity **entity,
                           u_int64_t &gid) {
     assert(feature.has_float_list());
@@ -144,18 +149,18 @@ private:
   void hash_feature(const tensorflow::Feature &feature, Entity **entity,
                     u_int64_t &gid) {
     switch (feature.kind_case()) {
-    case tensorflow::Feature::KindCase::kBytesList:
-      hash_int_feature(feature, entity, gid);
-      return;
-    case tensorflow::Feature::KindCase::kFloatList:
-      hash_float_feature(feature, entity, gid);
-      return;
-    case tensorflow::Feature::KindCase::kInt64List:
-      hash_int_feature(feature, entity, gid);
-      return;
-    default:
-      *entity = nullptr;
-      return;
+      case tensorflow::Feature::KindCase::kBytesList:
+        hash_int_feature(feature, entity, gid);
+        return;
+      case tensorflow::Feature::KindCase::kFloatList:
+        hash_float_feature(feature, entity, gid);
+        return;
+      case tensorflow::Feature::KindCase::kInt64List:
+        hash_int_feature(feature, entity, gid);
+        return;
+      default:
+        *entity = nullptr;
+        return;
     }
   }
 
@@ -167,15 +172,15 @@ private:
     return nullptr;
   }
 
-public:
+ public:
   FeatureHashToolkit(
-      std::unordered_map<std::string, u_int64_t> &feature_gid_map) {
+      const std::unordered_map<std::string, u_int64_t> &feature_gid_map) {
     for (auto &kv : feature_gid_map) {
       feature_gid_map_[kv.first] = kv.second;
     }
   }
   ~FeatureHashToolkit() { feature_gid_map_.clear(); };
-  void hash(SharedFeaturesPtr features, EntityArray **entity_array) {
+  void call(const SharedFeaturesPtr &features, EntityArray **entity_array) {
     *entity_array = new_entity_array(features->feature_size());
     auto &fea_map = features->feature();
     u_int64_t *ptr = nullptr;
@@ -190,7 +195,7 @@ public:
     }
   }
 
-private:
+ private:
   std::unordered_map<std::string, u_int64_t> feature_gid_map_;
 };
 
@@ -209,4 +214,4 @@ static void print_entity(Entity *entity) {
   }
   std::cout << "]" << std::endl;
 }
-#endif // LUBAN_FEATURE_HASH_TOOLKIT_HPP
+#endif  // LUBAN_FEATURE_HASH_TOOLKIT_HPP

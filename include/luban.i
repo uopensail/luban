@@ -27,14 +27,13 @@ namespace std
   static bool isEntityTypeInit = false;
   static PyStructSequence_Field entity_fields[] = {
       {"gid", "group id of feature"},
-      {"type", "eNumerical is 1, eCategorical is 2"},
-      {"data", "float list or int64 list"},
+      {"data", "uint64 list"},
       {NULL}};
   static PyStructSequence_Desc entity__desc = {
       "Entity",
       NULL,
       entity_fields,
-      3};
+      2};
   static PyTypeObject EntityType = {{{0, 0}, 0}, 0, 0, 0};
   if (!isEntityTypeInit)
   {
@@ -43,24 +42,12 @@ namespace std
   }
   $result = PyStructSequence_New(&EntityType);
   PyObject *gid = PyLong_FromSsize_t($1->gid);
-  PyObject *type = PyLong_FromSsize_t($1->type);
   PyObject *data = PyList_New($1->size);
-  if ($1->type == EntityType::eNumerical)
+  for (size_t j = 0; j < $1->size; ++j)
   {
-    for (size_t j = 0; j < $1->size; ++j)
-    {
-      PyList_SET_ITEM(data, j, PyFloat_FromDouble($1->data[j]));
-    }
-  }
-  else if ($1->type == EntityType::eCategorical)
-  {
-    for (size_t j = 0; j < $1->size; ++j)
-    {
-      PyList_SET_ITEM(data, j, PyLong_FromSsize_t($1->index[j]));
-    }
+    PyList_SET_ITEM(data, j, PyLong_FromSsize_t($1->data[j]));
   }
   PyStructSequence_SetItem($result, 0, gid);
-  PyStructSequence_SetItem($result, 1, type);
-  PyStructSequence_SetItem($result, 2, data);
+  PyStructSequence_SetItem($result, 1, data);
 }
 %include "pyluban.h"
