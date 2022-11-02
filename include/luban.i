@@ -17,11 +17,6 @@
 
 %apply (char* IN_ARRAY1, int DIM1) {(char* features, int len)}
 
-namespace std
-{
-  %template(UInt64Vector) std::vector<unsigned long long>;
-  %template(FloatVector) std::vector<float>;
-}
 
 %typemap(out) Entity * {
   static bool isEntityTypeInit = false;

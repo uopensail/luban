@@ -213,6 +213,7 @@ class FeatureOperatorToolkit {
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _ceil);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _log);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, _exp);
+    add_unary_map_func_to_global_oprs(this->unary_map_oprs_, substr);
 
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, min_max);
     add_unary_map_func_to_global_oprs(this->unary_map_oprs_, z_score);

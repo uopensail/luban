@@ -43,12 +43,8 @@ else:
 
 pyluban_module = Extension(
     name="_pyluban",
-    sources=["include/base64.h", "include/cpptoml.h", "include/feature_builtin_operators.hpp",
-             "include/feature_helper.hpp", "include/feature_hash_toolkit.hpp", "include/feature_operator_toolkit.hpp",
-             "include/feature_operator_handler.hpp", "include/feature_operator_runtime.hpp",
-             "include/feature_operator_toolkit.hpp", "include/feature.pb.h", "include/helper.h",
-             "include/MurmurHash3.h", "include/toolkit.hpp", "src/MurmurHash3.cc", "src/base64.cpp",
-             "src/feature.pb.cc", "src/pyluban.cpp", "src/lubab_wrap.cxx"],
+    sources=["src/MurmurHash3.cc", "src/base64.cpp",
+             "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx"],
     include_dirs=["/usr/local/include", "include"],
     library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,

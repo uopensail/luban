@@ -36,9 +36,6 @@ class PyEntityArray {
   int size_;
   friend PyToolKit;
 
- private:
-  void init(int size);
-
  public:
   PyEntityArray();
   ~PyEntityArray();
@@ -48,7 +45,7 @@ class PyEntityArray {
 
 class PyToolKit {
  private:
-  ToolKit *toolkit;
+  Toolkit *toolkit;
 
  public:
   PyToolKit() = delete;

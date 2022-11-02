@@ -20,11 +20,11 @@ def gen_test_record(filename):
     :return:
     """
     data = open(filename, 'r').read()
-    
+
     example = tf.train.Example()
     Parse(data, example)
     record = example.features.SerializeToString()
-    #return base64.b64decode(data)
+    # return base64.b64decode(data)
     return record
 
 
@@ -38,15 +38,13 @@ def test(filename):
     record = gen_test_record(filename)
 
     toolkit = pyluban.PyToolKit(config_file)
-    entity = pyluban.PyEntity()
-    toolkit.process(record, entity)
-    size = entity.size()
-    for j in range(100):
-        for i in range(size):
-            e = entity.get(i)
-            print(e.gid)
-        
-       
+    entity_array = pyluban.PyEntityArray()
+    toolkit.process(record, entity_array)
+    size = entity_array.size()
+    for j in range(size):
+        e = entity_array.get(j)
+        print(e)
 
 
-test("test.txt")
+if __name__ == "__main__":
+    test("test.txt")
