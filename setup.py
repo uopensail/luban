@@ -30,18 +30,21 @@ if is_new_osx():
     # On Mac, use libc++ because Apple deprecated use of
     # libstdc
     COMPILE_OPTIONS.append("-stdlib=libc++")
-    COMPILE_OPTIONS.append("-std=c++11")
+    COMPILE_OPTIONS.append("-std=c++17")
+    COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
     LINK_OPTIONS.append("-nodefaultlibs")
 else:
-    COMPILE_OPTIONS.append("-std=c++11")
+    COMPILE_OPTIONS.append("-std=c++17")
+    COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lprotobuf")
+    LINK_OPTIONS.append("-lpthread")
 
-pylubanmodule = Extension(
+pyluban_module = Extension(
     name="_pyluban",
-    sources=["src/MurmurHash3.cc", "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx",
-             "src/basic_fps.cpp", "src/toolkit.cpp", "src/utils.cpp"],
+    sources=["src/MurmurHash3.cc", "src/base64.cpp",
+             "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx"],
     include_dirs=["/usr/local/include", "include"],
     library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,
@@ -53,13 +56,13 @@ setup(
     version="1.0.0",
     description="Python wrapper for luban.",
     license="License :: GPL 3",
-    author="timepi",
+    author="uopensail",
     author_email="",
     url="",
     packages=find_packages(),
     py_modules=["pyluban"],
-    ext_modules=[pylubanmodule],
-    keywords="utility hash",
+    ext_modules=[pyluban_module],
+    keywords="feature operator and hasher",
     long_description="",
     long_description_content_type="text/markdown",
     classifiers=[

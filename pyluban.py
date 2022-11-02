@@ -10,7 +10,7 @@ if _swig_python_version_info < (2, 7, 0):
 
 # Import the low-level C/C++ module
 if __package__ or "." in __name__:
-    from src import _pyluban
+    from . import _pyluban
 else:
     import _pyluban
 
@@ -69,52 +69,52 @@ class SwigPyIterator(object):
     __repr__ = _swig_repr
     __swig_destroy__ = _pyluban.delete_SwigPyIterator
 
-    def value(self):
+    def value(self) -> "PyObject *":
         return _pyluban.SwigPyIterator_value(self)
 
-    def incr(self, n=1):
+    def incr(self, n: "size_t"=1) -> "swig::SwigPyIterator *":
         return _pyluban.SwigPyIterator_incr(self, n)
 
-    def decr(self, n=1):
+    def decr(self, n: "size_t"=1) -> "swig::SwigPyIterator *":
         return _pyluban.SwigPyIterator_decr(self, n)
 
-    def distance(self, x):
+    def distance(self, x: "SwigPyIterator") -> "ptrdiff_t":
         return _pyluban.SwigPyIterator_distance(self, x)
 
-    def equal(self, x):
+    def equal(self, x: "SwigPyIterator") -> "bool":
         return _pyluban.SwigPyIterator_equal(self, x)
 
-    def copy(self):
+    def copy(self) -> "swig::SwigPyIterator *":
         return _pyluban.SwigPyIterator_copy(self)
 
-    def next(self):
+    def next(self) -> "PyObject *":
         return _pyluban.SwigPyIterator_next(self)
 
-    def __next__(self):
+    def __next__(self) -> "PyObject *":
         return _pyluban.SwigPyIterator___next__(self)
 
-    def previous(self):
+    def previous(self) -> "PyObject *":
         return _pyluban.SwigPyIterator_previous(self)
 
-    def advance(self, n):
+    def advance(self, n: "ptrdiff_t") -> "swig::SwigPyIterator *":
         return _pyluban.SwigPyIterator_advance(self, n)
 
-    def __eq__(self, x):
+    def __eq__(self, x: "SwigPyIterator") -> "bool":
         return _pyluban.SwigPyIterator___eq__(self, x)
 
-    def __ne__(self, x):
+    def __ne__(self, x: "SwigPyIterator") -> "bool":
         return _pyluban.SwigPyIterator___ne__(self, x)
 
-    def __iadd__(self, n):
+    def __iadd__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator &":
         return _pyluban.SwigPyIterator___iadd__(self, n)
 
-    def __isub__(self, n):
+    def __isub__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator &":
         return _pyluban.SwigPyIterator___isub__(self, n)
 
-    def __add__(self, n):
+    def __add__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator *":
         return _pyluban.SwigPyIterator___add__(self, n)
 
-    def __sub__(self, *args):
+    def __sub__(self, *args) -> "ptrdiff_t":
         return _pyluban.SwigPyIterator___sub__(self, *args)
     def __iter__(self):
         return self
@@ -122,128 +122,36 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _pyluban:
 _pyluban.SwigPyIterator_swigregister(SwigPyIterator)
 
-class UInt64Vector(object):
+class PyEntityArray(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
-    def iterator(self):
-        return _pyluban.UInt64Vector_iterator(self)
-    def __iter__(self):
-        return self.iterator()
+    def __init__(self):
+        _pyluban.PyEntityArray_swiginit(self, _pyluban.new_PyEntityArray())
+    __swig_destroy__ = _pyluban.delete_PyEntityArray
 
-    def __nonzero__(self):
-        return _pyluban.UInt64Vector___nonzero__(self)
+    def size(self) -> "int":
+        return _pyluban.PyEntityArray_size(self)
 
-    def __bool__(self):
-        return _pyluban.UInt64Vector___bool__(self)
+    def get(self, index: "int") -> "Entity *":
+        return _pyluban.PyEntityArray_get(self, index)
 
-    def __len__(self):
-        return _pyluban.UInt64Vector___len__(self)
-
-    def __getslice__(self, i, j):
-        return _pyluban.UInt64Vector___getslice__(self, i, j)
-
-    def __setslice__(self, *args):
-        return _pyluban.UInt64Vector___setslice__(self, *args)
-
-    def __delslice__(self, i, j):
-        return _pyluban.UInt64Vector___delslice__(self, i, j)
-
-    def __delitem__(self, *args):
-        return _pyluban.UInt64Vector___delitem__(self, *args)
-
-    def __getitem__(self, *args):
-        return _pyluban.UInt64Vector___getitem__(self, *args)
-
-    def __setitem__(self, *args):
-        return _pyluban.UInt64Vector___setitem__(self, *args)
-
-    def pop(self):
-        return _pyluban.UInt64Vector_pop(self)
-
-    def append(self, x):
-        return _pyluban.UInt64Vector_append(self, x)
-
-    def empty(self):
-        return _pyluban.UInt64Vector_empty(self)
-
-    def size(self):
-        return _pyluban.UInt64Vector_size(self)
-
-    def swap(self, v):
-        return _pyluban.UInt64Vector_swap(self, v)
-
-    def begin(self):
-        return _pyluban.UInt64Vector_begin(self)
-
-    def end(self):
-        return _pyluban.UInt64Vector_end(self)
-
-    def rbegin(self):
-        return _pyluban.UInt64Vector_rbegin(self)
-
-    def rend(self):
-        return _pyluban.UInt64Vector_rend(self)
-
-    def clear(self):
-        return _pyluban.UInt64Vector_clear(self)
-
-    def get_allocator(self):
-        return _pyluban.UInt64Vector_get_allocator(self)
-
-    def pop_back(self):
-        return _pyluban.UInt64Vector_pop_back(self)
-
-    def erase(self, *args):
-        return _pyluban.UInt64Vector_erase(self, *args)
-
-    def __init__(self, *args):
-        _pyluban.UInt64Vector_swiginit(self, _pyluban.new_UInt64Vector(*args))
-
-    def push_back(self, x):
-        return _pyluban.UInt64Vector_push_back(self, x)
-
-    def front(self):
-        return _pyluban.UInt64Vector_front(self)
-
-    def back(self):
-        return _pyluban.UInt64Vector_back(self)
-
-    def assign(self, n, x):
-        return _pyluban.UInt64Vector_assign(self, n, x)
-
-    def resize(self, *args):
-        return _pyluban.UInt64Vector_resize(self, *args)
-
-    def insert(self, *args):
-        return _pyluban.UInt64Vector_insert(self, *args)
-
-    def reserve(self, n):
-        return _pyluban.UInt64Vector_reserve(self, n)
-
-    def capacity(self):
-        return _pyluban.UInt64Vector_capacity(self)
-    __swig_destroy__ = _pyluban.delete_UInt64Vector
-
-# Register UInt64Vector in _pyluban:
-_pyluban.UInt64Vector_swigregister(UInt64Vector)
+# Register PyEntityArray in _pyluban:
+_pyluban.PyEntityArray_swigregister(PyEntityArray)
 
 class PyToolKit(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
-    def __init__(self, config_file):
+    def __init__(self, config_file: "std::string"):
         _pyluban.PyToolKit_swiginit(self, _pyluban.new_PyToolKit(config_file))
     __swig_destroy__ = _pyluban.delete_PyToolKit
 
-    def single_process(self, features):
-        return _pyluban.PyToolKit_single_process(self, features)
+    def process(self, features: "char *", entity: "PyEntityArray") -> "void":
+        return _pyluban.PyToolKit_process(self, features, entity)
 
-    def cross_process(self, features):
-        return _pyluban.PyToolKit_cross_process(self, features)
-
-    def process(self, features):
-        return _pyluban.PyToolKit_process(self, features)
+    def process_file(self, input_file: "std::string", output_file: "std::string") -> "void":
+        return _pyluban.PyToolKit_process_file(self, input_file, output_file)
 
 # Register PyToolKit in _pyluban:
 _pyluban.PyToolKit_swigregister(PyToolKit)

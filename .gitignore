@@ -31,7 +31,6 @@
 *.out
 *.app
 
-
 cmake-build-debug
 .idea
 pyluban.egg-info/
@@ -39,4 +38,7 @@ dist/
 build/
 *.txt
 .vscode
-
+.cache/
+__pycache__/
+*.toml
+*.json

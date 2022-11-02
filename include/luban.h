@@ -1,25 +1,17 @@
-#ifndef LUBAN_LUBAN_H
-#define LUBAN_LUBAN_H
+#ifndef LUBAN_C_H
+#define LUBAN_C_H
 
-#include "feature.pb.h"
-#include <string>
+#ifdef __cplusplus
+extern "C" {
+#endif
+void *luban_toolkit_new(const char *config_file);
+void luban_toolkit_release(void *ptr);
+void luban_entity_array_release(void *ptr);
+void *luban_unary_process(void *ptr, char *feature, int feature_len);
+void *luban_binary_process(void *ptr, char *featureA, int feature_lenA,
+                           char *featureB, int feature_lenB);
+#ifdef __cplusplus
+} /* end extern "C"*/
+#endif
 
-class LuBan
-{
-private:
-    void *toolkit;
-
-public:
-    LuBan(std::string config_file);
-
-    ~LuBan();
-
-    void process(tensorflow::Features &features, std::vector<u_int64_t> &ret);
-
-    void single_process(tensorflow::Features &features, std::vector<u_int64_t> &ret);
-
-    void bicross_process(tensorflow::Features &featuresA,
-                         tensorflow::Features &featuresB, std::vector<u_int64_t> &ret);
-};
-
-#endif // LUBAN_LUBAN_H
+#endif  // LUBAN_LUBAN_C_H
