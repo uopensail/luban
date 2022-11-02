@@ -33,7 +33,7 @@ SET(LUBAN_SOURCE  src/MurmurHash3.cc src/base64.cpp  src/feature.pb.cc)
 add_library(toolkit SHARED ${LUBAN_INCLUDE} ${LUBAN_SOURCE})
 add_library(luban SHARED ${LUBAN_INCLUDE} include/luban.h ${LUBAN_SOURCE} src/luban.cpp)
 
-#add_executable(optoolkit_test ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/test_operator_toolkit.cpp)
+add_executable(optoolkit_test ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/test_operator_toolkit.cpp)
 #add_library(stata SHARED ${STATA_INCLUDE} ${STATA_SOURCE})
 
 #add_executable(luban_tool ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/luban_tool.cpp)
@@ -43,7 +43,7 @@ add_library(luban SHARED ${LUBAN_INCLUDE} include/luban.h ${LUBAN_SOURCE} src/lu
 
 target_link_libraries(toolkit protobuf pthread)
 target_link_libraries(luban protobuf pthread)
-#target_link_libraries(luban_tool protobuf)
+target_link_libraries(optoolkit_test protobuf)
 #target_link_libraries(toolkit protobuf)
 #target_link_libraries(toolkit_test protobuf)
 

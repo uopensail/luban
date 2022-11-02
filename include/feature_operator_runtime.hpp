@@ -31,15 +31,20 @@
 //运行时的特征
 class RunTimeFeatures {
  private:
-  SharedFeaturesPtr selected_;
-  SharedFeaturesPtr anonymous_;
+  std::unordered_map<std::string, SharedFeaturePtr> selected_;
+  std::unordered_map<std::string, SharedFeaturePtr> anonymous_;
   std::unordered_map<std::string, SharedFeaturePtr> origin_;
 
  public:
   RunTimeFeatures() = delete;
-  RunTimeFeatures(const RunTimeFeatures &features)
-      : selected_(features.selected_), anonymous_(features.anonymous_) {
+  RunTimeFeatures(const RunTimeFeatures &features) {
     for (auto &kv : features.origin_) {
+      origin_[kv.first] = kv.second;
+    }
+    for (auto &kv : features.selected_) {
+      origin_[kv.first] = kv.second;
+    }
+    for (auto &kv : features.anonymous_) {
       origin_[kv.first] = kv.second;
     }
   }
@@ -50,27 +55,25 @@ class RunTimeFeatures {
     for (auto &kv : features.origin_) {
       origin_[kv.first] = kv.second;
     }
-    this->selected_ = features.selected_;
-    this->anonymous_ = features.anonymous_;
+    for (auto &kv : features.selected_) {
+      origin_[kv.first] = kv.second;
+    }
+    for (auto &kv : features.anonymous_) {
+      origin_[kv.first] = kv.second;
+    }
     return *this;
   }
   RunTimeFeatures(const SharedFeaturesPtr &features) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     const auto &fea = features->feature();
     for (auto &kv : fea) {
-      origin_[kv.first] = SharedFeaturePtr{
-          (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
     }
   }
 
   RunTimeFeatures(const tensorflow::Features &features) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     const auto &fea = features.feature();
     for (auto &kv : fea) {
-      origin_[kv.first] = SharedFeaturePtr{
-          (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+      origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
     }
   }
 
@@ -79,64 +82,57 @@ class RunTimeFeatures {
     for (auto &it : features_list) {
       const auto &features = it.feature();
       for (auto &kv : features) {
-        origin_[kv.first] = SharedFeaturePtr{
-            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
       }
     }
   }
 
   RunTimeFeatures(
       const std::initializer_list<SharedFeaturesPtr> &features_list) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     for (auto &it : features_list) {
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] = SharedFeaturePtr{
-            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
       }
     }
   }
 
   RunTimeFeatures(const std::vector<SharedFeaturesPtr> &features_list) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     for (auto &it : features_list) {
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] = SharedFeaturePtr{
-            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
       }
     }
   }
 
   RunTimeFeatures(const std::vector<tensorflow::Features> &features_list) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     for (auto &it : features_list) {
       const auto &features = it.feature();
       for (auto &kv : features) {
-        origin_[kv.first] = SharedFeaturePtr{
-            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
       }
     }
   }
 
   RunTimeFeatures(const std::vector<tensorflow::Features *> &features_list) {
-    selected_ = std::make_shared<tensorflow::Features>();
-    anonymous_ = std::make_shared<tensorflow::Features>();
     for (auto &it : features_list) {
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] = SharedFeaturePtr{
-            (tensorflow::Feature *)(&(kv.second)), delete_do_nothing};
+        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
       }
     }
   }
 
-  ~RunTimeFeatures() { this->origin_.clear(); }
+  ~RunTimeFeatures() {
+    this->origin_.clear();
+    this->anonymous_.clear();
+    this->selected_.clear();
+  }
 
-  const SharedFeaturesPtr &get_selected() { return this->selected_; }
+  const std::unordered_map<std::string, SharedFeaturePtr> &get_selected() {
+    return this->selected_;
+  }
 
   //添加一个值
   void insert(VariableType type, const std::string &key,
@@ -145,10 +141,10 @@ class RunTimeFeatures {
            type == VariableType::VT_Selected_Feature);
     switch (type) {
       case VariableType::VT_Anonymous_Feature:
-        (*this->anonymous_->mutable_feature())[key] = *feature;
+        this->anonymous_[key] = feature;
         return;
       case VariableType::VT_Selected_Feature:
-        (*this->selected_->mutable_feature())[key] = *feature;
+        this->selected_[key] = feature;
         return;
       default:
         return;
@@ -161,10 +157,22 @@ class RunTimeFeatures {
            type == VariableType::VT_Selected_Feature ||
            type == VariableType::VT_Origin_Feature);
     switch (type) {
-      case VariableType::VT_Anonymous_Feature:
-        return get_feature_by_key(this->anonymous_, key);
-      case VariableType::VT_Selected_Feature:
-        return get_feature_by_key(this->selected_, key);
+      case VariableType::VT_Anonymous_Feature: {
+        auto iter = this->anonymous_.find(key);
+        if (iter != this->anonymous_.end()) {
+          return iter->second;
+        } else {
+          return nullptr;
+        }
+      }
+      case VariableType::VT_Selected_Feature: {
+        auto iter = this->selected_.find(key);
+        if (iter != this->selected_.end()) {
+          return iter->second;
+        } else {
+          return nullptr;
+        }
+      }
       case VariableType::VT_Origin_Feature: {
         auto iter = this->origin_.find(key);
         if (iter != this->origin_.end()) {

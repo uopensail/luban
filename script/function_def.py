@@ -64,6 +64,10 @@ def timestamp() -> int:
     pass
 
 
+def identity(v: str) -> str:
+    pass
+
+
 def date() -> str:
     pass
 
@@ -104,5 +108,13 @@ def normalize(a: List[float], n: int) -> List[float]:
     pass
 
 
-def topk(a: List[str], k: int) -> List[str]:
+def topks(a: List[str], k: int) -> List[str]:
+    pass
+
+
+def topki(a: List[int], k: int) -> List[int]:
+    pass
+
+
+def topkf(a: List[float], k: int) -> List[float]:
     pass

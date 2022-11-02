@@ -1,7 +1,8 @@
+#include <iostream>
+
 #include "base64.h"
 #include "feature.pb.h"
-#include "feature_operator_toolkit.hpp"
-#include <iostream>
+#include "toolkit.hpp"
 
 int main() {
   std::string data =
@@ -68,21 +69,13 @@ int main() {
   features.ParseFromString(ddata);
   // std::cout << features.DebugString() << std::endl;
 
-  std::shared_ptr<cpptoml::table> g = cpptoml::parse_file("test.toml");
-  auto operators = g->get_table_array("operators");
+  Toolkit toolkit("test.toml");
 
-  std::vector<ConfigureOperator> ops;
-  for (const auto &table : *operators) {
-    ops.push_back({table});
+  EntityArray* array = nullptr;
+  toolkit.process(features, &array);
+  for (int i = 0; i < array->size; i++) {
+    print_entity(array->array[i]);
   }
-
-  FeatureOperatorToolkit toolkit;
-
-  RunTimeFeatures rt_feartures{features};
-  for (auto &op : ops) {
-    toolkit.call(op, rt_feartures);
-  }
-
-  std::cout << rt_feartures.get_selected()->DebugString() << std::endl;
+  del_entity_array(array);
   return 0;
 }

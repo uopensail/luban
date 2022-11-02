@@ -31,7 +31,6 @@
 *.out
 *.app
 
-
 cmake-build-debug
 .idea
 pyluban.egg-info/
@@ -42,5 +41,4 @@ build/
 .cache/
 __pycache__/
 *.toml
-
-
+*.json

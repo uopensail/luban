@@ -59,10 +59,11 @@ class FeatureOperatorToolkit {
     return features.get(type, key);
   }
 
-  void call_realtime_func(ConfigureOperator &o, RunTimeFeatures &features) {
+  void call_simple_func(ConfigureOperator &o, RunTimeFeatures &features) {
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
-    VariableType type = o.get_type();
+    const VariableType &type = o.get_type();
+    auto &cfg_params = o.get_parameters();
     //处理常用的内置函数
     if ("timestamp" == func) {
       SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
@@ -76,6 +77,14 @@ class FeatureOperatorToolkit {
       add_value<std::string>(feature, tmp);
       features.insert(type, name, feature);
       return;
+    } else if ("_identity" == func) {
+      //获得特征
+      SharedFeaturePtr feature = this->get(cfg_params->at(0), features);
+      if (feature == nullptr) {
+        return;
+      }
+      features.insert(type, name, feature);
+      return;
     }
   }
 
@@ -83,7 +92,7 @@ class FeatureOperatorToolkit {
     auto &cfg_params = o.get_parameters();
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
-    VariableType type = o.get_type();
+    const VariableType &type = o.get_type();
     auto iter = this->unary_map_oprs_.find(func);
     if (iter == this->unary_map_oprs_.end()) {
       return;
@@ -93,7 +102,6 @@ class FeatureOperatorToolkit {
     if (feature == nullptr) {
       return;
     }
-    std::cout << feature->DebugString() << std::endl;
 
     auto tmp = iter->second(feature, o.get_arguments());
 
@@ -106,7 +114,7 @@ class FeatureOperatorToolkit {
     auto &cfg_params = o.get_parameters();
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
-    VariableType type = o.get_type();
+    const VariableType &type = o.get_type();
     auto iter = this->unary_agg_oprs_.find(func);
     if (iter == this->unary_agg_oprs_.end()) {
       return;
@@ -128,7 +136,7 @@ class FeatureOperatorToolkit {
     auto &cfg_params = o.get_parameters();
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
-    VariableType type = o.get_type();
+    const VariableType &type = o.get_type();
     auto iter = this->binary_map_oprs_.find(func);
     if (iter == this->binary_map_oprs_.end()) {
       return;
@@ -151,7 +159,7 @@ class FeatureOperatorToolkit {
     auto &cfg_params = o.get_parameters();
     const std::string &func = o.get_function();
     const std::string &name = o.get_name();
-    VariableType type = o.get_type();
+    const VariableType &type = o.get_type();
     auto iter = this->binary_agg_oprs_.find(func);
     if (iter == this->binary_agg_oprs_.end()) {
       return;
@@ -220,7 +228,6 @@ class FeatureOperatorToolkit {
 
   ~FeatureOperatorToolkit() {}
   void call(ConfigureOperator &o, RunTimeFeatures &features) {
-    std::cout << o.get_function_type() << std::endl;
     switch (o.get_function_type()) {
       case FunctionType::FT_Unary_Mapper_Func:
         this->call_unary_map_func(o, features);
@@ -228,14 +235,14 @@ class FeatureOperatorToolkit {
       case FunctionType::FT_Unary_Aggregate_Func:
         this->call_unary_agg_func(o, features);
         return;
-      case FunctionType::FT_binary_Mapper_Func:
+      case FunctionType::FT_Binary_Mapper_Func:
         this->call_binary_map_func(o, features);
         return;
-      case FunctionType::FT_binary_Aggregate_Func:
+      case FunctionType::FT_Binary_Aggregate_Func:
         this->call_binary_agg_func(o, features);
         return;
-      case FunctionType::FT_RealTime_Func:
-        this->call_realtime_func(o, features);
+      case FunctionType::FT_Simple_Func:
+        this->call_simple_func(o, features);
         return;
       default:
         return;

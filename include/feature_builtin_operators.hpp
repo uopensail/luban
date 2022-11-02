@@ -158,8 +158,9 @@ static std::string concat_0_1(std::string &a, std::string &b) {
 
 static std::vector<std::string> *c_concat(std::vector<std::string> &a,
                                           std::vector<std::string> &b) {
-  std::vector<std::string> *dst = new std::vector<std::string>();
-  dst->reserve(a.size() * b.size());
+  std::vector<std::string> *dst =
+      new std::vector<std::string>(a.size() * b.size());
+
   for (size_t i = 0; i < a.size(); i++) {
     for (size_t j = 0; j < b.size(); j++) {
       dst->push_back(a[i] + b[j]);

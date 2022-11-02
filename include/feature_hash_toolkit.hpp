@@ -110,47 +110,47 @@ static u_int64_t mask_gid(u_int64_t &hash_id, u_int64_t &gid) {
 
 class FeatureHashToolkit {
  private:
-  void hash_float_feature(const tensorflow::Feature &feature, Entity **entity,
+  void hash_float_feature(const SharedFeaturePtr &feature, Entity **entity,
                           u_int64_t &gid) {
-    assert(feature.has_float_list());
+    assert(feature->has_float_list());
     u_int64_t v;
-    *entity = new_entity(feature.float_list().value_size(), gid);
+    *entity = new_entity(feature->float_list().value_size(), gid);
 
-    for (int i = 0; i < feature.float_list().value_size(); i++) {
+    for (int i = 0; i < feature->float_list().value_size(); i++) {
       v = mmh3(std::to_string(
-          static_cast<int64_t>(floorf(feature.float_list().value(i)))));
+          static_cast<int64_t>(floorf(feature->float_list().value(i)))));
       (*entity)->data[i] = mask_gid(v, gid);
     }
   }
 
-  void hash_string_feature(const tensorflow::Feature &feature, Entity **entity,
+  void hash_string_feature(const SharedFeaturePtr &feature, Entity **entity,
                            u_int64_t &gid) {
-    assert(feature.has_bytes_list());
+    assert(feature->has_bytes_list());
     u_int64_t v;
-    *entity = new_entity(feature.bytes_list().value_size(), gid);
+    *entity = new_entity(feature->bytes_list().value_size(), gid);
 
-    for (int i = 0; i < feature.bytes_list().value_size(); i++) {
-      v = mmh3(feature.bytes_list().value(i));
+    for (int i = 0; i < feature->bytes_list().value_size(); i++) {
+      v = mmh3(feature->bytes_list().value(i));
       (*entity)->data[i] = mask_gid(v, gid);
     }
   }
 
-  void hash_int_feature(const tensorflow::Feature &feature, Entity **entity,
+  void hash_int_feature(const SharedFeaturePtr &feature, Entity **entity,
                         u_int64_t &gid) {
-    assert(feature.has_int64_list());
+    assert(feature->has_int64_list());
     u_int64_t v;
-    *entity = new_entity(feature.int64_list().value_size(), gid);
-    for (int i = 0; i < feature.int64_list().value_size(); i++) {
-      v = mmh3(std::to_string(feature.int64_list().value(i)));
+    *entity = new_entity(feature->int64_list().value_size(), gid);
+    for (int i = 0; i < feature->int64_list().value_size(); i++) {
+      v = mmh3(std::to_string(feature->int64_list().value(i)));
       (*entity)->data[i] = mask_gid(v, gid);
     }
   }
 
-  void hash_feature(const tensorflow::Feature &feature, Entity **entity,
+  void hash_feature(const SharedFeaturePtr &feature, Entity **entity,
                     u_int64_t &gid) {
-    switch (feature.kind_case()) {
+    switch (feature->kind_case()) {
       case tensorflow::Feature::KindCase::kBytesList:
-        hash_int_feature(feature, entity, gid);
+        hash_string_feature(feature, entity, gid);
         return;
       case tensorflow::Feature::KindCase::kFloatList:
         hash_float_feature(feature, entity, gid);
@@ -180,12 +180,12 @@ class FeatureHashToolkit {
     }
   }
   ~FeatureHashToolkit() { feature_gid_map_.clear(); };
-  void call(const SharedFeaturesPtr &features, EntityArray **entity_array) {
-    *entity_array = new_entity_array(features->feature_size());
-    auto &fea_map = features->feature();
+  void call(const std::unordered_map<std::string, SharedFeaturePtr> &features,
+            EntityArray **entity_array) {
+    *entity_array = new_entity_array(features.size());
     u_int64_t *ptr = nullptr;
     int index = 0;
-    for (auto &kv : fea_map) {
+    for (const auto &kv : features) {
       ptr = this->get_gid(kv.first);
       if (ptr == nullptr) {
         (*entity_array)->array[index] = nullptr;

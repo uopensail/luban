@@ -59,11 +59,11 @@ enum VariableType {
 //函数的类型
 enum FunctionType {
   FT_Not_Defined = 0,
-  FT_RealTime_Func,
+  FT_Simple_Func,
   FT_Unary_Mapper_Func,
   FT_Unary_Aggregate_Func,
-  FT_binary_Mapper_Func,
-  FT_binary_Aggregate_Func
+  FT_Binary_Mapper_Func,
+  FT_Binary_Aggregate_Func
 };
 
 //配置中的参数
@@ -88,7 +88,7 @@ class ConfigureParameter {
     ParamsHelper params(table);
     this->index_ = params.get<int>("index");
     this->type_ = static_cast<VariableType>(params.get<int>("type"));
-    this->data_ = SharedFeaturePtr(new tensorflow::Feature());
+    this->data_ = std::make_shared<tensorflow::Feature>();
 
     switch (this->type_) {
       case VariableType::VT_Int:
@@ -115,7 +115,7 @@ class ConfigureParameter {
         }
         break;
 
-      case VariableType::VT_String:
+      case VariableType::VT_String:;
       case VariableType::VT_Origin_Feature:
       case VariableType::VT_Selected_Feature:
       case VariableType::VT_Anonymous_Feature:
@@ -157,7 +157,8 @@ class LiteralArgument {
   LiteralArgument() = delete;
   ~LiteralArgument() {}
   LiteralArgument(const LiteralArgument &p) {
-    switch (this->type_) {
+    this->type_ = p.type_;
+    switch (p.type_) {
       case VariableType::VT_Int:
         this->int_ = p.int_;
         break;
@@ -185,6 +186,7 @@ class LiteralArgument {
     if (this == &p) {
       return *this;
     }
+    this->type_ = p.type_;
     switch (this->type_) {
       case VariableType::VT_Int:
         this->int_ = p.int_;
@@ -210,7 +212,6 @@ class LiteralArgument {
     return *this;
   }
   LiteralArgument(ConfigureParameter &p) : type_(p.get_type()) {
-    std::string name;
     const SharedFeaturePtr &data = p.get_data();
     switch (this->type_) {
       case VariableType::VT_Int:
@@ -311,13 +312,11 @@ class ConfigureOperator {
           case FunctionType::FT_Unary_Mapper_Func:
           case FunctionType::FT_Unary_Aggregate_Func:
             return 1;
-          case FunctionType::FT_binary_Mapper_Func:
-          case FunctionType::FT_binary_Aggregate_Func:
+          case FunctionType::FT_Binary_Mapper_Func:
+          case FunctionType::FT_Binary_Aggregate_Func:
             return 2;
-          case FunctionType::FT_RealTime_Func:
-            return 0;
           default:
-            return 0;
+            return ULONG_MAX;
         }
       };
 

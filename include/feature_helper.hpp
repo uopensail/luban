@@ -38,23 +38,6 @@
 
 #define is_simple_type(T) (is_int(T) || is_float(T) || is_str(T))
 
-// release a pointer and do nothing
-static void delete_do_nothing(void *) {}
-
-// get a feature by key
-static SharedFeaturePtr get_feature_by_key(const SharedFeaturesPtr &features,
-                                           const std::string &key) {
-  auto &feas_map = features->feature();
-  auto iter = feas_map.find(key);
-  if (iter == feas_map.end()) {
-    return nullptr;
-  }
-
-  // iter->second do not need to release
-  return SharedFeaturePtr{(tensorflow::Feature *)(&(iter->second)),
-                          delete_do_nothing};
-}
-
 // fetch the data and tranform to array
 template <typename T>
 static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
@@ -168,31 +151,6 @@ static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature,
   }
   return nullptr;
 }
-
-//处理feature, 笛卡尔积的处理
-// template <typename U, typename V, typename W>
-// static SharedFeaturePtr cartesian_cross_func(
-//     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
-//     std::function<std::vector<U> *(std::vector<V> &, std::vector<W> &)> func)
-//     {
-//   if constexpr ((is_int(V) || is_float(V) || is_str(V)) ||
-//                 (is_int(W) || is_float(W) || is_str(W)) ||
-//                 (is_int(U) || is_float(U) || is_str(U))) {
-//     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
-//     std::vector<V> dataA;
-//     std::vector<V> dataB;
-//     to_array<V>(featureA, dataA);
-//     to_array<W>(featureB, dataB);
-//     for (size_t i = 0; i < dataA.size(); i++) {
-//       for (size_t j = 0; j < dataB.size(); j++) {
-//         auto tmp = func(dataA[i], dataB[j]);
-//         add_value<U>(ret, tmp);
-//       }
-//     }
-//     return ret;
-//   }
-//   return nullptr;
-// }
 
 //处理feature, 相同形状的值进行处理
 template <typename U, typename V, typename W>

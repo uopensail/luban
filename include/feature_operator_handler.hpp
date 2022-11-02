@@ -52,9 +52,10 @@ template <typename T, typename U, typename... ArgsType>
 static SharedFeaturePtr unary_map_call(const SharedFeaturePtr &feature,
                                        T (*func)(U &, ArgsType &...),
                                        const SharedArgumentsPtr &params) {
-  FunctionParameterHelper fp(params);
-
-  auto myfunc = [&](U &u) -> T { return func(u, *(ArgsType *)fp.get()...); };
+  auto myfunc = [&](U &u) -> T {
+    FunctionParameterHelper fp(params);
+    return func(u, *(ArgsType *)fp.get()...);
+  };
   // auto myfunc =std::bind(func, std::placeholders::_1, *(ArgsType
   // *)fp.get()...);
   return unary_map_func<T, U>(feature, myfunc);
@@ -73,8 +74,8 @@ static SharedFeaturePtr unary_agg_call(const SharedFeaturePtr &feature,
                                        std::vector<T> *(*func)(std::vector<U> &,
                                                                ArgsType &...),
                                        const SharedArgumentsPtr &params) {
-  FunctionParameterHelper fp(params);
   auto myfunc = [&](std::vector<U> &u) -> std::vector<T> * {
+    FunctionParameterHelper fp(params);
     return func(u, *(ArgsType *)fp.get()...);
   };
 
@@ -95,8 +96,8 @@ static SharedFeaturePtr binary_map_call(const SharedFeaturePtr &featureA,
                                         const SharedFeaturePtr &featureB,
                                         T (*func)(U &, W &, ArgsType &...),
                                         const SharedArgumentsPtr &params) {
-  FunctionParameterHelper fp(params);
   auto myfunc = [&](U &u, W &w) -> T {
+    FunctionParameterHelper fp(params);
     return func(u, w, *(ArgsType *)fp.get()...);
   };
 
@@ -120,8 +121,8 @@ static SharedFeaturePtr binary_agg_call(
     const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
     std::vector<T> *(*func)(std::vector<U> &, std::vector<W> &, ArgsType...),
     const SharedArgumentsPtr &params) {
-  FunctionParameterHelper fp(params);
   auto myfunc = [&](std::vector<U> &u, std::vector<W> &w) -> std::vector<T> * {
+    FunctionParameterHelper fp(params);
     return func(u, w, *(ArgsType *)fp.get()...);
   };
 
