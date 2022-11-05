@@ -71,8 +71,7 @@ int main() {
 
   Toolkit toolkit("test.toml");
 
-  EntityArray* array = nullptr;
-  toolkit.process(features, &array);
+  EntityArray* array = toolkit.process(features);
   for (int i = 0; i < array->size; i++) {
     print_entity(array->array[i]);
   }

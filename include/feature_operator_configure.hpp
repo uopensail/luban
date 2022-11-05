@@ -292,7 +292,8 @@ class ConfigureOperator {
 
   ConfigureOperator(const std::shared_ptr<cpptoml::table> &table) {
     assert(table->contains("name") && table->contains("func") &&
-           table->contains("type") && table->contains("func_type"));
+           table->contains("type") && table->contains("func_type") &&
+           table->contains("input_type"));
     ParamsHelper params(table);
     this->name_ = params.get<std::string>("name");
     this->function_ = params.get<std::string>("func");

@@ -35,12 +35,15 @@ class Toolkit {
   std::unordered_map<std::string, u_int64_t> feature_gid_map_;
 
  private:
-  void process_from_realtime_features(RunTimeFeatures &realtime_features,
-                                      EntityArray **entity_array) {
+  EntityArray *process_from_realtime_features(
+      RunTimeFeatures &realtime_features) {
     for (const auto &o : operator_configs_) {
       this->operator_->call(o, realtime_features);
     }
-    this->hasher_->call(realtime_features.get_selected(), entity_array);
+    for (auto &it : realtime_features.get_selected()) {
+      std::cout << it.first << " " << it.second->DebugString() << std::endl;
+    }
+    return this->hasher_->call(realtime_features.get_selected());
   }
 
  public:
@@ -55,7 +58,7 @@ class Toolkit {
     for (const auto &table : *operators) {
       operator_configs_.push_back({table});
     }
-    //
+
     auto groups = g->get_table_array("groups");
     for (auto &table : *groups) {
       assert(table->contains("name") && table->contains("gid"));
@@ -67,41 +70,39 @@ class Toolkit {
     this->operator_ = std::make_shared<FeatureOperatorToolkit>();
   }
 
-  void process(char *features, int len, EntityArray **entity_array) {
+  EntityArray *process(char *features, int len) {
     SharedFeaturesPtr tf_features = std::make_shared<tensorflow::Features>();
     tf_features->ParseFromArray(features, len);
     RunTimeFeatures rt_features(tf_features);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
-  void process(const tensorflow::Features &features,
-               EntityArray **entity_array) {
+  EntityArray *process(const tensorflow::Features &features) {
     RunTimeFeatures rt_features(features);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
-  void process(const SharedFeaturesPtr &features, EntityArray **entity_array) {
+  EntityArray *process(const SharedFeaturesPtr &features) {
     RunTimeFeatures rt_features(features);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
-  void process(const std::initializer_list<SharedFeaturesPtr> &features_list,
-               EntityArray **entity_array) {
+  EntityArray *process(
+      const std::initializer_list<SharedFeaturesPtr> &features_list) {
     RunTimeFeatures rt_features(features_list);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
-  void process(const std::initializer_list<tensorflow::Features> &features_list,
-               EntityArray **entity_array) {
+  EntityArray *process(
+      const std::initializer_list<tensorflow::Features> &features_list) {
     RunTimeFeatures rt_features(features_list);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
-  void process(
-      const std::initializer_list<tensorflow::Features *> &features_list,
-      EntityArray **entity_array) {
+  EntityArray *process(
+      const std::initializer_list<tensorflow::Features *> &features_list) {
     RunTimeFeatures rt_features(features_list);
-    this->process_from_realtime_features(rt_features, entity_array);
+    return this->process_from_realtime_features(rt_features);
   }
 
   ~Toolkit() {}

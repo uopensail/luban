@@ -17,9 +17,7 @@ void *luban_unary_process(void *ptr, char *feature, int feature_len) {
     return nullptr;
   }
   Toolkit *toolkit = (Toolkit *)ptr;
-  EntityArray *array = nullptr;
-  toolkit->process(feature, feature_len, &array);
-  return array;
+  return toolkit->process(feature, feature_len);
 }
 
 void *luban_binary_process(void *ptr, char *featureA, int feature_lenA,
@@ -29,15 +27,13 @@ void *luban_binary_process(void *ptr, char *featureA, int feature_lenA,
     return nullptr;
   }
   Toolkit *toolkit = (Toolkit *)ptr;
-  EntityArray *array = nullptr;
   SharedFeaturesPtr featuresA = std::make_shared<tensorflow::Features>();
   featuresA->ParseFromArray(featureA, feature_lenA);
 
   SharedFeaturesPtr featuresB = std::make_shared<tensorflow::Features>();
   featuresA->ParseFromArray(featureB, feature_lenB);
 
-  toolkit->process({featuresA, featuresB}, &array);
-  return array;
+  return toolkit->process({featuresA, featuresB});
 }
 
 void luban_entity_array_release(void *ptr) {

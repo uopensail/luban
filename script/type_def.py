@@ -87,10 +87,8 @@ class FunctionType(enum.IntEnum):
 
     FT_Not_Defined = 0
     FT_Simple_Func = 1
-    FT_Unary_Mapper_Func = 2
-    FT_Unary_Aggregate_Func = 3
-    FT_Binary_Mapper_Func = 4
-    FT_Binary_Aggregate_Func = 5
+    FT_Unary_Func = 2
+    FT_Binary_Func = 3
 
 
 class Parameter:
@@ -126,33 +124,42 @@ def python_type_to_variable_type(t: type) -> VariableType:
     raise TypeError(f"not support type:{t}")
 
 
-class FunctionCenter:
-    FunctionDefintionDict = {}
+class FunctionInputType(enum.IntEnum):
+    """函数的输入类型."""
 
-    @staticmethod
-    def load_function_definitions(path: str):
-        """加载函数定义."""
-        dir_path, base_name = os.path.dirname(path), os.path.basename(path)
-        assert (base_name.endswith('.py'))
-        name = base_name[:-3]
-        sys.path.append(dir_path)
-        exec(f"import {name}")
-
-        function_def_module = sys.__dict__['modules'][name]
-        for k, func_value in function_def_module.__dict__.items():
-            if isinstance(func_value, types.FunctionType):
-                assert (func_value.__name__ ==
-                        k and "return" in func_value.__annotations__)
-
-                tmp = {"return": python_type_to_variable_type(
-                    func_value.__annotations__["return"]), "argvs": []}
-
-                sig = inspect.signature(func_value)
-                if len(sig.parameters) != len(func_value.__annotations__)-1:
-                    raise RuntimeError(
-                        f'params must be annotated: {func_value.__annotations__}')
-
-                for name in sig.parameters:
-                    tmp['argvs'].append(
-                        python_type_to_variable_type(func_value.__annotations__[name]))
-                FunctionCenter.FunctionDefintionDict[k] = tmp
+    FI_Not_Defined = 0
+    FI_Unary_S_1_L_1_Type = 1
+    FI_Unary_S_2_L_1_Type = 2
+    FI_Unary_S_2_L_2_Type = 3
+    FI_Unary_S_3_L_1_Type = 4
+    FI_Unary_S_3_L_2_Type = 5
+    FI_Unary_S_3_L_3_Type = 6
+    FI_Unary_S_4_L_1_Type = 7
+    FI_Unary_S_4_L_2_Type = 8
+    FI_Unary_S_4_L_3_Type = 9
+    FI_Unary_S_4_L_4_Type = 10
+    FI_Unary_S_5_L_1_Type = 11
+    FI_Unary_S_5_L_2_Type = 12
+    FI_Unary_S_5_L_3_Type = 13
+    FI_Unary_S_5_L_4_Type = 14
+    FI_Unary_S_5_L_5_Type = 15
+    FI_Binary_S_2_L_1_2_Type = 16
+    FI_Binary_S_3_L_1_2_Type = 17
+    FI_Binary_S_3_L_1_3_Type = 18
+    FI_Binary_S_3_L_2_3_Type = 19
+    FI_Binary_S_4_L_1_2_Type = 20
+    FI_Binary_S_4_L_1_3_Type = 21
+    FI_Binary_S_4_L_1_4_Type = 22
+    FI_Binary_S_4_L_2_3_Type = 23
+    FI_Binary_S_4_L_2_4_Type = 24
+    FI_Binary_S_4_L_3_4_Type = 25
+    FI_Binary_S_5_L_1_2_Type = 26
+    FI_Binary_S_5_L_1_3_Type = 27
+    FI_Binary_S_5_L_1_4_Type = 28
+    FI_Binary_S_5_L_1_5_Type = 29
+    FI_Binary_S_5_L_2_3_Type = 30
+    FI_Binary_S_5_L_2_4_Type = 31
+    FI_Binary_S_5_L_2_5_Type = 32
+    FI_Binary_S_5_L_3_4_Type = 33
+    FI_Binary_S_5_L_3_5_Type = 34
+    FI_Binary_S_5_L_4_5_Type = 35

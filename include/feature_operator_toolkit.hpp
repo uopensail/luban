@@ -60,7 +60,6 @@ class FeatureOperatorToolkit {
       return;
     } else if ("_identity" == func) {
       //获得特征
-
       SharedFeaturePtr feature = features.get(cfg_params->at(0));
       if (feature == nullptr) {
         return;
@@ -83,6 +82,7 @@ class FeatureOperatorToolkit {
 
     if (tmp != nullptr) {
       features.insert(type, name, tmp);
+      std::cout << tmp->DebugString() << std::endl;
     }
   }
 
@@ -122,6 +122,7 @@ class FeatureOperatorToolkit {
     add_unary_func_to_global_oprs(this->unary_oprs_, _mod);
     add_binary_func_to_global_oprs(this->binary_oprs_, _mod);
 
+    std::cout << "func addr: " << &concat << std::endl;
     add_unary_func_to_global_oprs(this->unary_oprs_, concat);
     add_binary_func_to_global_oprs(this->binary_oprs_, concat);
 

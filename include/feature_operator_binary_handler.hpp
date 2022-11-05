@@ -36,192 +36,240 @@ std::function<T0(T1 &, T2 &)> binary_call_2_1_2(
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T1 &, T2 &)> binary_call_3_1_2(
     T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
-    return func(t1, t2, *(T3 *)params->at(2).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
+  //   return std::bind(func, t1, t2, *(T3 *)params->at(2).get());
+  // };
+  return std::bind(func, std::placeholders::_1, std::placeholders::_2,
+                   *(T3 *)params->at(2).get());
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T1 &, T3 &)> binary_call_3_1_3(
     T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), t3);
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    std::placeholders::_2);
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T2 &, T3 &)> binary_call_3_2_3(
     T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, t3);
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T2 &)> binary_call_4_1_2(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
-    return func(t1, t2, *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
+  //                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
+  // };
+  return std::bind(func, std::placeholders::_1, std::placeholders::_2,
+                   *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T3 &)> binary_call_4_1_3(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), t3, *(T4 *)params->at(3).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    std::placeholders::_2, *(T4 *)params->at(3).get());
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T4 &)> binary_call_4_1_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T4 &t4) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), *(T3 *)params->at(2).get(), t4);
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T4 &t4) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    *(T3 *)params->at(2).get(), std::placeholders::_2);
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T2 &, T3 &)> binary_call_4_2_3(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, t3, *(T4 *)params->at(3).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    std::placeholders::_2, *(T4 *)params->at(3).get());
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T2 &, T4 &)> binary_call_4_2_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T4 &t4) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, *(T3 *)params->at(2).get(), t4);
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T4 &t4) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    *(T3 *)params->at(2).get(), std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T3 &, T4 &)> binary_call_4_3_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
-  auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
-    return func(*(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(), t3, t4);
-  };
-  return myfunc;
+  // auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(),
+  //                    *(T2 *)params->at(1).get(), std::placeholders::_1,
+  //                    std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
+                   std::placeholders::_1, std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T2 &)> binary_call_5_1_2(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
-    return func(t1, t2, *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T2 &t2) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
+  //                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+  //                    *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, std::placeholders::_1, std::placeholders::_2,
+                   *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T3 &)> binary_call_5_1_3(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), t3, *(T4 *)params->at(3).get(),
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T3 &t3) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    std::placeholders::_2, *(T4 *)params->at(3).get(),
+  //                    *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   std::placeholders::_2, *(T4 *)params->at(3).get(),
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T4 &)> binary_call_5_1_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T4 &t4) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), *(T3 *)params->at(2).get(), t4,
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T4 &t4) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    *(T3 *)params->at(2).get(), std::placeholders::_2,
+  //                    *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   *(T3 *)params->at(2).get(), std::placeholders::_2,
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T5 &)> binary_call_5_1_5(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T1 &t1, T5 &t5) -> T0 {
-    return func(t1, *(T2 *)params->at(1).get(), *(T3 *)params->at(2).get(),
-                *(T4 *)params->at(3).get(), t5);
-  };
-  return myfunc;
+  // auto myfunc = [&](T1 &t1, T5 &t5) -> T0 {
+  //   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+  //                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+  //                    std::placeholders::_2);
+  // };
+  return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
+                   *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+                   std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T3 &)> binary_call_5_2_3(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, t3, *(T4 *)params->at(3).get(),
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T3 &t3) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    std::placeholders::_2, *(T4 *)params->at(3).get(),
+  //                    *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   std::placeholders::_2, *(T4 *)params->at(3).get(),
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T4 &)> binary_call_5_2_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T4 &t4) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, *(T3 *)params->at(2).get(), t4,
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T4 &t4) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    *(T3 *)params->at(2).get(), std::placeholders::_2,
+  //                    *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   *(T3 *)params->at(2).get(), std::placeholders::_2,
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T5 &)> binary_call_5_2_5(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T2 &t2, T5 &t5) -> T0 {
-    return func(*(T1 *)params->at(0).get(), t2, *(T3 *)params->at(2).get(),
-                *(T4 *)params->at(3).get(), t5);
-  };
-  return myfunc;
+  // auto myfunc = [&](T2 &t2, T5 &t5) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+  //                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+  //                    std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
+                   *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
+                   std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T3 &, T4 &)> binary_call_5_3_4(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
-    return func(*(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(), t3, t4,
-                *(T5 *)params->at(4).get());
-  };
-  return myfunc;
+  // auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(),
+  //                    *(T2 *)params->at(1).get(), std::placeholders::_1,
+  //                    std::placeholders::_2, *(T5 *)params->at(4).get());
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
+                   std::placeholders::_1, std::placeholders::_2,
+                   *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T3 &, T5 &)> binary_call_5_3_5(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T3 &t3, T5 &t5) -> T0 {
-    return func(*(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(), t3,
-                *(T4 *)params->at(3).get(), t5);
-  };
-  return myfunc;
+  // auto myfunc = [&](T3 &t3, T5 &t5) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(),
+  //                    *(T2 *)params->at(1).get(), std::placeholders::_1,
+  //                    *(T4 *)params->at(3).get(), std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
+                   std::placeholders::_1, *(T4 *)params->at(3).get(),
+                   std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T4 &, T5 &)> binary_call_5_4_5(
     T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
     const SharedParametersPtr &params) {
-  auto myfunc = [&](T4 &t4, T5 &t5) -> T0 {
-    return func(*(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
-                *(T3 *)params->at(2).get(), t4, t5);
-  };
-  return myfunc;
+  // auto myfunc = [&](T4 &t4, T5 &t5) -> T0 {
+  //   return std::bind(func, *(T1 *)params->at(0).get(),
+  //                    *(T2 *)params->at(1).get(), *(T3 *)params->at(2).get(),
+  //                    std::placeholders::_1, std::placeholders::_2);
+  // };
+  return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
+                   *(T3 *)params->at(2).get(), std::placeholders::_1,
+                   std::placeholders::_2);
 }
 
 template <typename T0, typename... ArgsType>
