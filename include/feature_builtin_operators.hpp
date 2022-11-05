@@ -32,66 +32,51 @@
 
 // add
 static float _add(float &a, float &b) { return a + b; }
-static float _add_0_1(float &a, float &b) { return a + b; }
-unary_map_function_wrapper(_add);
-unary_map_function_wrapper(_add_0_1);
-binary_map_function_wrapper(_add);
+unary_function_wrapper(_add);
+binary_function_wrapper(_add);
 
 // sub
 static float _sub(float &a, float &b) { return a - b; }
-static float _sub_0_1(float &a, float &b) { return b - a; }
-unary_map_function_wrapper(_sub);
-unary_map_function_wrapper(_sub_0_1);
-binary_map_function_wrapper(_sub);
+unary_function_wrapper(_sub);
+binary_function_wrapper(_sub);
 
 // mul
 static float _mul(float &a, float &b) { return a * b; }
-static float _mul_0_1(float &a, float &b) { return a * b; }
-unary_map_function_wrapper(_mul);
-unary_map_function_wrapper(_mul_0_1);
-binary_map_function_wrapper(_mul);
+unary_function_wrapper(_mul);
+binary_function_wrapper(_mul);
 
 // div
 static float _div(float &a, float &b) {
   assert(b != 0.0);
   return a / b;
 }
-static float _div_0_1(float &a, float &b) {
-  assert(a != 0.0);
-  return b / a;
-}
-unary_map_function_wrapper(_div);
-unary_map_function_wrapper(_div_0_1);
-binary_map_function_wrapper(_div);
+unary_function_wrapper(_div);
+binary_function_wrapper(_div);
 
 // mod
 static int64_t _mod(int64_t &a, int64_t &b) {
   assert(b != 0);
   return a % b;
 }
-static int64_t _mod_0_1(int64_t &a, int64_t &b) {
-  assert(a != 0);
-  return b % a;
-}
-unary_map_function_wrapper(_mod);
-unary_map_function_wrapper(_mod_0_1);
-binary_map_function_wrapper(_mod);
+unary_function_wrapper(_mod);
+binary_function_wrapper(_mod);
 
 // pow
 static float _pow(float &a, float &b) { return powf(a, b); }
-static float _pow_0_1(float &a, float &b) { return powf(b, a); }
-unary_map_function_wrapper(_pow);
-unary_map_function_wrapper(_pow_0_1);
-binary_map_function_wrapper(_pow);
+unary_function_wrapper(_pow);
+binary_function_wrapper(_pow);
 
 static float _floor(float &v) { return floorf(v); }
-unary_map_function_wrapper(_floor);
+unary_function_wrapper(_floor);
+
 static float _ceil(float &v) { return ceilf(v); }
-unary_map_function_wrapper(_ceil);
+unary_function_wrapper(_ceil);
+
 static float _log(float &v) { return logf(v); }
-unary_map_function_wrapper(_log);
+unary_function_wrapper(_log);
+
 static float _exp(float &v) { return expf(v); }
-unary_map_function_wrapper(_exp);
+unary_function_wrapper(_exp);
 
 static int64_t timestamp() {
   auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -109,18 +94,18 @@ static float min_max(float &v, float &min, float &max) {
   assert(min != max);
   return (v - min) / (max - min);
 }
-unary_map_function_wrapper(min_max);
+unary_function_wrapper(min_max);
 
 static float z_score(float &v, float &mean, float &stdv) {
   assert(stdv != 0.0);
   return (v - mean) / stdv;
 }
-unary_map_function_wrapper(z_score);
+unary_function_wrapper(z_score);
 
 static int64_t binarize(float &v, float &threshold) {
   return v < threshold ? 0.0 : 1.0;
 }
-unary_map_function_wrapper(binarize);
+unary_function_wrapper(binarize);
 
 //分桶
 static int64_t bucketize(float &v, std::vector<float> &boundaries) {
@@ -129,17 +114,17 @@ static int64_t bucketize(float &v, std::vector<float> &boundaries) {
   return std::upper_bound(start, end, v) - start;
 }
 
-unary_map_function_wrapper(bucketize);
+unary_function_wrapper(bucketize);
 
 static float box_cox(float &v, float &lambda) {
   return lambda == 0.0 ? logf(v) : (powf(v, lambda) - 1.0f) / lambda;
 }
-unary_map_function_wrapper(box_cox);
+unary_function_wrapper(box_cox);
 
 static std::string substr(std::string &str, size_t &pos, size_t &len) {
   return str.substr(pos, len);
 }
-unary_map_function_wrapper(substr);
+unary_function_wrapper(substr);
 
 static std::string concat(std::string &a, std::string &b) {
   std::string v;
@@ -148,32 +133,8 @@ static std::string concat(std::string &a, std::string &b) {
   v += b;
   return v;
 }
-static std::string concat_0_1(std::string &a, std::string &b) {
-  std::string v;
-  v.reserve(a.size() + b.size());
-  v += b;
-  v += a;
-  return v;
-}
-
-static std::vector<std::string> *c_concat(std::vector<std::string> &a,
-                                          std::vector<std::string> &b) {
-  std::vector<std::string> *dst =
-      new std::vector<std::string>(a.size() * b.size());
-
-  for (size_t i = 0; i < a.size(); i++) {
-    for (size_t j = 0; j < b.size(); j++) {
-      dst->push_back(a[i] + b[j]);
-    }
-  }
-  return dst;
-}
-
-unary_map_function_wrapper(concat);
-unary_map_function_wrapper(concat_0_1);
-// cartesian_cross_function_wrapper(concat);
-binary_map_function_wrapper(concat);
-binary_agg_function_wrapper(c_concat);
+unary_function_wrapper(concat);
+binary_function_wrapper(concat);
 
 static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
   assert(norm >= 1);
@@ -190,7 +151,7 @@ static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
   }
   return dst;
 }
-unary_agg_function_wrapper(normalize);
+unary_function_wrapper(normalize);
 
 static std::vector<std::string> *topks(std::vector<std::string> &src,
                                        size_t &k) {
@@ -205,7 +166,7 @@ static std::vector<std::string> *topks(std::vector<std::string> &src,
   }
   return dst;
 }
-unary_agg_function_wrapper(topks);
+unary_function_wrapper(topks);
 
 static std::vector<int64_t> *topki(std::vector<int64_t> &src, size_t &k) {
   std::vector<int64_t> *dst = new std::vector<int64_t>();
@@ -219,7 +180,7 @@ static std::vector<int64_t> *topki(std::vector<int64_t> &src, size_t &k) {
   }
   return dst;
 }
-unary_agg_function_wrapper(topki);
+unary_function_wrapper(topki);
 
 static std::vector<float> *topkf(std::vector<float> &src, size_t &k) {
   std::vector<float> *dst = new std::vector<float>();
@@ -233,6 +194,6 @@ static std::vector<float> *topkf(std::vector<float> &src, size_t &k) {
   }
   return dst;
 }
-unary_agg_function_wrapper(topkf);
+unary_function_wrapper(topkf);
 
 #endif  // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP

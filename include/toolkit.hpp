@@ -37,7 +37,7 @@ class Toolkit {
  private:
   void process_from_realtime_features(RunTimeFeatures &realtime_features,
                                       EntityArray **entity_array) {
-    for (auto &o : operator_configs_) {
+    for (const auto &o : operator_configs_) {
       this->operator_->call(o, realtime_features);
     }
     this->hasher_->call(realtime_features.get_selected(), entity_array);
