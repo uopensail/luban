@@ -4,7 +4,7 @@
 
 ## pyluban
 
-基于swig封装的python库，python setup.py install即可
+基于swig封装的python库, python setup.py install即可
 依赖protobuf库
 
 ## libtoolkit
@@ -54,23 +54,10 @@ python3 configure_parser.py -i $input -o $output
 ### 添加自定义函数
 1. 函数的定义如下
 ```c++
-// 一元的map操作, ArgsType支持0~N个
-template <typename T, typename U, typename... ArgsType>
-T (*func)(U &, ArgsType &...)
-
-// 一元的agg操作, ArgsType支持0~N个
-template <typename T, typename U, typename... ArgsType>
-std::vector<T> *(*func)(std::vector<U> &,ArgsType &...)
-
-// 二元的map操作, ArgsType支持0~N个
-template <typename T, typename U, typename W, typename... ArgsType>
-T (*func)(U &, W &, ArgsType &...)
-
-// 二元的agg操作, ArgsType支持0~N个
-template <typename T, typename U, typename W, typename... ArgsType>
-std::vector<T> *(*func)(std::vector<U> &, std::vector<W> &, ArgsType...)
+template <typename T0, typename... ArgsType>
+T0 (*func)(ArgsType &...)
 ```
-2. 变量说明
-1) 最多支持两个变量  
-1.1 一个变量的情形: 必须放在第一个位置  
-1.2 两个变量的情形: 必须放在第一二个位置
+2. 说明
+1) 函数的参数最长是5个
+2) 参数最多是两个
+3) 只有返回值是vector的时候才支持指针, 否则都不是指针

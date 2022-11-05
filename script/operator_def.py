@@ -22,7 +22,7 @@
 #
 
 from typing import List
-from type_def import Parameter, FunctionCenter
+from type_def import Parameter, FunctionInputType
 from type_def import FunctionType, VariableType
 
 
@@ -37,49 +37,40 @@ class Operator:
 
     def __init__(self, name: str, function: str, parameters: List[Parameter]):
         # 内置函数的类型匹配
-        self.name, self.function, self.var_count = name, function, 0
+        self.name, self.function = name, function
         self.parameters, self.func_type = parameters, FunctionType.FT_Not_Defined
+        self.input_type = FunctionInputType.FI_Not_Defined
 
-        assert (self.function in FunctionCenter.FunctionDefintionDict)
-        assert (len(FunctionCenter.FunctionDefintionDict[self.function]['argvs']) == len(
-            self.parameters))
-        func_info = FunctionCenter.FunctionDefintionDict[self.function]
-
+        argv_count = len(self.parameters)
+        if argv_count > 5:
+            raise ValueError(f"not support: len(argvs) = {argv_count} > 5")
         # add builtin function prefix
         if self.function in ["floor", "ceil", "log", "exp", "log", "identity"]:
             self.function = f"_{self.function}"
 
         var_index = []
         for i, param in enumerate(self.parameters):
-            if param.type.is_constant():
-                param.type = FunctionCenter.FunctionDefintionDict[self.function]['argvs'][i]
-            elif param.type.is_variable():
-                var_index.append(i)
-        self.var_count = len(var_index)
-        if self.var_count > 2:
-            raise ValueError(f"variable number > 2")
-        elif self.var_count == 2:
-            if var_index[1] >= 2:
-                raise IndexError(f"variable index must in (0, 1)")
-            if func_info['return'].is_constant_array():
-                self.func_type = FunctionType.FT_Binary_Aggregate_Func
-            else:
-                self.func_type = FunctionType.FT_Binary_Mapper_Func
-        elif self.var_count == 1:
-            if var_index[0] >= 2:
-                raise IndexError(f"variable index must in (0, 1)")
-            elif var_index[0] == 1:
-                # put var in the 0 index
-                self.parameters[0], self.parameters[1] = self.parameters[1], self.parameters[0]
-                self.parameters[0].index, self.parameters[1].index = 0, 1
-                self.function += "_0_1"
-            if func_info['return'].is_constant_array():
-                self.func_type = FunctionType.FT_Unary_Aggregate_Func
-            else:
-                self.func_type = FunctionType.FT_Unary_Mapper_Func
-            if self.function == "_identity":
-                self.func_type = FunctionType.FT_Simple_Func
+            if param.type.is_variable():
+                var_index.append(str(i+1))
+
+        var_count = len(var_index)
+        if var_count > 2:
+            raise ValueError(
+                f"not support: variable number = {var_count}  > 2")
+        elif var_count == 2:
+            self.input_type = eval(
+                f'FunctionInputType.FI_Binary_S_{argv_count}_L_{"_".join(var_index)}_Type')
+            self.func_type = FunctionType.FT_Binary_Func
+        elif var_count == 1:
+            self.input_type = eval(
+                f'FunctionInputType.FI_Unary_S_{argv_count}_L_{var_index[0]}_Type')
+            self.func_type = FunctionType.FT_Unary_Func
         else:
+            self.func_type = FunctionType.FT_Simple_Func
+
+        # 处理_identit函数
+        if self.function == '_identity':
+            self.input_type = FunctionInputType.FI_Not_Defined
             self.func_type = FunctionType.FT_Simple_Func
 
     def __eq__(self, __o: object) -> bool:

@@ -41,11 +41,9 @@ import ast
 import toml
 import json
 import argparse
-import function_def
 from typing import Any, List, Union
-from type_def import VariableType
-from type_def import Parameter, FunctionCenter
 from operator_def import Operator
+from type_def import Parameter, VariableType
 
 
 def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
@@ -257,7 +255,8 @@ class Parser:
 
         for op in ops:
             print(op)
-            config = {'name': op.name, 'params': []}
+            config = {'name': op.name, 'params': [],
+                      'input_type': op.input_type.value}
             for p in op.parameters:
                 param = {'type': p.type.value, 'index': p.index}
                 if p.type == VariableType.VT_Anonymous_Feature:
@@ -299,15 +298,8 @@ if __name__ == "__main__":
                         required=True, help="输入配置文件")
     parser.add_argument("--output", "-o", type=str,
                         required=True, help="输出配置文件")
-    parser.add_argument("--function", "-f", type=str,
-                        required=False, help="定义的函数")
+
     args = parser.parse_args()
     print(args)
-
-    # 加载function_def
-    FunctionCenter.load_function_definitions("./function_def.py")
-    if args.function is not None:
-        # 动态引入文件
-        FunctionCenter.load_function_definitions(args.function)
 
     Parser.do(args.input, args.output)

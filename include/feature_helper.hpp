@@ -3,7 +3,7 @@
 // Copyright (C) 2019 - present timepi <timepi123@gmail.com>
 //
 // This file is part of `LuBan`.
-// //
+//
 // `LuBan` is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -25,18 +25,60 @@
 
 // some help functions for feature.pb.h
 #include <functional>
+#include <type_traits>
 
 #include "helper.h"
 
-// if is int/float/string type
-#define is_int(T)                                                      \
-  (std::is_same<T, long long>::value || std::is_same<T, int>::value || \
-   std::is_same<T, long>::value || std::is_same<T, unsigned long long>::value)
-#define is_float(T) \
-  (std::is_same<T, float>::value || std::is_same<T, double>::value)
-#define is_str(T) (std::is_same<T, std::string>::value)
+//类型判断
+#define is_int(T)                                             \
+  (std::is_same_v<std::remove_pointer_t<T>, long long> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, int> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, long> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, unsigned long> || \
+   std::is_same_v<std::remove_pointer_t<T>, unsigned long long>)
+
+#define is_int_array(T)                                                    \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<long long>> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<int>> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<long>> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long>> || \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long long>>)
+
+#define is_float(T)                                   \
+  (std::is_same_v<std::remove_pointer_t<T>, float> || \
+   std::is_same_v<std::remove_pointer_t<T>, double>)
+
+#define is_float_array(T)                                          \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<float>> || \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<double>>)
+
+#define is_str(T)                                           \
+  (std::is_same_v<std::remove_pointer_t<T>, std::string> || \
+   std::is_same_v<std::remove_pointer_t<T>, std::string_view>)
+
+#define is_str_array(T)                                                  \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string>> || \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string_view>>)
 
 #define is_simple_type(T) (is_int(T) || is_float(T) || is_str(T))
+
+#define is_array_type(T) \
+  (is_int_array(T) || is_float_array(T) || is_str_array(T))
+
+// namespace std {
+// template <class T>
+// struct remove_vector {
+//   typedef T type;
+// };
+// template <class T>
+// struct remove_vector<std::vector<T>> {
+//   typedef T type;
+// };
+// template <class T>
+// struct remove_vector<std::vector<T> *> {
+//   typedef T type;
+// };
+// }  // namespace std
 
 // fetch the data and tranform to array
 template <typename T>
@@ -80,29 +122,30 @@ static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
 }
 
 // get the first data for list
-template <typename T>
-static T to_scalar(const SharedFeaturePtr &feature) {
-  if constexpr (is_int(T)) {
-    assert(feature->has_int64_list());
-    return static_cast<T>(feature->int64_list().value(0));
-  } else if constexpr (is_float(T)) {
-    // int64_t can cast as float
-    assert(feature->has_int64_list() || feature->has_float_list());
-    if (feature->has_int64_list()) {
-      return static_cast<T>(feature->int64_list().value(0));
-    } else {
-      return static_cast<T>(feature->float_list().value(0));
-    }
-  } else if constexpr (is_str(T)) {
-    assert(feature->has_bytes_list());
-    return feature->bytes_list().value(0);
-  }
-  throw std::runtime_error("feature value error");
-}
+// template <typename T>
+// static T to_scalar(const SharedFeaturePtr &feature) {
+//   if constexpr (is_int(T)) {
+//     assert(feature->has_int64_list());
+//     return static_cast<T>(feature->int64_list().value(0));
+//   } else if constexpr (is_float(T)) {
+//     // int64_t can cast as float
+//     assert(feature->has_int64_list() || feature->has_float_list());
+//     if (feature->has_int64_list()) {
+//       return static_cast<T>(feature->int64_list().value(0));
+//     } else {
+//       return static_cast<T>(feature->float_list().value(0));
+//     }
+//   } else if constexpr (is_str(T)) {
+//     assert(feature->has_bytes_list());
+//     return feature->bytes_list().value(0);
+//   }
+//   throw std::runtime_error("feature value error");
+// }
 
 // add value to feature
 template <typename T>
 static void add_value(const SharedFeaturePtr &feature, const T &v) {
+  print_template_type<T>();
   if constexpr (is_int(T)) {
     feature->mutable_int64_list()->add_value(static_cast<int64_t>(v));
     return;
@@ -113,109 +156,171 @@ static void add_value(const SharedFeaturePtr &feature, const T &v) {
     feature->mutable_bytes_list()->add_value(v);
     return;
   }
-  throw std::runtime_error("value type error");
+  throw std::runtime_error("type error");
 }
 
-//处理feature, agg处理
+//处理feature
 template <typename U, typename V>
-static SharedFeaturePtr unary_agg_func(
-    const SharedFeaturePtr &feature,
-    std::function<std::vector<U> *(std::vector<V> &)> func) {
+static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
+                                        std::function<U(V &)> func) {
+  //输入是单值, 输出是单值
   if constexpr (is_simple_type(V) && is_simple_type(U)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> data;
     to_array<V>(feature, data);
-    std::vector<U> *ret_vec = func(data);
-    for (auto &v : *ret_vec) {
-      add_value<U>(ret, v);
+    if (data.size() == 0) {
+      return nullptr;
     }
-    delete ret_vec;
-    return ret;
-  }
-  return nullptr;
-}
-
-//处理feature, map处理
-template <typename U, typename V>
-static SharedFeaturePtr unary_map_func(const SharedFeaturePtr &feature,
-                                       std::function<U(V &)> func) {
-  if constexpr (is_simple_type(V) && is_simple_type(U)) {
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
-    std::vector<V> data;
-    to_array<V>(feature, data);
     for (size_t i = 0; i < data.size(); i++) {
       auto tmp = func(data[i]);
       add_value<U>(ret, tmp);
     }
     return ret;
+  } else if constexpr (is_array_type(V) && is_simple_type(U)) {
+    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    std::vector<typename V::value_type> data;
+    to_array<typename V::value_type>(feature, data);
+    if (data.size() == 0) {
+      return nullptr;
+    }
+    auto tmp = func(data);
+    add_value<U>(ret, tmp);
+    return ret;
+  } else if constexpr (is_array_type(V) && is_array_type(U)) {
+    std::vector<typename V::value_type> data;
+    to_array<typename V::value_type>(feature, data);
+    if (data.size() == 0) {
+      return nullptr;
+    }
+    auto tmp = func(data);
+    if constexpr (std::is_pointer<U>::value) {
+      if (tmp == nullptr) {
+        return nullptr;
+      } else if (tmp->size() == 0) {
+        delete tmp;
+        return nullptr;
+      }
+      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      for (size_t i = 0; i < tmp->size(); i++) {
+        add_value<>(ret, tmp->at(i));
+      }
+      delete tmp;
+      return ret;
+    } else {
+      if (tmp.size() == 0) {
+        return nullptr;
+      }
+      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      for (size_t i = 0; i < tmp.size(); i++) {
+        add_value<>(ret, tmp[i]);
+      }
+      return ret;
+    }
   }
   return nullptr;
 }
 
-//处理feature, 相同形状的值进行处理
+//处理feature
 template <typename U, typename V, typename W>
-static SharedFeaturePtr binary_map_func(const SharedFeaturePtr &featureA,
-                                        const SharedFeaturePtr &featureB,
-                                        std::function<U(V &, W &)> func) {
+static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
+                                         const SharedFeaturePtr &featureB,
+                                         std::function<U(V &, W &)> func) {
+  //输入是单值, 输出是单值
   if constexpr (is_simple_type(U) && is_simple_type(V) && is_simple_type(W)) {
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
     std::vector<V> dataA;
     std::vector<V> dataB;
     to_array<V>(featureA, dataA);
     to_array<W>(featureB, dataB);
-    size_t lenA = dataA.size();
-    size_t lenB = dataB.size();
 
-    if (lenA == lenB) {
-      for (size_t i = 0; i < lenA; i++) {
-        auto tmp = func(dataA[i], dataB[i]);
-        add_value<U>(ret, tmp);
-      }
-      return ret;
+    if (dataA.size() == 0 || dataB.size() == 0) {
+      return nullptr;
     }
-    if (lenA == 1) {
-      for (size_t i = 0; i < lenB; i++) {
-        auto tmp = func(dataA[0], dataB[i]);
-        add_value<U>(ret, tmp);
-      }
-      return ret;
-    }
-    if (lenB == 1) {
-      for (size_t i = 0; i < lenA; i++) {
-        auto tmp = func(dataA[i], dataB[0]);
-        add_value<U>(ret, tmp);
-      }
-      return ret;
-    }
-  }
-  return nullptr;
-}
-
-//处理feature, 相同形状的值进行处理
-template <typename U, typename V, typename W>
-static SharedFeaturePtr binary_agg_func(
-    const SharedFeaturePtr &featureA, const SharedFeaturePtr &featureB,
-    std::function<std::vector<U> *(std::vector<V> &, std::vector<W> &)> func) {
-  if constexpr (is_simple_type(U) && is_simple_type(V) && is_simple_type(W)) {
     SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
-    std::vector<V> dataA;
-    std::vector<V> dataB;
-    to_array<V>(featureA, dataA);
-    to_array<W>(featureB, dataB);
-    size_t lenA = dataA.size();
-    size_t lenB = dataA.size();
+    for (size_t i = 0; i < dataA.size(); i++) {
+      for (size_t j = 0; j < dataB.size(); j++) {
+        auto tmp = func(dataA[i], dataB[j]);
+        add_value<U>(ret, tmp);
+      }
+    }
+    return ret;
+  } else if constexpr (is_simple_type(U) && is_array_type(V) &&
+                       is_array_type(W)) {
+    std::vector<typename V::value_type> dataA;
+    to_array<typename V::value_type>(featureA, dataA);
+    std::vector<typename W::value_type> dataB;
+    to_array<typename W::value_type>(featureB, dataB);
+    if (dataA.size() == 0 || dataB.size() == 0) {
+      return nullptr;
+    }
+    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    auto tmp = func(dataA, dataB);
+    add_value<U>(ret, tmp);
 
-    if (lenA != lenB) {
+    return ret;
+  } else if constexpr (is_simple_type(U) && is_array_type(V) &&
+                       is_simple_type(W)) {
+    std::vector<typename V::value_type> dataA;
+    to_array<typename V::value_type>(featureA, dataA);
+    std::vector<W> dataB;
+    to_array<W>(featureB, dataB);
+    if (dataA.size() == 0 || dataB.size() == 0) {
+      return nullptr;
+    }
+    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    for (size_t i = 0; i < dataB.size(); i++) {
+      auto tmp = func(dataA, dataB[i]);
+      add_value<U>(ret, tmp);
+    }
+    return ret;
+  } else if constexpr (is_simple_type(U) && is_simple_type(V) &&
+                       is_array_type(W)) {
+    std::vector<V> dataA;
+    to_array<V>(featureA, dataA);
+    std::vector<typename W::value_type> dataB;
+    to_array<typename W::value_type>(featureB, dataB);
+    to_array<typename W::value_type>(featureB, dataB);
+    if (dataA.size() == 0 || dataB.size() == 0) {
+      return nullptr;
+    }
+    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    for (size_t i = 0; i < dataA.size(); i++) {
+      auto tmp = func(dataA[i], dataB);
+      add_value<U>(ret, tmp);
+    }
+    return ret;
+  } else if constexpr (is_array_type(U) && is_array_type(V) &&
+                       is_array_type(W)) {
+    std::vector<typename V::value_type> dataA;
+    to_array<typename V::value_type>(featureA, dataA);
+    std::vector<typename W::value_type> dataB;
+    to_array<typename W::value_type>(featureB, dataB);
+    to_array<W>(featureB, dataB);
+    if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
 
-    std::vector<U> *ret_vec = func(dataA, dataB);
-
-    for (auto &v : *ret_vec) {
-      add_value<U>(ret, v);
+    auto tmp = func(dataA, dataB);
+    if constexpr (std::is_pointer<U>::value) {
+      if (tmp->size() == 0) {
+        delete tmp;
+        return nullptr;
+      }
+      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      for (size_t i = 0; i < tmp->size(); i++) {
+        add_value<>(ret, tmp->at(i));
+      }
+      delete tmp;
+      return ret;
+    } else {
+      if (tmp.size() == 0) {
+        return nullptr;
+      }
+      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      for (size_t i = 0; i < tmp.size(); i++) {
+        add_value<typename U::value_type>(ret, tmp[i]);
+      }
+      return ret;
     }
-
-    delete ret_vec;
   }
   return nullptr;
 }

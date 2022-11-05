@@ -3,7 +3,7 @@
 // Copyright (C) 2019 - present timepi <timepi123@gmail.com>
 //
 // This file is part of `LuBan`.
-// //
+//
 // `LuBan` is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -152,13 +152,15 @@ class RunTimeFeatures {
   }
 
   //取某个特征
-  SharedFeaturePtr get(VariableType type, const std::string &key) {
+  SharedFeaturePtr get(const ConfigureParameter &p) {
+    const VariableType &type = p.get_type();
     assert(type == VariableType::VT_Anonymous_Feature ||
            type == VariableType::VT_Selected_Feature ||
            type == VariableType::VT_Origin_Feature);
+    const std::string *key = (std::string *)p.get();
     switch (type) {
       case VariableType::VT_Anonymous_Feature: {
-        auto iter = this->anonymous_.find(key);
+        auto iter = this->anonymous_.find(*key);
         if (iter != this->anonymous_.end()) {
           return iter->second;
         } else {
@@ -166,7 +168,7 @@ class RunTimeFeatures {
         }
       }
       case VariableType::VT_Selected_Feature: {
-        auto iter = this->selected_.find(key);
+        auto iter = this->selected_.find(*key);
         if (iter != this->selected_.end()) {
           return iter->second;
         } else {
@@ -174,7 +176,7 @@ class RunTimeFeatures {
         }
       }
       case VariableType::VT_Origin_Feature: {
-        auto iter = this->origin_.find(key);
+        auto iter = this->origin_.find(*key);
         if (iter != this->origin_.end()) {
           return iter->second;
         } else {
@@ -186,5 +188,4 @@ class RunTimeFeatures {
     }
   }
 };
-
 #endif  // LUBAN_FEATURE_OPERATOR_RUNTIME_HPP
