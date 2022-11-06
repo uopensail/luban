@@ -28,6 +28,8 @@
 #include "feature_helper.hpp"
 #include "feature_operator_configure.hpp"
 
+static void do_nothing(void *ptr) {}
+
 //运行时的特征
 class RunTimeFeatures {
  private:
@@ -63,63 +65,35 @@ class RunTimeFeatures {
     }
     return *this;
   }
-  RunTimeFeatures(const SharedFeaturesPtr &features) {
+
+  RunTimeFeatures(const tensorflow::Features *features) {
+    assert(features != nullptr);
     const auto &fea = features->feature();
     for (auto &kv : fea) {
-      origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
-    }
-  }
-
-  RunTimeFeatures(const tensorflow::Features &features) {
-    const auto &fea = features.feature();
-    for (auto &kv : fea) {
-      origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
+      origin_[kv.first] =
+          SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
     }
   }
 
   RunTimeFeatures(
-      const std::initializer_list<tensorflow::Features> &features_list) {
+      const std::initializer_list<tensorflow::Features *> &features_list) {
     for (auto &it : features_list) {
-      const auto &features = it.feature();
-      for (auto &kv : features) {
-        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
-      }
-    }
-  }
-
-  RunTimeFeatures(
-      const std::initializer_list<SharedFeaturesPtr> &features_list) {
-    for (auto &it : features_list) {
+      assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
-      }
-    }
-  }
-
-  RunTimeFeatures(const std::vector<SharedFeaturesPtr> &features_list) {
-    for (auto &it : features_list) {
-      const auto &features = it->feature();
-      for (auto &kv : features) {
-        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
-      }
-    }
-  }
-
-  RunTimeFeatures(const std::vector<tensorflow::Features> &features_list) {
-    for (auto &it : features_list) {
-      const auto &features = it.feature();
-      for (auto &kv : features) {
-        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
+        origin_[kv.first] =
+            SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
       }
     }
   }
 
   RunTimeFeatures(const std::vector<tensorflow::Features *> &features_list) {
     for (auto &it : features_list) {
+      assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] = std::make_shared<tensorflow::Feature>(kv.second);
+        origin_[kv.first] =
+            SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
       }
     }
   }

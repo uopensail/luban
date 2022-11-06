@@ -11,7 +11,14 @@ void luban_toolkit_release(void *ptr) {
   }
 }
 
-void *luban_process(void *ptr, char *feature, int feature_len);
+void *luban_process(void *ptr, char *feature, int feature_len) {
+  if (ptr == nullptr || feature == nullptr || feature_len == 0) {
+    return nullptr;
+  }
+  Toolkit *toolkit = (Toolkit *)ptr;
+  return toolkit->process(feature, feature_len);
+}
+
 void *luban_unary_process(void *ptr, char *feature, int feature_len) {
   if (ptr == nullptr || feature == nullptr || feature_len == 0) {
     return nullptr;
@@ -27,13 +34,16 @@ void *luban_binary_process(void *ptr, char *featureA, int feature_lenA,
     return nullptr;
   }
   Toolkit *toolkit = (Toolkit *)ptr;
-  SharedFeaturesPtr featuresA = std::make_shared<tensorflow::Features>();
+  tensorflow::Features *featuresA = new tensorflow::Features();
   featuresA->ParseFromArray(featureA, feature_lenA);
 
-  SharedFeaturesPtr featuresB = std::make_shared<tensorflow::Features>();
+  tensorflow::Features *featuresB = new tensorflow::Features();
   featuresA->ParseFromArray(featureB, feature_lenB);
 
-  return toolkit->process({featuresA, featuresB});
+  auto *array = toolkit->process({featuresA, featuresB});
+  delete featuresA;
+  delete featureB;
+  return array;
 }
 
 void luban_entity_array_release(void *ptr) {

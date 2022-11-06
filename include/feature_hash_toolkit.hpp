@@ -81,6 +81,7 @@ static void del_entity_array(EntityArray *array) {
   if (array != nullptr) {
     for (size_t i = 0; i < array->size; i++) {
       del_entity(array->array[i]);
+      array->array[i] = nullptr;
     }
     free(array);
     array = nullptr;

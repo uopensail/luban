@@ -65,8 +65,8 @@ int main() {
   auto ddata = base64_decode(data);
   //   std::cout << ddata << std::endl;
 
-  tensorflow::Features features;
-  features.ParseFromString(ddata);
+  tensorflow::Features* features = new tensorflow::Features();
+  features->ParseFromString(ddata);
   // std::cout << features.DebugString() << std::endl;
 
   Toolkit toolkit("test.toml");
@@ -76,5 +76,6 @@ int main() {
     print_entity(array->array[i]);
   }
   del_entity_array(array);
+  delete features;
   return 0;
 }
