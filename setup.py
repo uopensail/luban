@@ -3,13 +3,14 @@
 """
 Created on Mon May 13 17:58:27 2019
 
-@author: timepi
+@author: TimePi
 
 @description: this is setup script for pyluban
 """
 import platform
 import sys
-from setuptools import Extension, setup, find_packages
+
+from setuptools import Extension, find_packages, setup
 
 COMPILE_OPTIONS = []
 LINK_OPTIONS = []
@@ -58,23 +59,30 @@ setup(
     license="License :: GPL 3",
     author="uopensail",
     author_email="",
-    url="",
+    url="https://github.com/uopensail/luban",
     packages=find_packages(),
     py_modules=["pyluban"],
     ext_modules=[pyluban_module],
     keywords="feature operator and hasher",
     long_description="",
+    install_requires=["toml==0.10.2"],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
-        "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+        "License :: GPL 3",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
+    scripts=["script/configure_parser.py",
+             "script/operator_def.py", "script/type_def.py"],
+    entry_points={
+        "console_scripts": [
+            "configure_parser = configure_parser:main"
+        ]
+    },
 )

@@ -97,7 +97,7 @@ static float min_max(float &v, float &min, float &max) {
 unary_function_wrapper(min_max);
 
 static float z_score(float &v, float &mean, float &stdv) {
-  assert(stdv != 0.0);
+  assert(stdv > 0.0);
   return (v - mean) / stdv;
 }
 unary_function_wrapper(z_score);
@@ -153,9 +153,9 @@ static std::vector<float> *normalize(std::vector<float> &src, float &norm) {
 }
 unary_function_wrapper(normalize);
 
-static std::vector<std::string> *topks(std::vector<std::string> &src,
-                                       size_t &k) {
-  std::vector<std::string> *dst = new std::vector<std::string>();
+template <typename T>
+static std::vector<T> *topk(std::vector<T> &src, size_t &k) {
+  std::vector<T> *dst = new std::vector<T>();
   dst->reserve(k);
   size_t count = 0;
   for (auto &v : src) {
@@ -165,34 +165,21 @@ static std::vector<std::string> *topks(std::vector<std::string> &src,
     }
   }
   return dst;
+}
+
+static std::vector<std::string> *topks(std::vector<std::string> &src,
+                                       size_t &k) {
+  return topk<std::string>(src, k);
 }
 unary_function_wrapper(topks);
 
 static std::vector<int64_t> *topki(std::vector<int64_t> &src, size_t &k) {
-  std::vector<int64_t> *dst = new std::vector<int64_t>();
-  dst->reserve(k);
-  size_t count = 0;
-  for (auto &v : src) {
-    if (count < k) {
-      dst->push_back(v);
-      count++;
-    }
-  }
-  return dst;
+  return topk<int64_t>(src, k);
 }
 unary_function_wrapper(topki);
 
 static std::vector<float> *topkf(std::vector<float> &src, size_t &k) {
-  std::vector<float> *dst = new std::vector<float>();
-  dst->reserve(k);
-  size_t count = 0;
-  for (auto &v : src) {
-    if (count < k) {
-      dst->push_back(v);
-      count++;
-    }
-  }
-  return dst;
+  return topk<float>(src, k);
 }
 unary_function_wrapper(topkf);
 

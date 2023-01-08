@@ -36,12 +36,13 @@ descripton: 利用Python将配置文件进行解析,给C++代码使用.
     +,-,*,/,%,**
 
 """
-import os
-import ast
-import toml
-import json
 import argparse
+import ast
+import json
+import os
 from typing import Any, List, Union
+
+import toml
 from operator_def import Operator
 from type_def import Parameter, VariableType
 
@@ -140,17 +141,17 @@ def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
         raise RuntimeError("binop must have at least one variable")
 
     if isinstance(argv.op, ast.Div):
-        function = f"_div"
+        function = "_div"
     elif isinstance(argv.op, ast.Add):
-        function = f"_add"
+        function = "_add"
     elif isinstance(argv.op, ast.Sub):
-        function = f"_sub"
+        function = "_sub"
     elif isinstance(argv.op, ast.Mult):
-        function = f"_mul"
+        function = "_mul"
     elif isinstance(argv.op, ast.Mod):
-        function = f"_mod"
+        function = "_mod"
     elif isinstance(argv.op, ast.Pow):
-        function = f"_pow"
+        function = "_pow"
     else:
         raise TypeError(f"not support: {type(argv.op)}")
 
@@ -292,7 +293,7 @@ class Parser:
         toml.dump(ans, open(output_file, 'w'))
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", "-i", type=str,
                         required=True, help="输入配置文件")
@@ -301,5 +302,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     print(args)
-
     Parser.do(args.input, args.output)
+
+
+if __name__ == "__main__":
+    main()

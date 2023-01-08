@@ -66,34 +66,34 @@ class RunTimeFeatures {
     return *this;
   }
 
-  RunTimeFeatures(const tensorflow::Features *features) {
+  RunTimeFeatures(const sample::Features *features) {
     assert(features != nullptr);
     const auto &fea = features->feature();
     for (auto &kv : fea) {
       origin_[kv.first] =
-          SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
+          SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
     }
   }
 
   RunTimeFeatures(
-      const std::initializer_list<tensorflow::Features *> &features_list) {
+      const std::initializer_list<sample::Features *> &features_list) {
     for (auto &it : features_list) {
       assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
         origin_[kv.first] =
-            SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
+            SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
       }
     }
   }
 
-  RunTimeFeatures(const std::vector<tensorflow::Features *> &features_list) {
+  RunTimeFeatures(const std::vector<sample::Features *> &features_list) {
     for (auto &it : features_list) {
       assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
         origin_[kv.first] =
-            SharedFeaturePtr{(tensorflow::Feature *)(&(kv.second)), do_nothing};
+            SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
       }
     }
   }

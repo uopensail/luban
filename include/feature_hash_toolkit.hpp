@@ -149,11 +149,11 @@ class FeatureHashToolkit {
 
   Entity *hash_feature(const SharedFeaturePtr &feature, u_int64_t &gid) {
     switch (feature->kind_case()) {
-      case tensorflow::Feature::KindCase::kBytesList:
+      case sample::Feature::KindCase::kBytesList:
         return hash_string_feature(feature, gid);
-      case tensorflow::Feature::KindCase::kFloatList:
+      case sample::Feature::KindCase::kFloatList:
         return hash_float_feature(feature, gid);
-      case tensorflow::Feature::KindCase::kInt64List:
+      case sample::Feature::KindCase::kInt64List:
         return hash_int_feature(feature, gid);
       default:
         return nullptr;

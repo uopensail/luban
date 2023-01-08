@@ -65,7 +65,7 @@ int main() {
   auto ddata = base64_decode(data);
   //   std::cout << ddata << std::endl;
 
-  tensorflow::Features* features = new tensorflow::Features();
+  sample::Features* features = new sample::Features();
   features->ParseFromString(ddata);
   // std::cout << features.DebugString() << std::endl;
 

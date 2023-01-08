@@ -22,8 +22,8 @@
 #
 
 from typing import List
-from type_def import Parameter, FunctionInputType
-from type_def import FunctionType, VariableType
+
+from type_def import FunctionInputType, FunctionType, Parameter, VariableType
 
 
 class Operator:

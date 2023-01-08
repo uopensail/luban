@@ -47,13 +47,13 @@ class FeatureOperatorToolkit {
     const auto &cfg_params = o.get_parameters();
     //处理常用的内置函数
     if ("timestamp" == func) {
-      SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr feature = std::make_shared<sample::Feature>();
       auto tmp = timestamp();
       add_value<int64_t>(feature, tmp);
       features.insert(type, name, feature);
       return;
     } else if ("date" == func) {
-      SharedFeaturePtr feature = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr feature = std::make_shared<sample::Feature>();
       auto tmp = date();
       add_value<std::string>(feature, tmp);
       features.insert(type, name, feature);
@@ -82,7 +82,7 @@ class FeatureOperatorToolkit {
 
     if (tmp != nullptr) {
       features.insert(type, name, tmp);
-      std::cout << tmp->DebugString() << std::endl;
+      // std::cout << tmp->DebugString() << std::endl;
     }
   }
 
@@ -122,7 +122,6 @@ class FeatureOperatorToolkit {
     add_unary_func_to_global_oprs(this->unary_oprs_, _mod);
     add_binary_func_to_global_oprs(this->binary_oprs_, _mod);
 
-    std::cout << "func addr: " << &concat << std::endl;
     add_unary_func_to_global_oprs(this->unary_oprs_, concat);
     add_binary_func_to_global_oprs(this->binary_oprs_, concat);
 

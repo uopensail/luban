@@ -205,7 +205,6 @@ template <typename T0, typename... ArgsType>
 static SharedFeaturePtr unary_call(RunTimeFeatures &features,
                                    T0 (*func)(ArgsType &...),
                                    const ConfigureOperator &opr) {
-  std::cout << "func addr: " << func << std::endl;
   if constexpr (sizeof...(ArgsType) > 5) {
     throw std::runtime_error("len(argvs) > 5");
   } else if constexpr (sizeof...(ArgsType) == 0) {

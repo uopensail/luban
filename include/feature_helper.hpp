@@ -145,7 +145,6 @@ static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
 // add value to feature
 template <typename T>
 static void add_value(const SharedFeaturePtr &feature, const T &v) {
-  print_template_type<T>();
   if constexpr (is_int(T)) {
     feature->mutable_int64_list()->add_value(static_cast<int64_t>(v));
     return;
@@ -165,7 +164,7 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
                                         std::function<U(V &)> func) {
   //输入是单值, 输出是单值
   if constexpr (is_simple_type(V) && is_simple_type(U)) {
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     std::vector<V> data;
     to_array<V>(feature, data);
     if (data.size() == 0) {
@@ -177,7 +176,7 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
     }
     return ret;
   } else if constexpr (is_array_type(V) && is_simple_type(U)) {
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     std::vector<typename V::value_type> data;
     to_array<typename V::value_type>(feature, data);
     if (data.size() == 0) {
@@ -200,7 +199,7 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
         delete tmp;
         return nullptr;
       }
-      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
       for (size_t i = 0; i < tmp->size(); i++) {
         add_value<>(ret, tmp->at(i));
       }
@@ -210,7 +209,7 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
       if (tmp.size() == 0) {
         return nullptr;
       }
-      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
       for (size_t i = 0; i < tmp.size(); i++) {
         add_value<>(ret, tmp[i]);
       }
@@ -235,7 +234,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataA.size(); i++) {
       for (size_t j = 0; j < dataB.size(); j++) {
         auto tmp = func(dataA[i], dataB[j]);
@@ -252,7 +251,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     auto tmp = func(dataA, dataB);
     add_value<U>(ret, tmp);
 
@@ -266,7 +265,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataB.size(); i++) {
       auto tmp = func(dataA, dataB[i]);
       add_value<U>(ret, tmp);
@@ -282,7 +281,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataA.size(); i++) {
       auto tmp = func(dataA[i], dataB);
       add_value<U>(ret, tmp);
@@ -305,7 +304,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
         delete tmp;
         return nullptr;
       }
-      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
       for (size_t i = 0; i < tmp->size(); i++) {
         add_value<>(ret, tmp->at(i));
       }
@@ -315,7 +314,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
       if (tmp.size() == 0) {
         return nullptr;
       }
-      SharedFeaturePtr ret = std::make_shared<tensorflow::Feature>();
+      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
       for (size_t i = 0; i < tmp.size(); i++) {
         add_value<typename U::value_type>(ret, tmp[i]);
       }

@@ -32,8 +32,8 @@
 #include "feature.pb.h"
 
 //定义特征的智能指针类型
-#define SharedFeaturePtr std::shared_ptr<tensorflow::Feature>
-#define SharedFeaturesPtr std::shared_ptr<tensorflow::Features>
+#define SharedFeaturePtr std::shared_ptr<sample::Feature>
+#define SharedFeaturesPtr std::shared_ptr<sample::Features>
 
 //打印模板类型，用于调试
 template <typename T>

@@ -33,7 +33,6 @@ class PyToolKit;
 class PyEntityArray {
  private:
   EntityArray *data_;
-  int size_;
   friend PyToolKit;
 
  public:

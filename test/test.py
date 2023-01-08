@@ -34,7 +34,7 @@ def test(filename):
     :param filename:
     :return:
     """
-    config_file = 'test.toml'
+    config_file = 'test.json'
     record = gen_test_record(filename)
 
     toolkit = pyluban.PyToolKit(config_file)

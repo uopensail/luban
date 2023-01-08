@@ -40,9 +40,6 @@ class Toolkit {
     for (const auto &o : operator_configs_) {
       this->operator_->call(o, realtime_features);
     }
-    // for (auto &it : realtime_features.get_selected()) {
-    //   std::cout << it.first << " " << it.second->DebugString() << std::endl;
-    // }
     return this->hasher_->call(realtime_features.get_selected());
   }
 
@@ -51,7 +48,12 @@ class Toolkit {
   Toolkit(const Toolkit &) = delete;
   Toolkit(const Toolkit &&) = delete;
   Toolkit(const std::string &config_file) {
-    std::shared_ptr<cpptoml::table> g = cpptoml::parse_file(config_file);
+    std::string cfg_toml =
+        config_file.substr(0, config_file.size() - 4) + "toml";
+    std::string command =
+        "configure_parser -i " + config_file + " -o " + cfg_toml;
+    system(command.c_str());
+    std::shared_ptr<cpptoml::table> g = cpptoml::parse_file(cfg_toml);
 
     // get the operator configures from toml file
     auto operators = g->get_table_array("operators");
@@ -71,7 +73,7 @@ class Toolkit {
   }
 
   EntityArray *process(char *features, int len) {
-    tensorflow::Features *tf_features = new tensorflow::Features();
+    sample::Features *tf_features = new sample::Features();
     tf_features->ParseFromArray(features, len);
     RunTimeFeatures rt_features(tf_features);
     auto *array = this->process_from_realtime_features(rt_features);
@@ -79,14 +81,14 @@ class Toolkit {
     return array;
   }
 
-  EntityArray *process(tensorflow::Features *features) {
+  EntityArray *process(sample::Features *features) {
     RunTimeFeatures rt_features(features);
     auto *array = this->process_from_realtime_features(rt_features);
     return array;
   }
 
   EntityArray *process(
-      const std::initializer_list<tensorflow::Features *> &features_list) {
+      const std::initializer_list<sample::Features *> &features_list) {
     RunTimeFeatures rt_features(features_list);
     return this->process_from_realtime_features(rt_features);
   }

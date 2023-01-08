@@ -56,7 +56,7 @@ struct TableStruct_feature_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_feature_2eproto;
-namespace tensorflow {
+namespace sample {
 class BytesList;
 struct BytesListDefaultTypeInternal;
 extern BytesListDefaultTypeInternal _BytesList_default_instance_;
@@ -87,25 +87,25 @@ extern FloatListDefaultTypeInternal _FloatList_default_instance_;
 class Int64List;
 struct Int64ListDefaultTypeInternal;
 extern Int64ListDefaultTypeInternal _Int64List_default_instance_;
-}  // namespace tensorflow
+}  // namespace sample
 PROTOBUF_NAMESPACE_OPEN
-template<> ::tensorflow::BytesList* Arena::CreateMaybeMessage<::tensorflow::BytesList>(Arena*);
-template<> ::tensorflow::Example* Arena::CreateMaybeMessage<::tensorflow::Example>(Arena*);
-template<> ::tensorflow::Feature* Arena::CreateMaybeMessage<::tensorflow::Feature>(Arena*);
-template<> ::tensorflow::FeatureList* Arena::CreateMaybeMessage<::tensorflow::FeatureList>(Arena*);
-template<> ::tensorflow::FeatureLists* Arena::CreateMaybeMessage<::tensorflow::FeatureLists>(Arena*);
-template<> ::tensorflow::FeatureLists_FeatureListEntry_DoNotUse* Arena::CreateMaybeMessage<::tensorflow::FeatureLists_FeatureListEntry_DoNotUse>(Arena*);
-template<> ::tensorflow::Features* Arena::CreateMaybeMessage<::tensorflow::Features>(Arena*);
-template<> ::tensorflow::Features_FeatureEntry_DoNotUse* Arena::CreateMaybeMessage<::tensorflow::Features_FeatureEntry_DoNotUse>(Arena*);
-template<> ::tensorflow::FloatList* Arena::CreateMaybeMessage<::tensorflow::FloatList>(Arena*);
-template<> ::tensorflow::Int64List* Arena::CreateMaybeMessage<::tensorflow::Int64List>(Arena*);
+template<> ::sample::BytesList* Arena::CreateMaybeMessage<::sample::BytesList>(Arena*);
+template<> ::sample::Example* Arena::CreateMaybeMessage<::sample::Example>(Arena*);
+template<> ::sample::Feature* Arena::CreateMaybeMessage<::sample::Feature>(Arena*);
+template<> ::sample::FeatureList* Arena::CreateMaybeMessage<::sample::FeatureList>(Arena*);
+template<> ::sample::FeatureLists* Arena::CreateMaybeMessage<::sample::FeatureLists>(Arena*);
+template<> ::sample::FeatureLists_FeatureListEntry_DoNotUse* Arena::CreateMaybeMessage<::sample::FeatureLists_FeatureListEntry_DoNotUse>(Arena*);
+template<> ::sample::Features* Arena::CreateMaybeMessage<::sample::Features>(Arena*);
+template<> ::sample::Features_FeatureEntry_DoNotUse* Arena::CreateMaybeMessage<::sample::Features_FeatureEntry_DoNotUse>(Arena*);
+template<> ::sample::FloatList* Arena::CreateMaybeMessage<::sample::FloatList>(Arena*);
+template<> ::sample::Int64List* Arena::CreateMaybeMessage<::sample::Int64List>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
-namespace tensorflow {
+namespace sample {
 
 // ===================================================================
 
 class BytesList final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.BytesList) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.BytesList) */ {
  public:
   inline BytesList() : BytesList(nullptr) {}
   ~BytesList() override;
@@ -206,7 +206,7 @@ class BytesList final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.BytesList";
+    return "sample.BytesList";
   }
   protected:
   explicit BytesList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -252,7 +252,7 @@ class BytesList final :
   std::string* _internal_add_value();
   public:
 
-  // @@protoc_insertion_point(class_scope:tensorflow.BytesList)
+  // @@protoc_insertion_point(class_scope:sample.BytesList)
  private:
   class _Internal;
 
@@ -266,7 +266,7 @@ class BytesList final :
 // -------------------------------------------------------------------
 
 class FloatList final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.FloatList) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.FloatList) */ {
  public:
   inline FloatList() : FloatList(nullptr) {}
   ~FloatList() override;
@@ -367,7 +367,7 @@ class FloatList final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.FloatList";
+    return "sample.FloatList";
   }
   protected:
   explicit FloatList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -411,7 +411,7 @@ class FloatList final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_value();
 
-  // @@protoc_insertion_point(class_scope:tensorflow.FloatList)
+  // @@protoc_insertion_point(class_scope:sample.FloatList)
  private:
   class _Internal;
 
@@ -425,7 +425,7 @@ class FloatList final :
 // -------------------------------------------------------------------
 
 class Int64List final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.Int64List) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.Int64List) */ {
  public:
   inline Int64List() : Int64List(nullptr) {}
   ~Int64List() override;
@@ -526,7 +526,7 @@ class Int64List final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.Int64List";
+    return "sample.Int64List";
   }
   protected:
   explicit Int64List(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -570,7 +570,7 @@ class Int64List final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
       mutable_value();
 
-  // @@protoc_insertion_point(class_scope:tensorflow.Int64List)
+  // @@protoc_insertion_point(class_scope:sample.Int64List)
  private:
   class _Internal;
 
@@ -585,7 +585,7 @@ class Int64List final :
 // -------------------------------------------------------------------
 
 class Feature final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.Feature) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.Feature) */ {
  public:
   inline Feature() : Feature(nullptr) {}
   ~Feature() override;
@@ -693,7 +693,7 @@ class Feature final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.Feature";
+    return "sample.Feature";
   }
   protected:
   explicit Feature(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -717,63 +717,63 @@ class Feature final :
     kFloatListFieldNumber = 2,
     kInt64ListFieldNumber = 3,
   };
-  // .tensorflow.BytesList bytes_list = 1;
+  // .sample.BytesList bytes_list = 1;
   bool has_bytes_list() const;
   private:
   bool _internal_has_bytes_list() const;
   public:
   void clear_bytes_list();
-  const ::tensorflow::BytesList& bytes_list() const;
-  PROTOBUF_NODISCARD ::tensorflow::BytesList* release_bytes_list();
-  ::tensorflow::BytesList* mutable_bytes_list();
-  void set_allocated_bytes_list(::tensorflow::BytesList* bytes_list);
+  const ::sample::BytesList& bytes_list() const;
+  PROTOBUF_NODISCARD ::sample::BytesList* release_bytes_list();
+  ::sample::BytesList* mutable_bytes_list();
+  void set_allocated_bytes_list(::sample::BytesList* bytes_list);
   private:
-  const ::tensorflow::BytesList& _internal_bytes_list() const;
-  ::tensorflow::BytesList* _internal_mutable_bytes_list();
+  const ::sample::BytesList& _internal_bytes_list() const;
+  ::sample::BytesList* _internal_mutable_bytes_list();
   public:
   void unsafe_arena_set_allocated_bytes_list(
-      ::tensorflow::BytesList* bytes_list);
-  ::tensorflow::BytesList* unsafe_arena_release_bytes_list();
+      ::sample::BytesList* bytes_list);
+  ::sample::BytesList* unsafe_arena_release_bytes_list();
 
-  // .tensorflow.FloatList float_list = 2;
+  // .sample.FloatList float_list = 2;
   bool has_float_list() const;
   private:
   bool _internal_has_float_list() const;
   public:
   void clear_float_list();
-  const ::tensorflow::FloatList& float_list() const;
-  PROTOBUF_NODISCARD ::tensorflow::FloatList* release_float_list();
-  ::tensorflow::FloatList* mutable_float_list();
-  void set_allocated_float_list(::tensorflow::FloatList* float_list);
+  const ::sample::FloatList& float_list() const;
+  PROTOBUF_NODISCARD ::sample::FloatList* release_float_list();
+  ::sample::FloatList* mutable_float_list();
+  void set_allocated_float_list(::sample::FloatList* float_list);
   private:
-  const ::tensorflow::FloatList& _internal_float_list() const;
-  ::tensorflow::FloatList* _internal_mutable_float_list();
+  const ::sample::FloatList& _internal_float_list() const;
+  ::sample::FloatList* _internal_mutable_float_list();
   public:
   void unsafe_arena_set_allocated_float_list(
-      ::tensorflow::FloatList* float_list);
-  ::tensorflow::FloatList* unsafe_arena_release_float_list();
+      ::sample::FloatList* float_list);
+  ::sample::FloatList* unsafe_arena_release_float_list();
 
-  // .tensorflow.Int64List int64_list = 3;
+  // .sample.Int64List int64_list = 3;
   bool has_int64_list() const;
   private:
   bool _internal_has_int64_list() const;
   public:
   void clear_int64_list();
-  const ::tensorflow::Int64List& int64_list() const;
-  PROTOBUF_NODISCARD ::tensorflow::Int64List* release_int64_list();
-  ::tensorflow::Int64List* mutable_int64_list();
-  void set_allocated_int64_list(::tensorflow::Int64List* int64_list);
+  const ::sample::Int64List& int64_list() const;
+  PROTOBUF_NODISCARD ::sample::Int64List* release_int64_list();
+  ::sample::Int64List* mutable_int64_list();
+  void set_allocated_int64_list(::sample::Int64List* int64_list);
   private:
-  const ::tensorflow::Int64List& _internal_int64_list() const;
-  ::tensorflow::Int64List* _internal_mutable_int64_list();
+  const ::sample::Int64List& _internal_int64_list() const;
+  ::sample::Int64List* _internal_mutable_int64_list();
   public:
   void unsafe_arena_set_allocated_int64_list(
-      ::tensorflow::Int64List* int64_list);
-  ::tensorflow::Int64List* unsafe_arena_release_int64_list();
+      ::sample::Int64List* int64_list);
+  ::sample::Int64List* unsafe_arena_release_int64_list();
 
   void clear_kind();
   KindCase kind_case() const;
-  // @@protoc_insertion_point(class_scope:tensorflow.Feature)
+  // @@protoc_insertion_point(class_scope:sample.Feature)
  private:
   class _Internal;
   void set_has_bytes_list();
@@ -789,9 +789,9 @@ class Feature final :
   union KindUnion {
     constexpr KindUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
-    ::tensorflow::BytesList* bytes_list_;
-    ::tensorflow::FloatList* float_list_;
-    ::tensorflow::Int64List* int64_list_;
+    ::sample::BytesList* bytes_list_;
+    ::sample::FloatList* float_list_;
+    ::sample::Int64List* int64_list_;
   } kind_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   uint32_t _oneof_case_[1];
@@ -801,12 +801,12 @@ class Feature final :
 // -------------------------------------------------------------------
 
 class Features_FeatureEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Features_FeatureEntry_DoNotUse, 
-    std::string, ::tensorflow::Feature,
+    std::string, ::sample::Feature,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
   typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Features_FeatureEntry_DoNotUse, 
-    std::string, ::tensorflow::Feature,
+    std::string, ::sample::Feature,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   Features_FeatureEntry_DoNotUse();
@@ -816,7 +816,7 @@ public:
   void MergeFrom(const Features_FeatureEntry_DoNotUse& other);
   static const Features_FeatureEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const Features_FeatureEntry_DoNotUse*>(&_Features_FeatureEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "tensorflow.Features.FeatureEntry.key");
+    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "sample.Features.FeatureEntry.key");
  }
   static bool ValidateValue(void*) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
@@ -826,7 +826,7 @@ public:
 // -------------------------------------------------------------------
 
 class Features final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.Features) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.Features) */ {
  public:
   inline Features() : Features(nullptr) {}
   ~Features() override;
@@ -927,7 +927,7 @@ class Features final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.Features";
+    return "sample.Features";
   }
   protected:
   explicit Features(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -950,24 +950,24 @@ class Features final :
   enum : int {
     kFeatureFieldNumber = 1,
   };
-  // map<string, .tensorflow.Feature> feature = 1;
+  // map<string, .sample.Feature> feature = 1;
   int feature_size() const;
   private:
   int _internal_feature_size() const;
   public:
   void clear_feature();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >&
       _internal_feature() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >*
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >*
       _internal_mutable_feature();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >&
       feature() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >*
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >*
       mutable_feature();
 
-  // @@protoc_insertion_point(class_scope:tensorflow.Features)
+  // @@protoc_insertion_point(class_scope:sample.Features)
  private:
   class _Internal;
 
@@ -976,7 +976,7 @@ class Features final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::MapField<
       Features_FeatureEntry_DoNotUse,
-      std::string, ::tensorflow::Feature,
+      std::string, ::sample::Feature,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> feature_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -985,7 +985,7 @@ class Features final :
 // -------------------------------------------------------------------
 
 class FeatureList final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.FeatureList) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.FeatureList) */ {
  public:
   inline FeatureList() : FeatureList(nullptr) {}
   ~FeatureList() override;
@@ -1086,7 +1086,7 @@ class FeatureList final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.FeatureList";
+    return "sample.FeatureList";
   }
   protected:
   explicit FeatureList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1108,39 +1108,39 @@ class FeatureList final :
   enum : int {
     kFeatureFieldNumber = 1,
   };
-  // repeated .tensorflow.Feature feature = 1;
+  // repeated .sample.Feature feature = 1;
   int feature_size() const;
   private:
   int _internal_feature_size() const;
   public:
   void clear_feature();
-  ::tensorflow::Feature* mutable_feature(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::tensorflow::Feature >*
+  ::sample::Feature* mutable_feature(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::sample::Feature >*
       mutable_feature();
   private:
-  const ::tensorflow::Feature& _internal_feature(int index) const;
-  ::tensorflow::Feature* _internal_add_feature();
+  const ::sample::Feature& _internal_feature(int index) const;
+  ::sample::Feature* _internal_add_feature();
   public:
-  const ::tensorflow::Feature& feature(int index) const;
-  ::tensorflow::Feature* add_feature();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::tensorflow::Feature >&
+  const ::sample::Feature& feature(int index) const;
+  ::sample::Feature* add_feature();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::sample::Feature >&
       feature() const;
 
-  // @@protoc_insertion_point(class_scope:tensorflow.FeatureList)
+  // @@protoc_insertion_point(class_scope:sample.FeatureList)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::tensorflow::Feature > feature_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::sample::Feature > feature_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_feature_2eproto;
 };
 // -------------------------------------------------------------------
 
 class Example final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.Example) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.Example) */ {
  public:
   inline Example() : Example(nullptr) {}
   ~Example() override;
@@ -1241,7 +1241,7 @@ class Example final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.Example";
+    return "sample.Example";
   }
   protected:
   explicit Example(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1263,44 +1263,44 @@ class Example final :
   enum : int {
     kFeaturesFieldNumber = 1,
   };
-  // .tensorflow.Features features = 1;
+  // .sample.Features features = 1;
   bool has_features() const;
   private:
   bool _internal_has_features() const;
   public:
   void clear_features();
-  const ::tensorflow::Features& features() const;
-  PROTOBUF_NODISCARD ::tensorflow::Features* release_features();
-  ::tensorflow::Features* mutable_features();
-  void set_allocated_features(::tensorflow::Features* features);
+  const ::sample::Features& features() const;
+  PROTOBUF_NODISCARD ::sample::Features* release_features();
+  ::sample::Features* mutable_features();
+  void set_allocated_features(::sample::Features* features);
   private:
-  const ::tensorflow::Features& _internal_features() const;
-  ::tensorflow::Features* _internal_mutable_features();
+  const ::sample::Features& _internal_features() const;
+  ::sample::Features* _internal_mutable_features();
   public:
   void unsafe_arena_set_allocated_features(
-      ::tensorflow::Features* features);
-  ::tensorflow::Features* unsafe_arena_release_features();
+      ::sample::Features* features);
+  ::sample::Features* unsafe_arena_release_features();
 
-  // @@protoc_insertion_point(class_scope:tensorflow.Example)
+  // @@protoc_insertion_point(class_scope:sample.Example)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::tensorflow::Features* features_;
+  ::sample::Features* features_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_feature_2eproto;
 };
 // -------------------------------------------------------------------
 
 class FeatureLists_FeatureListEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<FeatureLists_FeatureListEntry_DoNotUse, 
-    std::string, ::tensorflow::FeatureList,
+    std::string, ::sample::FeatureList,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> {
 public:
   typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<FeatureLists_FeatureListEntry_DoNotUse, 
-    std::string, ::tensorflow::FeatureList,
+    std::string, ::sample::FeatureList,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> SuperType;
   FeatureLists_FeatureListEntry_DoNotUse();
@@ -1310,7 +1310,7 @@ public:
   void MergeFrom(const FeatureLists_FeatureListEntry_DoNotUse& other);
   static const FeatureLists_FeatureListEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const FeatureLists_FeatureListEntry_DoNotUse*>(&_FeatureLists_FeatureListEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "tensorflow.FeatureLists.FeatureListEntry.key");
+    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "sample.FeatureLists.FeatureListEntry.key");
  }
   static bool ValidateValue(void*) { return true; }
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
@@ -1320,7 +1320,7 @@ public:
 // -------------------------------------------------------------------
 
 class FeatureLists final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tensorflow.FeatureLists) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sample.FeatureLists) */ {
  public:
   inline FeatureLists() : FeatureLists(nullptr) {}
   ~FeatureLists() override;
@@ -1421,7 +1421,7 @@ class FeatureLists final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tensorflow.FeatureLists";
+    return "sample.FeatureLists";
   }
   protected:
   explicit FeatureLists(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1444,24 +1444,24 @@ class FeatureLists final :
   enum : int {
     kFeatureListFieldNumber = 1,
   };
-  // map<string, .tensorflow.FeatureList> feature_list = 1;
+  // map<string, .sample.FeatureList> feature_list = 1;
   int feature_list_size() const;
   private:
   int _internal_feature_list_size() const;
   public:
   void clear_feature_list();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >&
       _internal_feature_list() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >*
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >*
       _internal_mutable_feature_list();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >&
       feature_list() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >*
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >*
       mutable_feature_list();
 
-  // @@protoc_insertion_point(class_scope:tensorflow.FeatureLists)
+  // @@protoc_insertion_point(class_scope:sample.FeatureLists)
  private:
   class _Internal;
 
@@ -1470,7 +1470,7 @@ class FeatureLists final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::MapField<
       FeatureLists_FeatureListEntry_DoNotUse,
-      std::string, ::tensorflow::FeatureList,
+      std::string, ::sample::FeatureList,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_MESSAGE> feature_list_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1499,66 +1499,66 @@ inline void BytesList::clear_value() {
 }
 inline std::string* BytesList::add_value() {
   std::string* _s = _internal_add_value();
-  // @@protoc_insertion_point(field_add_mutable:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_add_mutable:sample.BytesList.value)
   return _s;
 }
 inline const std::string& BytesList::_internal_value(int index) const {
   return value_.Get(index);
 }
 inline const std::string& BytesList::value(int index) const {
-  // @@protoc_insertion_point(field_get:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_get:sample.BytesList.value)
   return _internal_value(index);
 }
 inline std::string* BytesList::mutable_value(int index) {
-  // @@protoc_insertion_point(field_mutable:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_mutable:sample.BytesList.value)
   return value_.Mutable(index);
 }
 inline void BytesList::set_value(int index, const std::string& value) {
   value_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_set:sample.BytesList.value)
 }
 inline void BytesList::set_value(int index, std::string&& value) {
   value_.Mutable(index)->assign(std::move(value));
-  // @@protoc_insertion_point(field_set:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_set:sample.BytesList.value)
 }
 inline void BytesList::set_value(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   value_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_set_char:sample.BytesList.value)
 }
 inline void BytesList::set_value(int index, const void* value, size_t size) {
   value_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_set_pointer:sample.BytesList.value)
 }
 inline std::string* BytesList::_internal_add_value() {
   return value_.Add();
 }
 inline void BytesList::add_value(const std::string& value) {
   value_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_add:sample.BytesList.value)
 }
 inline void BytesList::add_value(std::string&& value) {
   value_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_add:sample.BytesList.value)
 }
 inline void BytesList::add_value(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   value_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_add_char:sample.BytesList.value)
 }
 inline void BytesList::add_value(const void* value, size_t size) {
   value_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_add_pointer:sample.BytesList.value)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
 BytesList::value() const {
-  // @@protoc_insertion_point(field_list:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_list:sample.BytesList.value)
   return value_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 BytesList::mutable_value() {
-  // @@protoc_insertion_point(field_mutable_list:tensorflow.BytesList.value)
+  // @@protoc_insertion_point(field_mutable_list:sample.BytesList.value)
   return &value_;
 }
 
@@ -1580,19 +1580,19 @@ inline float FloatList::_internal_value(int index) const {
   return value_.Get(index);
 }
 inline float FloatList::value(int index) const {
-  // @@protoc_insertion_point(field_get:tensorflow.FloatList.value)
+  // @@protoc_insertion_point(field_get:sample.FloatList.value)
   return _internal_value(index);
 }
 inline void FloatList::set_value(int index, float value) {
   value_.Set(index, value);
-  // @@protoc_insertion_point(field_set:tensorflow.FloatList.value)
+  // @@protoc_insertion_point(field_set:sample.FloatList.value)
 }
 inline void FloatList::_internal_add_value(float value) {
   value_.Add(value);
 }
 inline void FloatList::add_value(float value) {
   _internal_add_value(value);
-  // @@protoc_insertion_point(field_add:tensorflow.FloatList.value)
+  // @@protoc_insertion_point(field_add:sample.FloatList.value)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 FloatList::_internal_value() const {
@@ -1600,7 +1600,7 @@ FloatList::_internal_value() const {
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 FloatList::value() const {
-  // @@protoc_insertion_point(field_list:tensorflow.FloatList.value)
+  // @@protoc_insertion_point(field_list:sample.FloatList.value)
   return _internal_value();
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
@@ -1609,7 +1609,7 @@ FloatList::_internal_mutable_value() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 FloatList::mutable_value() {
-  // @@protoc_insertion_point(field_mutable_list:tensorflow.FloatList.value)
+  // @@protoc_insertion_point(field_mutable_list:sample.FloatList.value)
   return _internal_mutable_value();
 }
 
@@ -1631,19 +1631,19 @@ inline int64_t Int64List::_internal_value(int index) const {
   return value_.Get(index);
 }
 inline int64_t Int64List::value(int index) const {
-  // @@protoc_insertion_point(field_get:tensorflow.Int64List.value)
+  // @@protoc_insertion_point(field_get:sample.Int64List.value)
   return _internal_value(index);
 }
 inline void Int64List::set_value(int index, int64_t value) {
   value_.Set(index, value);
-  // @@protoc_insertion_point(field_set:tensorflow.Int64List.value)
+  // @@protoc_insertion_point(field_set:sample.Int64List.value)
 }
 inline void Int64List::_internal_add_value(int64_t value) {
   value_.Add(value);
 }
 inline void Int64List::add_value(int64_t value) {
   _internal_add_value(value);
-  // @@protoc_insertion_point(field_add:tensorflow.Int64List.value)
+  // @@protoc_insertion_point(field_add:sample.Int64List.value)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
 Int64List::_internal_value() const {
@@ -1651,7 +1651,7 @@ Int64List::_internal_value() const {
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
 Int64List::value() const {
-  // @@protoc_insertion_point(field_list:tensorflow.Int64List.value)
+  // @@protoc_insertion_point(field_list:sample.Int64List.value)
   return _internal_value();
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
@@ -1660,7 +1660,7 @@ Int64List::_internal_mutable_value() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
 Int64List::mutable_value() {
-  // @@protoc_insertion_point(field_mutable_list:tensorflow.Int64List.value)
+  // @@protoc_insertion_point(field_mutable_list:sample.Int64List.value)
   return _internal_mutable_value();
 }
 
@@ -1668,7 +1668,7 @@ Int64List::mutable_value() {
 
 // Feature
 
-// .tensorflow.BytesList bytes_list = 1;
+// .sample.BytesList bytes_list = 1;
 inline bool Feature::_internal_has_bytes_list() const {
   return kind_case() == kBytesList;
 }
@@ -1686,11 +1686,11 @@ inline void Feature::clear_bytes_list() {
     clear_has_kind();
   }
 }
-inline ::tensorflow::BytesList* Feature::release_bytes_list() {
-  // @@protoc_insertion_point(field_release:tensorflow.Feature.bytes_list)
+inline ::sample::BytesList* Feature::release_bytes_list() {
+  // @@protoc_insertion_point(field_release:sample.Feature.bytes_list)
   if (_internal_has_bytes_list()) {
     clear_has_kind();
-      ::tensorflow::BytesList* temp = kind_.bytes_list_;
+      ::sample::BytesList* temp = kind_.bytes_list_;
     if (GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
@@ -1700,49 +1700,49 @@ inline ::tensorflow::BytesList* Feature::release_bytes_list() {
     return nullptr;
   }
 }
-inline const ::tensorflow::BytesList& Feature::_internal_bytes_list() const {
+inline const ::sample::BytesList& Feature::_internal_bytes_list() const {
   return _internal_has_bytes_list()
       ? *kind_.bytes_list_
-      : reinterpret_cast< ::tensorflow::BytesList&>(::tensorflow::_BytesList_default_instance_);
+      : reinterpret_cast< ::sample::BytesList&>(::sample::_BytesList_default_instance_);
 }
-inline const ::tensorflow::BytesList& Feature::bytes_list() const {
-  // @@protoc_insertion_point(field_get:tensorflow.Feature.bytes_list)
+inline const ::sample::BytesList& Feature::bytes_list() const {
+  // @@protoc_insertion_point(field_get:sample.Feature.bytes_list)
   return _internal_bytes_list();
 }
-inline ::tensorflow::BytesList* Feature::unsafe_arena_release_bytes_list() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:tensorflow.Feature.bytes_list)
+inline ::sample::BytesList* Feature::unsafe_arena_release_bytes_list() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:sample.Feature.bytes_list)
   if (_internal_has_bytes_list()) {
     clear_has_kind();
-    ::tensorflow::BytesList* temp = kind_.bytes_list_;
+    ::sample::BytesList* temp = kind_.bytes_list_;
     kind_.bytes_list_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void Feature::unsafe_arena_set_allocated_bytes_list(::tensorflow::BytesList* bytes_list) {
+inline void Feature::unsafe_arena_set_allocated_bytes_list(::sample::BytesList* bytes_list) {
   clear_kind();
   if (bytes_list) {
     set_has_bytes_list();
     kind_.bytes_list_ = bytes_list;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tensorflow.Feature.bytes_list)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:sample.Feature.bytes_list)
 }
-inline ::tensorflow::BytesList* Feature::_internal_mutable_bytes_list() {
+inline ::sample::BytesList* Feature::_internal_mutable_bytes_list() {
   if (!_internal_has_bytes_list()) {
     clear_kind();
     set_has_bytes_list();
-    kind_.bytes_list_ = CreateMaybeMessage< ::tensorflow::BytesList >(GetArenaForAllocation());
+    kind_.bytes_list_ = CreateMaybeMessage< ::sample::BytesList >(GetArenaForAllocation());
   }
   return kind_.bytes_list_;
 }
-inline ::tensorflow::BytesList* Feature::mutable_bytes_list() {
-  ::tensorflow::BytesList* _msg = _internal_mutable_bytes_list();
-  // @@protoc_insertion_point(field_mutable:tensorflow.Feature.bytes_list)
+inline ::sample::BytesList* Feature::mutable_bytes_list() {
+  ::sample::BytesList* _msg = _internal_mutable_bytes_list();
+  // @@protoc_insertion_point(field_mutable:sample.Feature.bytes_list)
   return _msg;
 }
 
-// .tensorflow.FloatList float_list = 2;
+// .sample.FloatList float_list = 2;
 inline bool Feature::_internal_has_float_list() const {
   return kind_case() == kFloatList;
 }
@@ -1760,11 +1760,11 @@ inline void Feature::clear_float_list() {
     clear_has_kind();
   }
 }
-inline ::tensorflow::FloatList* Feature::release_float_list() {
-  // @@protoc_insertion_point(field_release:tensorflow.Feature.float_list)
+inline ::sample::FloatList* Feature::release_float_list() {
+  // @@protoc_insertion_point(field_release:sample.Feature.float_list)
   if (_internal_has_float_list()) {
     clear_has_kind();
-      ::tensorflow::FloatList* temp = kind_.float_list_;
+      ::sample::FloatList* temp = kind_.float_list_;
     if (GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
@@ -1774,49 +1774,49 @@ inline ::tensorflow::FloatList* Feature::release_float_list() {
     return nullptr;
   }
 }
-inline const ::tensorflow::FloatList& Feature::_internal_float_list() const {
+inline const ::sample::FloatList& Feature::_internal_float_list() const {
   return _internal_has_float_list()
       ? *kind_.float_list_
-      : reinterpret_cast< ::tensorflow::FloatList&>(::tensorflow::_FloatList_default_instance_);
+      : reinterpret_cast< ::sample::FloatList&>(::sample::_FloatList_default_instance_);
 }
-inline const ::tensorflow::FloatList& Feature::float_list() const {
-  // @@protoc_insertion_point(field_get:tensorflow.Feature.float_list)
+inline const ::sample::FloatList& Feature::float_list() const {
+  // @@protoc_insertion_point(field_get:sample.Feature.float_list)
   return _internal_float_list();
 }
-inline ::tensorflow::FloatList* Feature::unsafe_arena_release_float_list() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:tensorflow.Feature.float_list)
+inline ::sample::FloatList* Feature::unsafe_arena_release_float_list() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:sample.Feature.float_list)
   if (_internal_has_float_list()) {
     clear_has_kind();
-    ::tensorflow::FloatList* temp = kind_.float_list_;
+    ::sample::FloatList* temp = kind_.float_list_;
     kind_.float_list_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void Feature::unsafe_arena_set_allocated_float_list(::tensorflow::FloatList* float_list) {
+inline void Feature::unsafe_arena_set_allocated_float_list(::sample::FloatList* float_list) {
   clear_kind();
   if (float_list) {
     set_has_float_list();
     kind_.float_list_ = float_list;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tensorflow.Feature.float_list)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:sample.Feature.float_list)
 }
-inline ::tensorflow::FloatList* Feature::_internal_mutable_float_list() {
+inline ::sample::FloatList* Feature::_internal_mutable_float_list() {
   if (!_internal_has_float_list()) {
     clear_kind();
     set_has_float_list();
-    kind_.float_list_ = CreateMaybeMessage< ::tensorflow::FloatList >(GetArenaForAllocation());
+    kind_.float_list_ = CreateMaybeMessage< ::sample::FloatList >(GetArenaForAllocation());
   }
   return kind_.float_list_;
 }
-inline ::tensorflow::FloatList* Feature::mutable_float_list() {
-  ::tensorflow::FloatList* _msg = _internal_mutable_float_list();
-  // @@protoc_insertion_point(field_mutable:tensorflow.Feature.float_list)
+inline ::sample::FloatList* Feature::mutable_float_list() {
+  ::sample::FloatList* _msg = _internal_mutable_float_list();
+  // @@protoc_insertion_point(field_mutable:sample.Feature.float_list)
   return _msg;
 }
 
-// .tensorflow.Int64List int64_list = 3;
+// .sample.Int64List int64_list = 3;
 inline bool Feature::_internal_has_int64_list() const {
   return kind_case() == kInt64List;
 }
@@ -1834,11 +1834,11 @@ inline void Feature::clear_int64_list() {
     clear_has_kind();
   }
 }
-inline ::tensorflow::Int64List* Feature::release_int64_list() {
-  // @@protoc_insertion_point(field_release:tensorflow.Feature.int64_list)
+inline ::sample::Int64List* Feature::release_int64_list() {
+  // @@protoc_insertion_point(field_release:sample.Feature.int64_list)
   if (_internal_has_int64_list()) {
     clear_has_kind();
-      ::tensorflow::Int64List* temp = kind_.int64_list_;
+      ::sample::Int64List* temp = kind_.int64_list_;
     if (GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
@@ -1848,45 +1848,45 @@ inline ::tensorflow::Int64List* Feature::release_int64_list() {
     return nullptr;
   }
 }
-inline const ::tensorflow::Int64List& Feature::_internal_int64_list() const {
+inline const ::sample::Int64List& Feature::_internal_int64_list() const {
   return _internal_has_int64_list()
       ? *kind_.int64_list_
-      : reinterpret_cast< ::tensorflow::Int64List&>(::tensorflow::_Int64List_default_instance_);
+      : reinterpret_cast< ::sample::Int64List&>(::sample::_Int64List_default_instance_);
 }
-inline const ::tensorflow::Int64List& Feature::int64_list() const {
-  // @@protoc_insertion_point(field_get:tensorflow.Feature.int64_list)
+inline const ::sample::Int64List& Feature::int64_list() const {
+  // @@protoc_insertion_point(field_get:sample.Feature.int64_list)
   return _internal_int64_list();
 }
-inline ::tensorflow::Int64List* Feature::unsafe_arena_release_int64_list() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:tensorflow.Feature.int64_list)
+inline ::sample::Int64List* Feature::unsafe_arena_release_int64_list() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:sample.Feature.int64_list)
   if (_internal_has_int64_list()) {
     clear_has_kind();
-    ::tensorflow::Int64List* temp = kind_.int64_list_;
+    ::sample::Int64List* temp = kind_.int64_list_;
     kind_.int64_list_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void Feature::unsafe_arena_set_allocated_int64_list(::tensorflow::Int64List* int64_list) {
+inline void Feature::unsafe_arena_set_allocated_int64_list(::sample::Int64List* int64_list) {
   clear_kind();
   if (int64_list) {
     set_has_int64_list();
     kind_.int64_list_ = int64_list;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tensorflow.Feature.int64_list)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:sample.Feature.int64_list)
 }
-inline ::tensorflow::Int64List* Feature::_internal_mutable_int64_list() {
+inline ::sample::Int64List* Feature::_internal_mutable_int64_list() {
   if (!_internal_has_int64_list()) {
     clear_kind();
     set_has_int64_list();
-    kind_.int64_list_ = CreateMaybeMessage< ::tensorflow::Int64List >(GetArenaForAllocation());
+    kind_.int64_list_ = CreateMaybeMessage< ::sample::Int64List >(GetArenaForAllocation());
   }
   return kind_.int64_list_;
 }
-inline ::tensorflow::Int64List* Feature::mutable_int64_list() {
-  ::tensorflow::Int64List* _msg = _internal_mutable_int64_list();
-  // @@protoc_insertion_point(field_mutable:tensorflow.Feature.int64_list)
+inline ::sample::Int64List* Feature::mutable_int64_list() {
+  ::sample::Int64List* _msg = _internal_mutable_int64_list();
+  // @@protoc_insertion_point(field_mutable:sample.Feature.int64_list)
   return _msg;
 }
 
@@ -1905,7 +1905,7 @@ inline Feature::KindCase Feature::kind_case() const {
 
 // Features
 
-// map<string, .tensorflow.Feature> feature = 1;
+// map<string, .sample.Feature> feature = 1;
 inline int Features::_internal_feature_size() const {
   return feature_.size();
 }
@@ -1915,22 +1915,22 @@ inline int Features::feature_size() const {
 inline void Features::clear_feature() {
   feature_.Clear();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >&
 Features::_internal_feature() const {
   return feature_.GetMap();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >&
 Features::feature() const {
-  // @@protoc_insertion_point(field_map:tensorflow.Features.feature)
+  // @@protoc_insertion_point(field_map:sample.Features.feature)
   return _internal_feature();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >*
 Features::_internal_mutable_feature() {
   return feature_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::Feature >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::Feature >*
 Features::mutable_feature() {
-  // @@protoc_insertion_point(field_mutable_map:tensorflow.Features.feature)
+  // @@protoc_insertion_point(field_mutable_map:sample.Features.feature)
   return _internal_mutable_feature();
 }
 
@@ -1938,7 +1938,7 @@ Features::mutable_feature() {
 
 // FeatureList
 
-// repeated .tensorflow.Feature feature = 1;
+// repeated .sample.Feature feature = 1;
 inline int FeatureList::_internal_feature_size() const {
   return feature_.size();
 }
@@ -1948,33 +1948,33 @@ inline int FeatureList::feature_size() const {
 inline void FeatureList::clear_feature() {
   feature_.Clear();
 }
-inline ::tensorflow::Feature* FeatureList::mutable_feature(int index) {
-  // @@protoc_insertion_point(field_mutable:tensorflow.FeatureList.feature)
+inline ::sample::Feature* FeatureList::mutable_feature(int index) {
+  // @@protoc_insertion_point(field_mutable:sample.FeatureList.feature)
   return feature_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::tensorflow::Feature >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::sample::Feature >*
 FeatureList::mutable_feature() {
-  // @@protoc_insertion_point(field_mutable_list:tensorflow.FeatureList.feature)
+  // @@protoc_insertion_point(field_mutable_list:sample.FeatureList.feature)
   return &feature_;
 }
-inline const ::tensorflow::Feature& FeatureList::_internal_feature(int index) const {
+inline const ::sample::Feature& FeatureList::_internal_feature(int index) const {
   return feature_.Get(index);
 }
-inline const ::tensorflow::Feature& FeatureList::feature(int index) const {
-  // @@protoc_insertion_point(field_get:tensorflow.FeatureList.feature)
+inline const ::sample::Feature& FeatureList::feature(int index) const {
+  // @@protoc_insertion_point(field_get:sample.FeatureList.feature)
   return _internal_feature(index);
 }
-inline ::tensorflow::Feature* FeatureList::_internal_add_feature() {
+inline ::sample::Feature* FeatureList::_internal_add_feature() {
   return feature_.Add();
 }
-inline ::tensorflow::Feature* FeatureList::add_feature() {
-  ::tensorflow::Feature* _add = _internal_add_feature();
-  // @@protoc_insertion_point(field_add:tensorflow.FeatureList.feature)
+inline ::sample::Feature* FeatureList::add_feature() {
+  ::sample::Feature* _add = _internal_add_feature();
+  // @@protoc_insertion_point(field_add:sample.FeatureList.feature)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::tensorflow::Feature >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::sample::Feature >&
 FeatureList::feature() const {
-  // @@protoc_insertion_point(field_list:tensorflow.FeatureList.feature)
+  // @@protoc_insertion_point(field_list:sample.FeatureList.feature)
   return feature_;
 }
 
@@ -1982,7 +1982,7 @@ FeatureList::feature() const {
 
 // Example
 
-// .tensorflow.Features features = 1;
+// .sample.Features features = 1;
 inline bool Example::_internal_has_features() const {
   return this != internal_default_instance() && features_ != nullptr;
 }
@@ -1995,17 +1995,17 @@ inline void Example::clear_features() {
   }
   features_ = nullptr;
 }
-inline const ::tensorflow::Features& Example::_internal_features() const {
-  const ::tensorflow::Features* p = features_;
-  return p != nullptr ? *p : reinterpret_cast<const ::tensorflow::Features&>(
-      ::tensorflow::_Features_default_instance_);
+inline const ::sample::Features& Example::_internal_features() const {
+  const ::sample::Features* p = features_;
+  return p != nullptr ? *p : reinterpret_cast<const ::sample::Features&>(
+      ::sample::_Features_default_instance_);
 }
-inline const ::tensorflow::Features& Example::features() const {
-  // @@protoc_insertion_point(field_get:tensorflow.Example.features)
+inline const ::sample::Features& Example::features() const {
+  // @@protoc_insertion_point(field_get:sample.Example.features)
   return _internal_features();
 }
 inline void Example::unsafe_arena_set_allocated_features(
-    ::tensorflow::Features* features) {
+    ::sample::Features* features) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(features_);
   }
@@ -2015,11 +2015,11 @@ inline void Example::unsafe_arena_set_allocated_features(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tensorflow.Example.features)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:sample.Example.features)
 }
-inline ::tensorflow::Features* Example::release_features() {
+inline ::sample::Features* Example::release_features() {
   
-  ::tensorflow::Features* temp = features_;
+  ::sample::Features* temp = features_;
   features_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
@@ -2032,34 +2032,34 @@ inline ::tensorflow::Features* Example::release_features() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::tensorflow::Features* Example::unsafe_arena_release_features() {
-  // @@protoc_insertion_point(field_release:tensorflow.Example.features)
+inline ::sample::Features* Example::unsafe_arena_release_features() {
+  // @@protoc_insertion_point(field_release:sample.Example.features)
   
-  ::tensorflow::Features* temp = features_;
+  ::sample::Features* temp = features_;
   features_ = nullptr;
   return temp;
 }
-inline ::tensorflow::Features* Example::_internal_mutable_features() {
+inline ::sample::Features* Example::_internal_mutable_features() {
   
   if (features_ == nullptr) {
-    auto* p = CreateMaybeMessage<::tensorflow::Features>(GetArenaForAllocation());
+    auto* p = CreateMaybeMessage<::sample::Features>(GetArenaForAllocation());
     features_ = p;
   }
   return features_;
 }
-inline ::tensorflow::Features* Example::mutable_features() {
-  ::tensorflow::Features* _msg = _internal_mutable_features();
-  // @@protoc_insertion_point(field_mutable:tensorflow.Example.features)
+inline ::sample::Features* Example::mutable_features() {
+  ::sample::Features* _msg = _internal_mutable_features();
+  // @@protoc_insertion_point(field_mutable:sample.Example.features)
   return _msg;
 }
-inline void Example::set_allocated_features(::tensorflow::Features* features) {
+inline void Example::set_allocated_features(::sample::Features* features) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete features_;
   }
   if (features) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::tensorflow::Features>::GetOwningArena(features);
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::sample::Features>::GetOwningArena(features);
     if (message_arena != submessage_arena) {
       features = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, features, submessage_arena);
@@ -2069,7 +2069,7 @@ inline void Example::set_allocated_features(::tensorflow::Features* features) {
     
   }
   features_ = features;
-  // @@protoc_insertion_point(field_set_allocated:tensorflow.Example.features)
+  // @@protoc_insertion_point(field_set_allocated:sample.Example.features)
 }
 
 // -------------------------------------------------------------------
@@ -2078,7 +2078,7 @@ inline void Example::set_allocated_features(::tensorflow::Features* features) {
 
 // FeatureLists
 
-// map<string, .tensorflow.FeatureList> feature_list = 1;
+// map<string, .sample.FeatureList> feature_list = 1;
 inline int FeatureLists::_internal_feature_list_size() const {
   return feature_list_.size();
 }
@@ -2088,22 +2088,22 @@ inline int FeatureLists::feature_list_size() const {
 inline void FeatureLists::clear_feature_list() {
   feature_list_.Clear();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >&
 FeatureLists::_internal_feature_list() const {
   return feature_list_.GetMap();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >&
 FeatureLists::feature_list() const {
-  // @@protoc_insertion_point(field_map:tensorflow.FeatureLists.feature_list)
+  // @@protoc_insertion_point(field_map:sample.FeatureLists.feature_list)
   return _internal_feature_list();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >*
 FeatureLists::_internal_mutable_feature_list() {
   return feature_list_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::tensorflow::FeatureList >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::sample::FeatureList >*
 FeatureLists::mutable_feature_list() {
-  // @@protoc_insertion_point(field_mutable_map:tensorflow.FeatureLists.feature_list)
+  // @@protoc_insertion_point(field_mutable_map:sample.FeatureLists.feature_list)
   return _internal_mutable_feature_list();
 }
 
@@ -2131,7 +2131,7 @@ FeatureLists::mutable_feature_list() {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace tensorflow
+}  // namespace sample
 
 // @@protoc_insertion_point(global_scope)
 

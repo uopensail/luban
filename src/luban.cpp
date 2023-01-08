@@ -34,10 +34,10 @@ void *luban_binary_process(void *ptr, char *featureA, int feature_lenA,
     return nullptr;
   }
   Toolkit *toolkit = (Toolkit *)ptr;
-  tensorflow::Features *featuresA = new tensorflow::Features();
+  sample::Features *featuresA = new sample::Features();
   featuresA->ParseFromArray(featureA, feature_lenA);
 
-  tensorflow::Features *featuresB = new tensorflow::Features();
+  sample::Features *featuresB = new sample::Features();
   featuresA->ParseFromArray(featureB, feature_lenB);
 
   auto *array = toolkit->process({featuresA, featuresB});
