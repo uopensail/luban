@@ -36,7 +36,17 @@ class Operator:
     """
 
     def __init__(self, name: str, function: str, parameters: List[Parameter]):
-        # 内置函数的类型匹配
+        """Define operator operations.
+
+        Args:
+            name (str): name of operator
+            function (str): name of the function
+            parameters (List[Parameter]): input parameters
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+        """
         self.name, self.function = name, function
         self.parameters, self.func_type = parameters, FunctionType.FT_Not_Defined
         self.input_type = FunctionInputType.FI_Not_Defined
@@ -57,7 +67,7 @@ class Operator:
         if var_count > 2:
             raise ValueError(
                 f"not support: variable number = {var_count}  > 2")
-        elif var_count == 2:
+        if var_count == 2:
             self.input_type = eval(
                 f'FunctionInputType.FI_Binary_S_{argv_count}_L_{"_".join(var_index)}_Type')
             self.func_type = FunctionType.FT_Binary_Func
@@ -68,16 +78,19 @@ class Operator:
         else:
             self.func_type = FunctionType.FT_Simple_Func
 
-        # 处理_identit函数
+        # process _identity function
         if self.function == '_identity':
             self.input_type = FunctionInputType.FI_Not_Defined
             self.func_type = FunctionType.FT_Simple_Func
 
     def __eq__(self, __o: object) -> bool:
-        """
-        判断是不是同一个算子.
+        """Judge whether it is the same operator.
 
-        处理函数一样, 参数一样则被认为是同一个算子
+        Args:
+            __o (object): operator to compare
+
+        Returns:
+            bool: is same operator
         """
         if __o is None:
             return False
@@ -94,7 +107,11 @@ class Operator:
         return True
 
     def __repr__(self) -> str:
-        """转成字符串."""
+        """to string.
+
+        Returns:
+            str: return string representation
+        """
         params = []
         if len(self.parameters) == 0:
             return f'{self.name} = {self.function}()'

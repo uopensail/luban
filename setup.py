@@ -1,10 +1,28 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
+#
+# `LuBan` - 'c++ tool for transformating and hashing features'.
+# Copyright (C) 2019 - present uopensail <timepi123@gmail.com>
+#
+# This file is part of `LuBan`.
+#
+# `LuBan` is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# `LuBan` is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 """
 Created on Mon May 13 17:58:27 2019
-
 @author: TimePi
-
 @description: this is setup script for pyluban
 """
 import platform
@@ -78,11 +96,11 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    scripts=["script/configure_parser.py",
+    scripts=["script/luban_parser.py",
              "script/operator_def.py", "script/type_def.py"],
     entry_points={
         "console_scripts": [
-            "configure_parser = configure_parser:main"
+            "luban_parser = luban_parser:main"
         ]
     },
 )

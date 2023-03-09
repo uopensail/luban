@@ -29,41 +29,40 @@
 
 #include "helper.h"
 
-//类型判断
-#define luban_is_int(T)                                                        \
-  (std::is_same_v<std::remove_pointer_t<T>, long long> ||                      \
-   std::is_same_v<std::remove_pointer_t<T>, int> ||                            \
-   std::is_same_v<std::remove_pointer_t<T>, long> ||                           \
-   std::is_same_v<std::remove_pointer_t<T>, unsigned long> ||                  \
+#define luban_is_int(T)                                       \
+  (std::is_same_v<std::remove_pointer_t<T>, long long> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, int> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, long> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, unsigned long> || \
    std::is_same_v<std::remove_pointer_t<T>, unsigned long long>)
 
-#define luban_is_int_array(T)                                                  \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<long long>> ||         \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<int>> ||               \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<long>> ||              \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long>> ||     \
+#define luban_is_int_array(T)                                              \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<long long>> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<int>> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<long>> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long long>>)
 
-#define luban_is_float(T)                                                      \
-  (std::is_same_v<std::remove_pointer_t<T>, float> ||                          \
+#define luban_is_float(T)                             \
+  (std::is_same_v<std::remove_pointer_t<T>, float> || \
    std::is_same_v<std::remove_pointer_t<T>, double>)
 
-#define luban_is_float_array(T)                                                \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<float>> ||             \
+#define luban_is_float_array(T)                                    \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<float>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<double>>)
 
-#define luban_is_str(T)                                                        \
-  (std::is_same_v<std::remove_pointer_t<T>, std::string> ||                    \
+#define luban_is_str(T)                                     \
+  (std::is_same_v<std::remove_pointer_t<T>, std::string> || \
    std::is_same_v<std::remove_pointer_t<T>, std::string_view>)
 
-#define luban_is_str_array(T)                                                  \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string>> ||       \
+#define luban_is_str_array(T)                                            \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string_view>>)
 
-#define luban_is_simple_type(T)                                                \
+#define luban_is_simple_type(T) \
   (luban_is_int(T) || luban_is_float(T) || luban_is_str(T))
 
-#define luban_is_array_type(T)                                                 \
+#define luban_is_array_type(T) \
   (luban_is_int_array(T) || luban_is_float_array(T) || luban_is_str_array(T))
 
 // namespace std {
@@ -159,11 +158,10 @@ static void add_value(const SharedFeaturePtr &feature, const T &v) {
   throw std::runtime_error("type error");
 }
 
-//处理feature
+// one argument function call process
 template <typename U, typename V>
 static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
                                         std::function<U(V &)> func) {
-  //输入是单值, 输出是单值
   if constexpr (luban_is_simple_type(V) && luban_is_simple_type(U)) {
     SharedFeaturePtr ret = std::make_shared<sample::Feature>();
     std::vector<V> data;
@@ -220,12 +218,11 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
   return nullptr;
 }
 
-//处理feature
+// two argument function call process
 template <typename U, typename V, typename W>
 static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
                                          const SharedFeaturePtr &featureB,
                                          std::function<U(V &, W &)> func) {
-  //输入是单值, 输出是单值
   if constexpr (luban_is_simple_type(U) && luban_is_simple_type(V) &&
                 luban_is_simple_type(W)) {
     std::vector<V> dataA;
@@ -326,4 +323,4 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
   return nullptr;
 }
 
-#endif // LUBAN_FEATURE_HELPER_HPP
+#endif  // LUBAN_FEATURE_HELPER_HPP

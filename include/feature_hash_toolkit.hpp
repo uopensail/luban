@@ -103,7 +103,6 @@ static u_int64_t mmh3(const std::string &key) {
   return ret[0];
 }
 
-//把gid添加到hashid中的前8位
 static u_int64_t mask_gid(u_int64_t &hash_id, u_int64_t &gid) {
   assert(gid >= 0 && gid < MAX_GID);
   return (gid << (64 - FEATURE_GID_BITS)) + (hash_id & FEAUTRE_HASH_MASK);
@@ -197,7 +196,6 @@ class FeatureHashToolkit {
   std::unordered_map<std::string, u_int64_t> feature_gid_map_;
 };
 
-//打印数据
 static void print_entity(Entity *entity) {
   std::cout << "[";
   if (entity == nullptr) {

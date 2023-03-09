@@ -107,7 +107,6 @@ static int64_t binarize(float &v, float &threshold) {
 }
 unary_function_wrapper(binarize);
 
-//分桶
 static int64_t bucketize(float &v, std::vector<float> &boundaries) {
   auto start = boundaries.data();
   auto end = start + boundaries.size();

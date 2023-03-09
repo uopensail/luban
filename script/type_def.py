@@ -30,18 +30,17 @@ from typing import Any, List, Union
 
 
 class VariableType(enum.IntEnum):
-    """
-    变量的类型.
+    """Type of variable
 
-    VT_Int: 字面整型常量
-    VT_Float: 字面浮点型常量
-    VT_String: 字面字符串常量, 以引号作为字符串的开始和结束
-    VT_IntList: 字面整型常量数组
-    VT_FloatList: 字面浮点型常量数组
-    VT_StringList: 字面字符串常量数组
-    VT_Original_Feature: 原始特征, tffeature类型的值, TensorFlow中定义
-    VT_Selected_Feature: 命名的变量, tffeature类型的值
-    VT_Anonymous_Feature: 匿名变量, tffeature类型的值
+    VT_Int: literal integer constant
+    VT_Float: literal floating point constant
+    VT_String: literal string constant, with quotation marks as the beginning and end of the string
+    VT_IntList: literal integer constant array
+    VT_FloatList: literal floating point constant array
+    VT_StringList: literal string constant array
+    VT_Original_Feature: original feature, value of tffeature type, defined in TensorFlow
+    VT_Selected_Feature: named variable, value of tffeature type
+    VT_Anonymous_Feature: anonymous variable, value of tffeature type
     """
 
     VT_Not_Defined = 0
@@ -56,25 +55,36 @@ class VariableType(enum.IntEnum):
     VT_Anonymous_Feature = 9
 
     def is_constant_scalar(self) -> bool:
-        """是否是常量."""
+        """if the variable is constant scalar
+
+        Returns:
+            bool: _description_
+        """
         if self.value in (VariableType.VT_Int, VariableType.VT_Float,
                           VariableType.VT_String):
             return True
         return False
 
     def is_constant_array(self) -> bool:
-        """是否是常量数组."""
+        """if the variable is constant array
+
+        Returns:
+            bool: _description_
+        """
         if self.value in (VariableType.VT_IntList, VariableType.VT_FloatList,
                           VariableType.VT_StringList):
             return True
         return False
 
     def is_constant(self) -> bool:
-        """是否是常量——标量或向量."""
+        """if the variable is constant
+
+        Returns:
+            bool: _description_
+        """
         return self.is_constant_scalar() or self.is_constant_array()
 
     def is_variable(self) -> bool:
-        """是否是变量."""
         if self.value in (VariableType.VT_Anonymous_Feature,
                           VariableType.VT_Origin_Feature,
                           VariableType.VT_Selected_Feature):
@@ -83,7 +93,13 @@ class VariableType(enum.IntEnum):
 
 
 class FunctionType(enum.IntEnum):
-    """函数的类型."""
+    """Type of function.
+
+    FT_Not_Defined: not defined
+    FT_Simple_Func: simple function
+    FT_Unary_Func: unary function
+    FT_Binary_Func: binary function
+    """
 
     FT_Not_Defined = 0
     FT_Simple_Func = 1
@@ -92,22 +108,22 @@ class FunctionType(enum.IntEnum):
 
 
 class Parameter:
-    """
-    参数定义.
-
-    index: 函数调用时候的第几个参数, 下标从0开始计数
-    type: 值的类型
-    value: 对应的值, 如果是常量,value就是常量的值;
-                    如果是原始变量, 就是对应变量的名字;
-                    如果是生成型变量, 就是对应的算子的名字
-    """
-
     def __init__(self, index: int, vtype: VariableType, value: Any):
+        """Parameter definition.
+
+        Args:
+            index(int): the number of parameters when the function is called. The index starts from 0
+            vtype(VariableType): type of value
+            value(Any): the corresponding value.
+                if it is a constant, value is the value of the constant;
+                if it is the original variable, it is the name of the corresponding variable;
+                if it is a generating variable, it is the name of the corresponding operator
+        """
         self.index, self.type, self.value = index, vtype, value
 
 
 def python_type_to_variable_type(t: type) -> VariableType:
-    """python type 转VariableType."""
+    """python type to VariableType."""
 
     if t == float:
         return VariableType.VT_Float
@@ -125,8 +141,7 @@ def python_type_to_variable_type(t: type) -> VariableType:
 
 
 class FunctionInputType(enum.IntEnum):
-    """函数的输入类型."""
-
+    """function input type."""
     FI_Not_Defined = 0
     FI_Unary_S_1_L_1_Type = 1
     FI_Unary_S_2_L_1_Type = 2

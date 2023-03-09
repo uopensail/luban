@@ -21,26 +21,16 @@
 #
 #
 """
-author: uopensail
-descripton: 利用Python将配置文件进行解析,给C++代码使用.
-
-定义配置的文件的示例:
-
-`feature_1 = feature_0 + 100`
-
-具体的说明如下:
-1. 语句的解析是按照Python的语法来解析的
-2. 必须是赋值语句, 左边作为特征的名字, 右边是计算表达式
-3. 表达式支持嵌套调用, 函数名称
-4. 支出Python内置的一些操作符
-    +,-,*,/,%,**
+author: timepi
+descripton: Use Python to parse the configuration file 
+            for C++ code to use.
 
 """
 import argparse
 import ast
 import json
 import os
-from typing import Any, List, Union
+from typing import Any, List, Union, Tuple
 
 import toml
 from operator_def import Operator
@@ -48,41 +38,74 @@ from type_def import Parameter, VariableType
 
 
 def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
-    """处理参数——名称"""
+    """parse the argument name
+
+    Args:
+        index (int): argument index
+        argv (ast.Name): argument name
+
+    Returns:
+        Parameter: wrapper for the argument
+    """
     return Parameter(index=index, vtype=VariableType.VT_Selected_Feature,
                      value=argv.id)
 
 
-def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]):
-    """获得constant的值.
+def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]) -> Any:
+    """get the value of a constant.
 
-    这里主要是为了不同版本兼容.
+    Args:
+        v (Union[ast.Constant, ast.Str, ast.Num]): value of constant, support different versions
+
+    Returns:
+        Any: return the value of the constant
     """
     if isinstance(v, ast.Str):
         return v.s
-    elif isinstance(v, ast.Num):
+    if isinstance(v, ast.Num):
         return v.n
     return None
 
 
 def parse_argv_constant(index: int, argv: Union[ast.Constant, ast.Str, ast.Num]) -> Parameter:
-    """处理参数——常量"""
+    """parse constant argument
+
+    Args:
+        index (int): _description_
+        argv (Union[ast.Constant, ast.Str, ast.Num]): constant argument
+
+    Raises:
+        TypeError: not supported
+
+    Returns:
+        Parameter: wrapper for the argument
+    """
     value = value_of_constant(argv)
     if isinstance(value, str):
         return Parameter(index=index, vtype=VariableType.VT_String,
                          value=value)
-    elif isinstance(value, float):
+    if isinstance(value, float):
         return Parameter(index=index, vtype=VariableType.VT_Float,
                          value=value)
-    elif isinstance(value, int):
+    if isinstance(value, int):
         return Parameter(index=index, vtype=VariableType.VT_Int,
                          value=value)
-    else:
-        raise TypeError(f"not support type:{type(value)}")
+    raise TypeError(f"not support type:{type(value)}")
 
 
 def parse_argv_list(index: int, argv: ast.List) -> Parameter:
-    """处理参数——常量列表"""
+    """processing parameters - constant list.
+
+    Args:
+        index (int): argument index
+        argv (ast.List): argument
+
+    Raises:
+        TypeError: _description_
+
+    Returns:
+        Parameter: wrapper for the argument
+    """
     assert (len(argv.elts) > 0)
     elt, dtype = argv.elts[0], VariableType.VT_Not_Defined
     fv = value_of_constant(elt)
@@ -103,7 +126,18 @@ def parse_argv_list(index: int, argv: ast.List) -> Parameter:
 
 
 def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
-    """处理参数——函数调用"""
+    """processing parameters - function call.
+
+    Args:
+        index (int): argument index
+        argv (ast.Call): argument
+
+    Raises:
+        TypeError: _description_
+
+    Returns:
+        Parameter: wrapper for the argument
+    """
     assert (isinstance(argv.func, ast.Name))
     function, params = argv.func.id, []
 
@@ -111,7 +145,7 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
         if isinstance(argv, (ast.Constant, ast.Num, ast.Str)):
             params.append(parse_argv_constant(index=i, argv=argv))
         elif isinstance(argv, ast.Name):
-            # 这种情况是用了已有的特征
+            # in this case, use the existing features
             params.append(parse_argv_name(index=i, argv=argv))
         elif isinstance(argv, ast.List):
             params.append(parse_argv_list(index=i, argv=argv))
@@ -128,13 +162,22 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
 
 
 def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
-    """处理参数——二元操作符
+    """processing parameter -- binary operator. At least one 
+    parameter must be input traversal, not all constants.
 
-    其中必须至少有一个参数是输入的遍历, 不能都是常量.
+    Args:
+        index (int): argument index
+        argv (ast.BinOp): argument
+
+    Raises:
+        RuntimeError: _description_
+        TypeError: _description_
+
+    Returns:
+        Parameter: wrapper for the argument
     """
     function, params = None, []
 
-    # 是不是字面值常量
     def is_literal_constant(v: Any):
         return isinstance(v, (ast.Constant, ast.Num, ast.Str, ast.List))
     if is_literal_constant(argv.left) and is_literal_constant(argv.right):
@@ -164,25 +207,47 @@ def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
 
 
 def parse_argv(index: int, argv: Any) -> Parameter:
-    """处理参数的统一函数."""
+    """unified function for processing parameters.
+
+    Args:
+        index (int): argument index
+        argv (Any): argument
+
+    Raises:
+        TypeError: _description_
+
+    Returns:
+        Parameter: wrapper for the argument
+    """
     if isinstance(argv, (ast.Constant, ast.Num, ast.Str)):
         return parse_argv_constant(index=index, argv=argv)
-    elif isinstance(argv, ast.Name):
+    if isinstance(argv, ast.Name):
         return parse_argv_name(index=index, argv=argv)
-    elif isinstance(argv, ast.Call):
+    if isinstance(argv, ast.Call):
         return parse_argv_call(index=index, argv=argv)
-    elif isinstance(argv, ast.List):
+    if isinstance(argv, ast.List):
         return parse_argv_list(index=index, argv=argv)
-    elif isinstance(argv, ast.BinOp):
+    if isinstance(argv, ast.BinOp):
         return parse_argv_binop(index=index, argv=argv)
-    raise TypeError(f"not support type:{type(argv)}")
+    TypeError(f"not support type:{type(argv)}")
 
 
-def parse_expression(expression: str, gid: int) -> Operator:
-    """处理表达式."""
+def parse_expression(expression: str, gid: int) -> Tuple[Operator, int]:
+    """Process expressions.
+
+    Args:
+        expression (str): expression to process
+        gid (int): group id
+
+    Raises:
+        TypeError: _description_
+
+    Returns:
+        Operator: top operator
+    """
 
     module = ast.parse(expression)
-    # 做一些必要的检查
+    # do some checking
     assert (isinstance(module, ast.Module))
     assert (isinstance(module.body, list) and len(module.body) == 1)
     assign_expr = module.body[0]
@@ -190,11 +255,11 @@ def parse_expression(expression: str, gid: int) -> Operator:
     assign_children = list(ast.iter_child_nodes(assign_expr))
     assert (isinstance(assign_children, list) and len(assign_children) == 2)
 
-    # 获得左边变量的名字
+    # Get the name of the variable on the left
     assert (isinstance(assign_children[0], ast.Name))
     feature_name = assign_children[0].id
 
-    # 处理右边函数表达式
+    # process the right function expression
     my_opr = None
     if isinstance(assign_children[1], ast.BinOp):
         tmp = parse_argv_binop(-1, assign_children[1])
@@ -210,8 +275,14 @@ def parse_expression(expression: str, gid: int) -> Operator:
 
 
 def parse_expressions(expressions: List[Any]):
-    """处理多个表达式, 并且讲相同的表达式进行合并."""
-    # 遍历所有的opr
+    """Process multiple expressions and merge the same expressions
+
+    Args:
+        expressions (List[Any]): expressions to process
+
+    Returns:
+        _type_: _description_
+    """
     def walk(my_opr: Operator, opr_list: list):
         for p in my_opr.parameters:
             if p.type == VariableType.VT_Anonymous_Feature:
@@ -243,10 +314,13 @@ def parse_expressions(expressions: List[Any]):
 
 
 class Parser:
-    @ staticmethod
-    def do(input_file: str, output_file: str) -> dict:
-        """处理表达式."""
-        # 读取数据
+    @staticmethod
+    def do(input_file: str, output_file: str):
+        """process expr
+
+        Raises:
+            ValueError: _description_
+        """
         dic = json.load(open(input_file, "r"))
         expressions = []
         for item in dic["features"]:
@@ -255,7 +329,6 @@ class Parser:
         configs = {}
 
         for op in ops:
-            print(op)
             config = {'name': op.name, 'params': [],
                       'input_type': op.input_type.value}
             for p in op.parameters:
@@ -281,7 +354,6 @@ class Parser:
             else:
                 config['type'] = VariableType.VT_Selected_Feature.value
             configs[op.name] = config
-            print(op)
         ret = []
         for _, conf in configs.items():
             ret.append(conf)
@@ -289,19 +361,18 @@ class Parser:
         for item in groups:
             ans['groups'].append(
                 {"name": item["opr"].name, "gid": item['gid']})
-        # 写入配置文件
         toml.dump(ans, open(output_file, 'w'))
 
 
 def main():
+    """main function
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", "-i", type=str,
-                        required=True, help="输入配置文件")
+                        required=True, help="json config file")
     parser.add_argument("--output", "-o", type=str,
-                        required=True, help="输出配置文件")
-
+                        required=True, help="toml config file")
     args = parser.parse_args()
-    print(args)
     Parser.do(args.input, args.output)
 
 

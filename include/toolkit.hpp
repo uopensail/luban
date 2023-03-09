@@ -51,7 +51,7 @@ class Toolkit {
     std::string cfg_toml =
         config_file.substr(0, config_file.size() - 4) + "toml";
     std::string command =
-        "configure_parser -i " + config_file + " -o " + cfg_toml;
+        "/usr/local/bin/luban_parser -i " + config_file + " -o " + cfg_toml;
     system(command.c_str());
     std::shared_ptr<cpptoml::table> g = cpptoml::parse_file(cfg_toml);
 

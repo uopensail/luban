@@ -45,7 +45,7 @@ class FeatureOperatorToolkit {
     const std::string &name = o.get_name();
     const VariableType &type = o.get_type();
     const auto &cfg_params = o.get_parameters();
-    //处理常用的内置函数
+    // process built in functions
     if ("timestamp" == func) {
       SharedFeaturePtr feature = std::make_shared<sample::Feature>();
       auto tmp = timestamp();

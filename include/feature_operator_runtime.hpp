@@ -125,7 +125,7 @@ class RunTimeFeatures {
     }
   }
 
-  //取某个特征
+  // get feature
   SharedFeaturePtr get(const ConfigureParameter &p) {
     const VariableType &type = p.get_type();
     assert(type == VariableType::VT_Anonymous_Feature ||

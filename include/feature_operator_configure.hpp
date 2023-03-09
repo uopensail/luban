@@ -32,17 +32,20 @@
 #include "feature_helper.hpp"
 #include "helper.h"
 
-/*
-    VT_Int: 字面整型常量
-    VT_Float: 字面浮点型常量
-    VT_String: 字面字符串常量, 以引号作为字符串的开始和结束
-    VT_IntList: 字面整型常量数组
-    VT_FloatList: 字面浮点型常量数组
-    VT_StringList: 字面字符串常量数组
-    VT_Original_Feature: 原始特征, tffeature类型的值, TensorFlow中定义
-    VT_Selected_Feature: 命名的变量, tffeature类型的值
-    VT_Anonymous_Feature: 匿名变量, tffeature类型的值
-*/
+/**
+ * @brief
+ *
+ * VT_Int: literal integer constant
+ * VT_Float: literal floating point constant
+ * VT_String: literal string constant, with quotation marks as the beginning
+ *            and end of the string
+ * VT_IntList: literal integer constant array
+ * VT_FloatList: literal floating point constant array
+ * VT_StringList: literal string constant array
+ * VT_Original_Feature: original feature, value of tffeature type, defined in
+ * TensorFlow VT_Selected_Feature: named variable, value of tffeature type
+ * VT_Anonymous_Feature: anonymous variable, value of tffeature type
+ */
 enum VariableType {
   VT_Not_Defined = 0,
   VT_Int,
@@ -56,7 +59,7 @@ enum VariableType {
   VT_Anonymous_Feature
 };
 
-//函数的类型
+// define function type
 enum FunctionType {
   FT_Not_Defined = 0,
   FT_Simple_Func,
@@ -64,7 +67,6 @@ enum FunctionType {
   FT_Binary_Func,
 };
 
-//配置中的参数
 class ConfigureParameter {
  private:
   int index_;
@@ -146,9 +148,9 @@ class ConfigureParameter {
     }
   }
 
-  //从toml配置中生成ConfigureParameter
+  // read toml config file and parse to ConfigureParameter
   ConfigureParameter(const std::shared_ptr<cpptoml::table> &table) {
-    //配置前置条件检查
+    // check fields
     assert(table->contains("index") && table->contains("type") &&
            table->contains("data"));
     ParamsHelper params(table);
@@ -218,7 +220,10 @@ class ConfigureParameter {
 
 #define SharedParametersPtr std::shared_ptr<std::vector<ConfigureParameter>>
 
-//函数的输入类型
+/**
+ * @brief define function input type
+ *
+ */
 enum FunctionInputType {
   FI_Not_Defined = 0,
   FI_Unary_S_1_L_1_Type,  // FI_Unary_S{ize}_[1-5]_L{ocation}_[1-5]_Type
