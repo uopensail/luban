@@ -1,21 +1,16 @@
-//
 // `LuBan` - 'c++ tool for transformating and hashing features'
 // Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+// LuBan is provided under: GNU Affero General Public License (AGPL3.0)
+// https://www.gnu.org/licenses/agpl-3.0.html unless stated otherwise.
 //
-// This file is part of `LuBan`.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation.
 //
-// `LuBan` is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// `LuBan` is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
 //
 
 #ifndef LUBAN_FEATURE_HELPER_HPP
@@ -65,21 +60,6 @@
 #define luban_is_array_type(T) \
   (luban_is_int_array(T) || luban_is_float_array(T) || luban_is_str_array(T))
 
-// namespace std {
-// template <class T>
-// struct remove_vector {
-//   typedef T type;
-// };
-// template <class T>
-// struct remove_vector<std::vector<T>> {
-//   typedef T type;
-// };
-// template <class T>
-// struct remove_vector<std::vector<T> *> {
-//   typedef T type;
-// };
-// }  // namespace std
-
 // fetch the data and tranform to array
 template <typename T>
 static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
@@ -120,27 +100,6 @@ static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
   }
   throw std::runtime_error("feature value error");
 }
-
-// get the first data for list
-// template <typename T>
-// static T to_scalar(const SharedFeaturePtr &feature) {
-//   if constexpr (is_int(T)) {
-//     assert(feature->has_int64_list());
-//     return static_cast<T>(feature->int64_list().value(0));
-//   } else if constexpr (is_float(T)) {
-//     // int64_t can cast as float
-//     assert(feature->has_int64_list() || feature->has_float_list());
-//     if (feature->has_int64_list()) {
-//       return static_cast<T>(feature->int64_list().value(0));
-//     } else {
-//       return static_cast<T>(feature->float_list().value(0));
-//     }
-//   } else if constexpr (is_str(T)) {
-//     assert(feature->has_bytes_list());
-//     return feature->bytes_list().value(0);
-//   }
-//   throw std::runtime_error("feature value error");
-// }
 
 // add value to feature
 template <typename T>
@@ -191,29 +150,14 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
       return nullptr;
     }
     auto tmp = func(data);
-    if constexpr (std::is_pointer<U>::value) {
-      if (tmp == nullptr) {
-        return nullptr;
-      } else if (tmp->size() == 0) {
-        delete tmp;
-        return nullptr;
-      }
-      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-      for (size_t i = 0; i < tmp->size(); i++) {
-        add_value<>(ret, tmp->at(i));
-      }
-      delete tmp;
-      return ret;
-    } else {
-      if (tmp.size() == 0) {
-        return nullptr;
-      }
-      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-      for (size_t i = 0; i < tmp.size(); i++) {
-        add_value<>(ret, tmp[i]);
-      }
-      return ret;
+    if (tmp.size() == 0) {
+      return nullptr;
     }
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    for (size_t i = 0; i < tmp.size(); i++) {
+      add_value<>(ret, tmp[i]);
+    }
+    return ret;
   }
   return nullptr;
 }
@@ -298,27 +242,14 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     }
 
     auto tmp = func(dataA, dataB);
-    if constexpr (std::is_pointer<U>::value) {
-      if (tmp->size() == 0) {
-        delete tmp;
-        return nullptr;
-      }
-      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-      for (size_t i = 0; i < tmp->size(); i++) {
-        add_value<>(ret, tmp->at(i));
-      }
-      delete tmp;
-      return ret;
-    } else {
-      if (tmp.size() == 0) {
-        return nullptr;
-      }
-      SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-      for (size_t i = 0; i < tmp.size(); i++) {
-        add_value<typename U::value_type>(ret, tmp[i]);
-      }
-      return ret;
+    if (tmp.size() == 0) {
+      return nullptr;
     }
+    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    for (size_t i = 0; i < tmp.size(); i++) {
+      add_value<typename U::value_type>(ret, tmp[i]);
+    }
+    return ret;
   }
   return nullptr;
 }

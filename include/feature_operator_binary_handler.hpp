@@ -1,21 +1,17 @@
 //
 // `LuBan` - 'c++ tool for transformating and hashing features'
 // Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+// LuBan is provided under: GNU Affero General Public License (AGPL3.0)
+// https://www.gnu.org/licenses/agpl-3.0.html unless stated otherwise.
 //
-// This file is part of `LuBan`.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation.
 //
-// `LuBan` is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// `LuBan` is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
 //
 
 #ifndef LUBAN_FEATURE_OPERATOR_BINARY_HANDLER_HPP
@@ -29,69 +25,78 @@
 #include "feature_operator_runtime.hpp"
 template <class T0, class T1, class T2>
 std::function<T0(T1 &, T2 &)> binary_call_2_1_2(
-    T0 (*func)(T1 &, T2 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &)> func, const SharedParametersPtr &params) {
   return func;
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T1 &, T2 &)> binary_call_3_1_2(
-    T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get());
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T1 &, T3 &)> binary_call_3_1_3(
-    T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T2 &, T3 &)> binary_call_3_2_3(
-    T0 (*func)(T1 &, T2 &, T3 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T2 &)> binary_call_4_1_2(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T3 &)> binary_call_4_1_3(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &, T4 &)> binary_call_4_1_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T2 &, T3 &)> binary_call_4_2_3(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T2 &, T4 &)> binary_call_4_2_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T3 &, T4 &)> binary_call_4_3_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &), const SharedParametersPtr &params) {
+    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
+    const SharedParametersPtr &params) {
   // auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
   //   return std::bind(func, *(T1 *)params->at(0).get(),
   //                    *(T2 *)params->at(1).get(), std::placeholders::_1,
@@ -103,7 +108,7 @@ std::function<T0(T3 &, T4 &)> binary_call_4_3_4(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T2 &)> binary_call_5_1_2(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
@@ -112,7 +117,7 @@ std::function<T0(T1 &, T2 &)> binary_call_5_1_2(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T3 &)> binary_call_5_1_3(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2, *(T4 *)params->at(3).get(),
@@ -121,7 +126,7 @@ std::function<T0(T1 &, T3 &)> binary_call_5_1_3(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T4 &)> binary_call_5_1_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_2,
@@ -130,7 +135,7 @@ std::function<T0(T1 &, T4 &)> binary_call_5_1_4(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &, T5 &)> binary_call_5_1_5(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
@@ -139,7 +144,7 @@ std::function<T0(T1 &, T5 &)> binary_call_5_1_5(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T3 &)> binary_call_5_2_3(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2, *(T4 *)params->at(3).get(),
@@ -148,7 +153,7 @@ std::function<T0(T2 &, T3 &)> binary_call_5_2_3(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T4 &)> binary_call_5_2_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), std::placeholders::_2,
@@ -157,7 +162,7 @@ std::function<T0(T2 &, T4 &)> binary_call_5_2_4(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &, T5 &)> binary_call_5_2_5(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
@@ -166,7 +171,7 @@ std::function<T0(T2 &, T5 &)> binary_call_5_2_5(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T3 &, T4 &)> binary_call_5_3_4(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, std::placeholders::_2,
@@ -175,7 +180,7 @@ std::function<T0(T3 &, T4 &)> binary_call_5_3_4(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T3 &, T5 &)> binary_call_5_3_5(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, *(T4 *)params->at(3).get(),
@@ -184,7 +189,7 @@ std::function<T0(T3 &, T5 &)> binary_call_5_3_5(
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T4 &, T5 &)> binary_call_5_4_5(
-    T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
     const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_1,
@@ -193,7 +198,7 @@ std::function<T0(T4 &, T5 &)> binary_call_5_4_5(
 
 template <typename T0, typename... ArgsType>
 static SharedFeaturePtr binary_call(RunTimeFeatures &features,
-                                    T0 (*func)(ArgsType &...),
+                                    std::function<T0(ArgsType &...)> func,
                                     const ConfigureOperator &opr) {
   if constexpr (sizeof...(ArgsType) > 5) {
     throw std::runtime_error("len(argvs) > 5");
