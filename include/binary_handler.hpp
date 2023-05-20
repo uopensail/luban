@@ -20,186 +20,221 @@
 #pragma once
 #include <functional>
 
+#include "configure.hpp"
 #include "feature_helper.hpp"
-#include "feature_operator_configure.hpp"
-#include "feature_operator_runtime.hpp"
+#include "runtime.hpp"
+
+class BinaryCaller {
+public:
+  BinaryCaller() = delete;
+  BinaryCaller(BinaryFunc func, const ConfigureParameter &arg1,
+               const ConfigureParameter &arg2)
+      : func_(func), arg1_(arg1), arg2_(arg2) {}
+
+  BinaryCaller &operator=(const BinaryCaller &caller) {
+    if (this == &caller) {
+      return *this;
+    }
+    this->func_ = caller.func_;
+    this->arg1_ = caller.arg1_;
+    this->arg2_ = caller.arg2_;
+    return *this;
+  }
+
+  ~BinaryCaller() {}
+
+  const BinaryFunc &get_func() const { return this->func_; }
+  const ConfigureParameter &get_arg1() const { return this->arg1_; }
+  const ConfigureParameter &get_arg2() const { return this->arg2_; }
+
+private:
+  BinaryFunc func_;
+  ConfigureParameter arg1_;
+  ConfigureParameter arg2_;
+};
+
+static SharedFeaturePtr do_binary_call(const BinaryCaller &caller,
+                                       RunTimeFeatures &features) {
+  auto feature1 = features.get(caller.get_arg1());
+  auto feature2 = features.get(caller.get_arg2());
+  if (feature1 == nullptr || feature2 == nullptr) {
+    return nullptr;
+  }
+  auto func = caller.get_func();
+  return func(feature1, feature2);
+}
+
 template <class T0, class T1, class T2>
-std::function<T0(T1 &, T2 &)> binary_call_2_1_2(
-    std::function<T0(T1 &, T2 &)> func, const SharedParametersPtr &params) {
+std::function<T0(T1 &, T2 &)>
+binary_call_2_1_2(T0 (*func)(T1 &, T2 &), const SharedParametersPtr &params) {
   return func;
 }
 
 template <class T0, class T1, class T2, class T3>
-std::function<T0(T1 &, T2 &)> binary_call_3_1_2(
-    std::function<T0(T1 &, T2 &, T3 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T2 &)>
+binary_call_3_1_2(T0 (*func)(T1 &, T2 &, T3 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get());
 }
 
 template <class T0, class T1, class T2, class T3>
-std::function<T0(T1 &, T3 &)> binary_call_3_1_3(
-    std::function<T0(T1 &, T2 &, T3 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T3 &)>
+binary_call_3_1_3(T0 (*func)(T1 &, T2 &, T3 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3>
-std::function<T0(T2 &, T3 &)> binary_call_3_2_3(
-    std::function<T0(T1 &, T2 &, T3 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T3 &)>
+binary_call_3_2_3(T0 (*func)(T1 &, T2 &, T3 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T1 &, T2 &)> binary_call_4_1_2(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T2 &)>
+binary_call_4_1_2(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T1 &, T3 &)> binary_call_4_1_3(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T3 &)>
+binary_call_4_1_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T1 &, T4 &)> binary_call_4_1_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T4 &)>
+binary_call_4_1_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T2 &, T3 &)> binary_call_4_2_3(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T3 &)>
+binary_call_4_2_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T2 &, T4 &)> binary_call_4_2_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T4 &)>
+binary_call_4_2_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
-std::function<T0(T3 &, T4 &)> binary_call_4_3_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &)> func,
-    const SharedParametersPtr &params) {
-  // auto myfunc = [&](T3 &t3, T4 &t4) -> T0 {
-  //   return std::bind(func, *(T1 *)params->at(0).get(),
-  //                    *(T2 *)params->at(1).get(), std::placeholders::_1,
-  //                    std::placeholders::_2);
-  // };
+std::function<T0(T3 &, T4 &)>
+binary_call_4_3_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T1 &, T2 &)> binary_call_5_1_2(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T2 &)>
+binary_call_5_1_2(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, std::placeholders::_2,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T1 &, T3 &)> binary_call_5_1_3(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T3 &)>
+binary_call_5_1_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    std::placeholders::_2, *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T1 &, T4 &)> binary_call_5_1_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T4 &)>
+binary_call_5_1_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_2,
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T1 &, T5 &)> binary_call_5_1_5(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T1 &, T5 &)>
+binary_call_5_1_5(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T2 &, T3 &)> binary_call_5_2_3(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T3 &)>
+binary_call_5_2_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    std::placeholders::_2, *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T2 &, T4 &)> binary_call_5_2_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T4 &)>
+binary_call_5_2_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), std::placeholders::_2,
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T2 &, T5 &)> binary_call_5_2_5(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T2 &, T5 &)>
+binary_call_5_2_5(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T3 &, T4 &)> binary_call_5_3_4(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T3 &, T4 &)>
+binary_call_5_3_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, std::placeholders::_2,
                    *(T5 *)params->at(4).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T3 &, T5 &)> binary_call_5_3_5(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T3 &, T5 &)>
+binary_call_5_3_5(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, *(T4 *)params->at(3).get(),
                    std::placeholders::_2);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
-std::function<T0(T4 &, T5 &)> binary_call_5_4_5(
-    std::function<T0(T1 &, T2 &, T3 &, T4 &, T5 &)> func,
-    const SharedParametersPtr &params) {
+std::function<T0(T4 &, T5 &)>
+binary_call_5_4_5(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
+                  const SharedParametersPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_1,
                    std::placeholders::_2);
 }
 
 template <typename T0, typename... ArgsType>
-static SharedFeaturePtr binary_call(RunTimeFeatures &features,
-                                    std::function<T0(ArgsType &...)> func,
-                                    const ConfigureOperator &opr) {
+static std::shared_ptr<BinaryCaller>
+get_binary_caller(T0 (*func)(ArgsType &...), const ConfigureOperator &opr) {
   if constexpr (sizeof...(ArgsType) > 5) {
     throw std::runtime_error("len(argvs) > 5");
   } else if constexpr (sizeof...(ArgsType) == 1) {
@@ -210,70 +245,53 @@ static SharedFeaturePtr binary_call(RunTimeFeatures &features,
     assert(params->size() == 2);
     assert(type == FunctionInputType::FI_Binary_S_2_L_1_2_Type);
     auto myfunc = binary_call_2_1_2(func, params);
-    auto featureA = features.get(params->at(0));
-    auto featureB = features.get(params->at(1));
-    return binary_func_call(featureA, featureB, myfunc);
+    return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                          params->at(0), params->at(1));
   } else if constexpr (sizeof...(ArgsType) == 3) {
     const FunctionInputType &type = opr.get_input_type();
     const SharedParametersPtr &params = opr.get_parameters();
     assert(params->size() == 3);
     if (type == FunctionInputType::FI_Binary_S_3_L_1_2_Type) {
       auto myfunc = binary_call_3_1_2(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(1));
-
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(1));
     } else if (type == FunctionInputType::FI_Binary_S_3_L_1_3_Type) {
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(2));
-
       auto myfunc = binary_call_3_1_3(func, params);
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(2));
     } else if (type == FunctionInputType::FI_Binary_S_3_L_2_3_Type) {
       auto myfunc = binary_call_3_2_3(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(2));
-      return binary_func_call(featureA, featureB, myfunc);
-    } else {
-      return nullptr;
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(2));
     }
-
   } else if constexpr (sizeof...(ArgsType) == 4) {
     const FunctionInputType &type = opr.get_input_type();
     const SharedParametersPtr &params = opr.get_parameters();
     assert(params->size() == 4);
     if (type == FunctionInputType::FI_Binary_S_4_L_1_2_Type) {
       auto myfunc = binary_call_4_1_2(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(1));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(1));
     } else if (type == FunctionInputType::FI_Binary_S_4_L_1_3_Type) {
       auto myfunc = binary_call_4_1_3(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(2));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(2));
     } else if (type == FunctionInputType::FI_Binary_S_4_L_1_4_Type) {
       auto myfunc = binary_call_4_1_4(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(3));
     } else if (type == FunctionInputType::FI_Binary_S_4_L_2_3_Type) {
       auto myfunc = binary_call_4_2_3(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(2));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(2));
     } else if (type == FunctionInputType::FI_Binary_S_4_L_2_4_Type) {
       auto myfunc = binary_call_4_2_4(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(3));
     } else if (type == FunctionInputType::FI_Binary_S_4_L_3_4_Type) {
       auto myfunc = binary_call_4_3_4(func, params);
-      auto featureA = features.get(params->at(2));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
-    } else {
-      return nullptr;
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(2), params->at(3));
     }
   } else if constexpr (sizeof...(ArgsType) == 5) {
     const FunctionInputType &type = opr.get_input_type();
@@ -281,60 +299,47 @@ static SharedFeaturePtr binary_call(RunTimeFeatures &features,
     assert(params->size() == 5);
     if (type == FunctionInputType::FI_Binary_S_5_L_1_2_Type) {
       auto myfunc = binary_call_5_1_2(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(1));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(1));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_1_3_Type) {
       auto myfunc = binary_call_5_1_3(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(2));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(2));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_1_4_Type) {
       auto myfunc = binary_call_5_1_4(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(3));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_1_5_Type) {
       auto myfunc = binary_call_5_1_5(func, params);
-      auto featureA = features.get(params->at(0));
-      auto featureB = features.get(params->at(4));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(0), params->at(4));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_2_3_Type) {
       auto myfunc = binary_call_5_2_3(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(2));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(2));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_2_4_Type) {
       auto myfunc = binary_call_5_2_4(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(3));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_2_5_Type) {
       auto myfunc = binary_call_5_2_5(func, params);
-      auto featureA = features.get(params->at(1));
-      auto featureB = features.get(params->at(4));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(1), params->at(4));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_3_4_Type) {
       auto myfunc = binary_call_5_3_4(func, params);
-      auto featureA = features.get(params->at(2));
-      auto featureB = features.get(params->at(3));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(2), params->at(3));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_3_5_Type) {
       auto myfunc = binary_call_5_3_5(func, params);
-      auto featureA = features.get(params->at(2));
-      auto featureB = features.get(params->at(4));
-      return binary_func_call(featureA, featureB, myfunc);
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(2), params->at(4));
     } else if (type == FunctionInputType::FI_Binary_S_5_L_4_5_Type) {
       auto myfunc = binary_call_5_4_5(func, params);
-      auto featureA = features.get(params->at(3));
-      auto featureB = features.get(params->at(4));
-      return binary_func_call(featureA, featureB, myfunc);
-    } else {
-      return nullptr;
+      return std::make_shared<BinaryCaller>(get_binary_func(myfunc),
+                                            params->at(3), params->at(4));
     }
-  } else {
-    return nullptr;
   }
+  return nullptr;
 }
 
-#endif  // LUBAN_FEATURE_OPERATOR_BINARY_HANDLER_HPP
+#endif // LUBAN_FEATURE_OPERATOR_BINARY_HANDLER_HPP

@@ -9,10 +9,9 @@ include_directories(/usr/include)
 
 link_directories(/usr/local/lib)
 
-SET(LUBAN_INCLUDE include/base64.h include/cpptoml.h include/feature_builtin_operators.hpp
-include/feature_helper.hpp  include/feature_hash_toolkit.hpp include/feature_operator_toolkit.hpp
-include/feature_operator_handler.hpp include/feature_operator_runtime.hpp 
-include/feature_operator_toolkit.hpp include/feature.pb.h 
+SET(LUBAN_INCLUDE include/base64.h include/cpptoml.h include/builtin_operators.hpp
+include/feature_helper.hpp  include/hash_toolkit.hpp include/operator_toolkit.hpp
+include/runtime.hpp include/feature.pb.h 
 include/helper.h include/MurmurHash3.h include/toolkit.hpp)
 
 SET(LUBAN_SOURCE  src/MurmurHash3.cc src/base64.cpp  src/feature.pb.cc)

@@ -158,21 +158,21 @@ int main(int argc, char *argv[]) {
   std::string config_file, input_file, out_file;
   while ((opt = getopt(argc, argv, "c:i:o:n:")) != -1) {
     switch (opt) {
-      case 'c':
-        config_file = std::string(optarg);
-        break;
-      case 'i':
-        input_file = std::string(optarg);
-        break;
-      case 'o':
-        out_file = std::string(optarg);
-        break;
-      case 'n':
-        num = std::atoi(optarg);
-      default:
-        std::cout << "./luban_tool -c config_file -i input_file -o output_file "
-                     "-n thread_num"
-                  << std::endl;
+    case 'c':
+      config_file = std::string(optarg);
+      break;
+    case 'i':
+      input_file = std::string(optarg);
+      break;
+    case 'o':
+      out_file = std::string(optarg);
+      break;
+    case 'n':
+      num = std::atoi(optarg);
+    default:
+      std::cout << "./luban_tool -c config_file -i input_file -o output_file "
+                   "-n thread_num"
+                << std::endl;
     }
   }
   process(config_file, input_file, out_file, num);

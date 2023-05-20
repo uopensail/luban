@@ -20,26 +20,21 @@
 #pragma once
 #include <memory>
 
-#include "feature_hash_toolkit.hpp"
-#include "feature_operator_toolkit.hpp"
+#include "hash_toolkit.hpp"
+#include "operator_toolkit.hpp"
+#include "runtime.hpp"
 
 class Toolkit {
- private:
-  std::shared_ptr<FeatureHashToolkit> hasher_;
-  std::shared_ptr<FeatureOperatorToolkit> operator_;
-  std::vector<ConfigureOperator> operator_configs_;
-  std::unordered_map<std::string, u_int64_t> feature_gid_map_;
-
- private:
-  EntityArray *process_from_realtime_features(
-      RunTimeFeatures &realtime_features) {
+private:
+  EntityArray *
+  process_from_realtime_features(RunTimeFeatures &realtime_features) {
     for (const auto &o : operator_configs_) {
       this->operator_->call(o, realtime_features);
     }
     return this->hasher_->call(realtime_features.get_selected());
   }
 
- public:
+public:
   Toolkit() = delete;
   Toolkit(const Toolkit &) = delete;
   Toolkit(const Toolkit &&) = delete;
@@ -65,7 +60,8 @@ class Toolkit {
           (u_int64_t)params.get<int64_t>("gid");
     }
     this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_gid_map_);
-    this->operator_ = std::make_shared<FeatureOperatorToolkit>();
+    this->operator_ =
+        std::make_shared<FeatureOperatorToolkit>(operator_configs_);
   }
 
   EntityArray *process(char *features, int len) {
@@ -83,13 +79,19 @@ class Toolkit {
     return array;
   }
 
-  EntityArray *process(
-      const std::initializer_list<sample::Features *> &features_list) {
+  EntityArray *
+  process(const std::initializer_list<sample::Features *> &features_list) {
     RunTimeFeatures rt_features(features_list);
     return this->process_from_realtime_features(rt_features);
   }
 
   ~Toolkit() {}
+
+private:
+  std::shared_ptr<FeatureHashToolkit> hasher_;
+  std::shared_ptr<FeatureOperatorToolkit> operator_;
+  std::vector<ConfigureOperator> operator_configs_;
+  std::unordered_map<std::string, u_int64_t> feature_gid_map_;
 };
 
-#endif  // LUBAN_TOOLKIT_HPP
+#endif // LUBAN_TOOLKIT_HPP

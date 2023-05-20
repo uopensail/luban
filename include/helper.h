@@ -27,13 +27,16 @@
 #include "cpptoml.h"
 #include "feature.pb.h"
 
-//定义特征的智能指针类型
 #define SharedFeaturePtr std::shared_ptr<sample::Feature>
 #define SharedFeaturesPtr std::shared_ptr<sample::Features>
 
-//打印模板类型，用于调试
-template <typename T>
-constexpr std::string_view type_name() {
+using UnaryFunc = std::function<SharedFeaturePtr(SharedFeaturePtr)>;
+
+using BinaryFunc =
+    std::function<SharedFeaturePtr(SharedFeaturePtr, SharedFeaturePtr)>;
+
+// for debug
+template <typename T> constexpr std::string_view type_name() {
   std::string_view name, prefix, suffix;
 #ifdef __clang__
   name = __PRETTY_FUNCTION__;
@@ -55,13 +58,9 @@ constexpr std::string_view type_name() {
 
 #define PRINT_TYPE(X) std::cout << type_name<X>() << std::endl;
 
-template <typename T>
-void print_template_type() {
-  PRINT_TYPE(T);
-}
+template <typename T> void print_template_type() { PRINT_TYPE(T); }
 
-template <typename T1, typename T2, typename... Ts>
-void print_template_type() {
+template <typename T1, typename T2, typename... Ts> void print_template_type() {
   if (sizeof...(Ts) == 0) {
     PRINT_TYPE(T1);
     PRINT_TYPE(T2);
@@ -72,10 +71,10 @@ void print_template_type() {
 }
 
 class ParamsHelper {
- private:
+private:
   std::shared_ptr<cpptoml::table> param_table_ptr;
 
- public:
+public:
   ParamsHelper() = delete;
 
   ~ParamsHelper() {}
@@ -91,8 +90,7 @@ class ParamsHelper {
     return *this;
   }
 
-  template <typename T>
-  T get(std::string key) const {
+  template <typename T> T get(std::string key) const {
     if (param_table_ptr->contains(key)) {
       return *(param_table_ptr->get_as<T>(key));
     } else {
@@ -100,8 +98,7 @@ class ParamsHelper {
     }
   }
 
-  template <typename T>
-  T get(std::string key, T value) const {
+  template <typename T> T get(std::string key, T value) const {
     if (param_table_ptr->contains(key)) {
       return *(param_table_ptr->get_as<T>(key));
     } else {
@@ -119,4 +116,4 @@ class ParamsHelper {
   }
 };
 
-#endif  // LUBAN_HELPER_H
+#endif // LUBAN_HELPER_H

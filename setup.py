@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 #
-# `LuBan` - 'c++ tool for transformating and hashing features'.
-# Copyright (C) 2019 - present uopensail <timepi123@gmail.com>
+# `LuBan` - 'c++ tool for transformating and hashing features'
+# Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+# LuBan is provided under: GNU Affero General Public License (AGPL3.0)
+# https://www.gnu.org/licenses/agpl-3.0.html unless stated otherwise.
 #
-# This file is part of `LuBan`.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation.
 #
-# `LuBan` is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# `LuBan` is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
+
 """
 Created on Mon May 13 17:58:27 2019
 @author: TimePi
@@ -62,8 +58,13 @@ else:
 
 pyluban_module = Extension(
     name="_pyluban",
-    sources=["src/MurmurHash3.cc", "src/base64.cpp",
-             "src/feature.pb.cc", "src/pyluban.cpp", "src/luban_wrap.cxx"],
+    sources=[
+        "src/MurmurHash3.cc",
+        "src/base64.cpp",
+        "src/feature.pb.cc",
+        "src/pyluban.cpp",
+        "src/luban_wrap.cxx",
+    ],
     include_dirs=["/usr/local/include", "include"],
     library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,
@@ -88,7 +89,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
-        "License :: GPL 3",
+        "License :: AGPL 3",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
@@ -96,11 +97,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    scripts=["script/luban_parser.py",
-             "script/operator_def.py", "script/type_def.py"],
-    entry_points={
-        "console_scripts": [
-            "luban_parser = luban_parser:main"
-        ]
-    },
+    scripts=["script/luban_parser.py", "script/operator_def.py", "script/type_def.py"],
+    entry_points={"console_scripts": ["luban_parser = luban_parser:main"]},
 )

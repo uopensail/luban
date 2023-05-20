@@ -18,22 +18,18 @@
 #define LUBAN_FEATURE_OPERATOR_RUNTIME_HPP
 
 #pragma once
+
 #include <initializer_list>
 #include <unordered_map>
 
+#include "configure.hpp"
 #include "feature_helper.hpp"
-#include "feature_operator_configure.hpp"
 
 static void do_nothing(void *ptr) {}
 
-//运行时的特征
 class RunTimeFeatures {
- private:
-  std::unordered_map<std::string, SharedFeaturePtr> selected_;
-  std::unordered_map<std::string, SharedFeaturePtr> anonymous_;
-  std::unordered_map<std::string, SharedFeaturePtr> origin_;
 
- public:
+public:
   RunTimeFeatures() = delete;
   RunTimeFeatures(const RunTimeFeatures &features) {
     for (auto &kv : features.origin_) {
@@ -104,20 +100,20 @@ class RunTimeFeatures {
     return this->selected_;
   }
 
-  //添加一个值
+  // insert feature
   void insert(VariableType type, const std::string &key,
               const SharedFeaturePtr &feature) {
     assert(type == VariableType::VT_Anonymous_Feature ||
            type == VariableType::VT_Selected_Feature);
     switch (type) {
-      case VariableType::VT_Anonymous_Feature:
-        this->anonymous_[key] = feature;
-        return;
-      case VariableType::VT_Selected_Feature:
-        this->selected_[key] = feature;
-        return;
-      default:
-        return;
+    case VariableType::VT_Anonymous_Feature:
+      this->anonymous_[key] = feature;
+      return;
+    case VariableType::VT_Selected_Feature:
+      this->selected_[key] = feature;
+      return;
+    default:
+      return;
     }
   }
 
@@ -129,33 +125,38 @@ class RunTimeFeatures {
            type == VariableType::VT_Origin_Feature);
     const std::string *key = (std::string *)p.get();
     switch (type) {
-      case VariableType::VT_Anonymous_Feature: {
-        auto iter = this->anonymous_.find(*key);
-        if (iter != this->anonymous_.end()) {
-          return iter->second;
-        } else {
-          return nullptr;
-        }
-      }
-      case VariableType::VT_Selected_Feature: {
-        auto iter = this->selected_.find(*key);
-        if (iter != this->selected_.end()) {
-          return iter->second;
-        } else {
-          return nullptr;
-        }
-      }
-      case VariableType::VT_Origin_Feature: {
-        auto iter = this->origin_.find(*key);
-        if (iter != this->origin_.end()) {
-          return iter->second;
-        } else {
-          return nullptr;
-        }
-      }
-      default:
+    case VariableType::VT_Anonymous_Feature: {
+      auto iter = this->anonymous_.find(*key);
+      if (iter != this->anonymous_.end()) {
+        return iter->second;
+      } else {
         return nullptr;
+      }
+    }
+    case VariableType::VT_Selected_Feature: {
+      auto iter = this->selected_.find(*key);
+      if (iter != this->selected_.end()) {
+        return iter->second;
+      } else {
+        return nullptr;
+      }
+    }
+    case VariableType::VT_Origin_Feature: {
+      auto iter = this->origin_.find(*key);
+      if (iter != this->origin_.end()) {
+        return iter->second;
+      } else {
+        return nullptr;
+      }
+    }
+    default:
+      return nullptr;
     }
   }
+
+private:
+  std::unordered_map<std::string, SharedFeaturePtr> selected_;
+  std::unordered_map<std::string, SharedFeaturePtr> anonymous_;
+  std::unordered_map<std::string, SharedFeaturePtr> origin_;
 };
-#endif  // LUBAN_FEATURE_OPERATOR_RUNTIME_HPP
+#endif // LUBAN_FEATURE_OPERATOR_RUNTIME_HPP
