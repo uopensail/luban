@@ -32,28 +32,16 @@ class RunTimeFeatures {
 public:
   RunTimeFeatures() = delete;
   RunTimeFeatures(const RunTimeFeatures &features) {
-    for (auto &kv : features.origin_) {
-      origin_[kv.first] = kv.second;
-    }
-    for (auto &kv : features.selected_) {
-      origin_[kv.first] = kv.second;
-    }
-    for (auto &kv : features.anonymous_) {
-      origin_[kv.first] = kv.second;
+    for (auto kv : features.features_) {
+      features_[kv.first] = kv.second;
     }
   }
   RunTimeFeatures &operator=(const RunTimeFeatures &features) {
     if (this == &features) {
       return *this;
     }
-    for (auto &kv : features.origin_) {
-      origin_[kv.first] = kv.second;
-    }
-    for (auto &kv : features.selected_) {
-      origin_[kv.first] = kv.second;
-    }
-    for (auto &kv : features.anonymous_) {
-      origin_[kv.first] = kv.second;
+    for (auto kv : features.features_) {
+      features_[kv.first] = kv.second;
     }
     return *this;
   }
@@ -62,7 +50,7 @@ public:
     assert(features != nullptr);
     const auto &fea = features->feature();
     for (auto &kv : fea) {
-      origin_[kv.first] =
+      features_[kv.first] =
           SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
     }
   }
@@ -73,7 +61,7 @@ public:
       assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] =
+        features_[kv.first] =
             SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
       }
     }
@@ -84,79 +72,34 @@ public:
       assert(it != nullptr);
       const auto &features = it->feature();
       for (auto &kv : features) {
-        origin_[kv.first] =
+        features_[kv.first] =
             SharedFeaturePtr{(sample::Feature *)(&(kv.second)), do_nothing};
       }
     }
   }
 
-  ~RunTimeFeatures() {
-    this->origin_.clear();
-    this->anonymous_.clear();
-    this->selected_.clear();
-  }
-
-  const std::unordered_map<std::string, SharedFeaturePtr> &get_selected() {
-    return this->selected_;
-  }
+  ~RunTimeFeatures() { features_.clear(); }
 
   // insert feature
-  void insert(VariableType type, const std::string &key,
-              const SharedFeaturePtr &feature) {
-    assert(type == VariableType::VT_Anonymous_Feature ||
-           type == VariableType::VT_Selected_Feature);
-    switch (type) {
-    case VariableType::VT_Anonymous_Feature:
-      this->anonymous_[key] = feature;
-      return;
-    case VariableType::VT_Selected_Feature:
-      this->selected_[key] = feature;
-      return;
-    default:
-      return;
-    }
+  void insert(const std::string &key, const SharedFeaturePtr &feature) {
+    this->features_[key] = feature;
+  }
+
+  const std::unordered_map<std::string, SharedFeaturePtr> &get_features() {
+    return this->features_;
   }
 
   // get feature
-  SharedFeaturePtr get(const ConfigureParameter &p) {
-    const VariableType &type = p.get_type();
-    assert(type == VariableType::VT_Anonymous_Feature ||
-           type == VariableType::VT_Selected_Feature ||
-           type == VariableType::VT_Origin_Feature);
-    const std::string *key = (std::string *)p.get();
-    switch (type) {
-    case VariableType::VT_Anonymous_Feature: {
-      auto iter = this->anonymous_.find(*key);
-      if (iter != this->anonymous_.end()) {
-        return iter->second;
-      } else {
-        return nullptr;
-      }
-    }
-    case VariableType::VT_Selected_Feature: {
-      auto iter = this->selected_.find(*key);
-      if (iter != this->selected_.end()) {
-        return iter->second;
-      } else {
-        return nullptr;
-      }
-    }
-    case VariableType::VT_Origin_Feature: {
-      auto iter = this->origin_.find(*key);
-      if (iter != this->origin_.end()) {
-        return iter->second;
-      } else {
-        return nullptr;
-      }
-    }
-    default:
+  SharedFeaturePtr get(const std::string &key) {
+    auto iter = this->features_.find(key);
+    if (iter != this->features_.end()) {
+      return iter->second;
+    } else {
       return nullptr;
     }
   }
 
 private:
-  std::unordered_map<std::string, SharedFeaturePtr> selected_;
-  std::unordered_map<std::string, SharedFeaturePtr> anonymous_;
-  std::unordered_map<std::string, SharedFeaturePtr> origin_;
+  std::unordered_map<std::string, SharedFeaturePtr> features_;
 };
 #endif // LUBAN_FEATURE_OPERATOR_RUNTIME_HPP

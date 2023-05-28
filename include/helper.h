@@ -30,6 +30,8 @@
 #define SharedFeaturePtr std::shared_ptr<sample::Feature>
 #define SharedFeaturesPtr std::shared_ptr<sample::Features>
 
+using SimpleFunc = std::function<SharedFeaturePtr()>;
+
 using UnaryFunc = std::function<SharedFeaturePtr(SharedFeaturePtr)>;
 
 using BinaryFunc =

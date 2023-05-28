@@ -28,10 +28,8 @@ class Toolkit {
 private:
   EntityArray *
   process_from_realtime_features(RunTimeFeatures &realtime_features) {
-    for (const auto &o : operator_configs_) {
-      this->operator_->call(o, realtime_features);
-    }
-    return this->hasher_->call(realtime_features.get_selected());
+    this->operator_->call(realtime_features);
+    return this->hasher_->call(realtime_features.get_features());
   }
 
 public:
@@ -39,44 +37,40 @@ public:
   Toolkit(const Toolkit &) = delete;
   Toolkit(const Toolkit &&) = delete;
   Toolkit(const std::string &config_file) {
-    std::string cfg_toml =
-        config_file.substr(0, config_file.size() - 4) + "toml";
-    std::string command =
-        "/usr/local/bin/luban_parser -i " + config_file + " -o " + cfg_toml;
-    system(command.c_str());
-    std::shared_ptr<cpptoml::table> g = cpptoml::parse_file(cfg_toml);
+    std::shared_ptr<cpptoml::table> g = cpptoml::parse_file(config_file);
 
     // get the operator configures from toml file
-    auto operators = g->get_table_array("operators");
-    for (const auto &table : *operators) {
-      operator_configs_.push_back({table});
+    std::vector<ConfigureOperator> operator_configs;
+    auto transforms = g->get_table_array("transforms");
+    for (const auto &table : *transforms) {
+      operator_configs.push_back({table});
     }
-
-    auto groups = g->get_table_array("groups");
-    for (auto &table : *groups) {
-      assert(table->contains("name") && table->contains("gid"));
-      ParamsHelper params(table);
-      feature_gid_map_[params.get<std::string>("name")] =
-          (u_int64_t)params.get<int64_t>("gid");
-    }
-    this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_gid_map_);
     this->operator_ =
-        std::make_shared<FeatureOperatorToolkit>(operator_configs_);
+        std::make_shared<FeatureOperatorToolkit>(operator_configs);
+
+    std::unordered_map<std::string, u_int64_t> feature_group_map;
+    auto groups = g->get_table_array("outputs");
+    for (auto &table : *groups) {
+      assert(table->contains("name") && table->contains("group"));
+      ParamsHelper params(table);
+      feature_group_map[params.get<std::string>("name")] =
+          (u_int64_t)params.get<int64_t>("group");
+    }
+    this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_group_map);
   }
 
   EntityArray *process(char *features, int len) {
     sample::Features *tf_features = new sample::Features();
     tf_features->ParseFromArray(features, len);
     RunTimeFeatures rt_features(tf_features);
-    auto *array = this->process_from_realtime_features(rt_features);
+    auto ret = this->process_from_realtime_features(rt_features);
     delete tf_features;
-    return array;
+    return ret;
   }
 
   EntityArray *process(sample::Features *features) {
     RunTimeFeatures rt_features(features);
-    auto *array = this->process_from_realtime_features(rt_features);
-    return array;
+    return this->process_from_realtime_features(rt_features);
   }
 
   EntityArray *
@@ -90,8 +84,6 @@ public:
 private:
   std::shared_ptr<FeatureHashToolkit> hasher_;
   std::shared_ptr<FeatureOperatorToolkit> operator_;
-  std::vector<ConfigureOperator> operator_configs_;
-  std::unordered_map<std::string, u_int64_t> feature_gid_map_;
 };
 
 #endif // LUBAN_TOOLKIT_HPP

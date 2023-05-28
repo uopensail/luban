@@ -27,7 +27,7 @@
 class UnaryCaller {
 public:
   UnaryCaller() = delete;
-  UnaryCaller(UnaryFunc func, const ConfigureParameter &arg)
+  UnaryCaller(UnaryFunc func, const std::string &arg)
       : func_(func), arg_(arg) {}
 
   UnaryCaller &operator=(const UnaryCaller &caller) {
@@ -42,11 +42,11 @@ public:
   ~UnaryCaller() {}
 
   const UnaryFunc &get_func() const { return this->func_; }
-  const ConfigureParameter &get_arg() const { return this->arg_; }
+  const std::string &get_arg() const { return this->arg_; }
 
 private:
   UnaryFunc func_;
-  ConfigureParameter arg_;
+  std::string arg_;
 };
 
 static SharedFeaturePtr do_unary_call(const UnaryCaller &caller,
@@ -61,74 +61,74 @@ static SharedFeaturePtr do_unary_call(const UnaryCaller &caller,
 
 template <class T0, class T1>
 std::function<T0(T1 &)> unary_call_1_1(T0 (*func)(T1 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return func;
 }
 
 template <class T0, class T1, class T2>
 std::function<T0(T1 &)> unary_call_2_1(T0 (*func)(T1 &, T2 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get());
 }
 
 template <class T0, class T1, class T2>
 std::function<T0(T2 &)> unary_call_2_2(T0 (*func)(T1 &, T2 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1);
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T1 &)> unary_call_3_1(T0 (*func)(T1 &, T2 &, T3 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get());
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T2 &)> unary_call_3_2(T0 (*func)(T1 &, T2 &, T3 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get());
 }
 
 template <class T0, class T1, class T2, class T3>
 std::function<T0(T3 &)> unary_call_3_3(T0 (*func)(T1 &, T2 &, T3 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1);
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T1 &)> unary_call_4_1(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T2 &)> unary_call_4_2(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T3 &)> unary_call_4_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, *(T4 *)params->at(3).get());
 }
 
 template <class T0, class T1, class T2, class T3, class T4>
 std::function<T0(T4 &)> unary_call_4_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_1);
 }
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T1 &)> unary_call_5_1(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, std::placeholders::_1, *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
@@ -136,7 +136,7 @@ std::function<T0(T1 &)> unary_call_5_1(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T2 &)> unary_call_5_2(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), std::placeholders::_1,
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
@@ -144,7 +144,7 @@ std::function<T0(T2 &)> unary_call_5_2(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T3 &)> unary_call_5_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    std::placeholders::_1, *(T4 *)params->at(3).get(),
                    *(T5 *)params->at(4).get());
@@ -152,7 +152,7 @@ std::function<T0(T3 &)> unary_call_5_3(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T4 &)> unary_call_5_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), std::placeholders::_1,
                    *(T5 *)params->at(4).get());
@@ -160,7 +160,7 @@ std::function<T0(T4 &)> unary_call_5_4(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
 
 template <class T0, class T1, class T2, class T3, class T4, class T5>
 std::function<T0(T5 &)> unary_call_5_5(T0 (*func)(T1 &, T2 &, T3 &, T4 &, T5 &),
-                                       const SharedParametersPtr &params) {
+                                       const SharedArgumentsPtr &params) {
   return std::bind(func, *(T1 *)params->at(0).get(), *(T2 *)params->at(1).get(),
                    *(T3 *)params->at(2).get(), *(T4 *)params->at(3).get(),
                    std::placeholders::_1);
@@ -175,86 +175,87 @@ get_unary_caller(T0 (*func)(ArgsType &...), const ConfigureOperator &opr) {
     throw std::runtime_error("len(argvs) == 0");
   } else if constexpr (sizeof...(ArgsType) == 1) {
     const FunctionInputType &type = opr.get_input_type();
-    const SharedParametersPtr &params = opr.get_parameters();
+    const SharedArgumentsPtr &params = opr.get_args();
     assert(params->size() == 1);
     assert(type == FunctionInputType::FI_Unary_S_1_L_1_Type);
     auto myfunc = unary_call_1_1(func, params);
-    return std::make_shared<UnaryCaller>(get_unary_func(myfunc), params->at(0));
+    std::string arg = *(std::string *)params->at(0).get();
+    return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
   } else if constexpr (sizeof...(ArgsType) == 2) {
     const FunctionInputType &type = opr.get_input_type();
-    const SharedParametersPtr &params = opr.get_parameters();
+    const SharedArgumentsPtr &params = opr.get_args();
     assert(params->size() == 2);
     if (type == FunctionInputType::FI_Unary_S_2_L_1_Type) {
       auto myfunc = unary_call_2_1(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(0));
+      std::string arg = *(std::string *)params->at(0).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_2_L_2_Type) {
       auto myfunc = unary_call_2_2(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(1));
+      std::string arg = *(std::string *)params->at(1).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     }
   } else if constexpr (sizeof...(ArgsType) == 3) {
     const FunctionInputType &type = opr.get_input_type();
-    const SharedParametersPtr &params = opr.get_parameters();
+    const SharedArgumentsPtr &params = opr.get_args();
     assert(params->size() == 3);
     if (type == FunctionInputType::FI_Unary_S_3_L_1_Type) {
       auto myfunc = unary_call_3_1(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(0));
+      std::string arg = *(std::string *)params->at(0).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_3_L_2_Type) {
       auto myfunc = unary_call_3_2(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(1));
+      std::string arg = *(std::string *)params->at(1).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_3_L_3_Type) {
       auto myfunc = unary_call_3_3(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(2));
+      std::string arg = *(std::string *)params->at(2).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     }
   } else if constexpr (sizeof...(ArgsType) == 4) {
     const FunctionInputType &type = opr.get_input_type();
-    const SharedParametersPtr &params = opr.get_parameters();
+    const SharedArgumentsPtr &params = opr.get_args();
     assert(params->size() == 4);
     if (type == FunctionInputType::FI_Unary_S_4_L_1_Type) {
       auto myfunc = unary_call_4_1(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(0));
+      std::string arg = *(std::string *)params->at(0).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_4_L_2_Type) {
       auto myfunc = unary_call_4_2(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(1));
+      std::string arg = *(std::string *)params->at(1).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_4_L_3_Type) {
       auto myfunc = unary_call_4_3(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(2));
+      std::string arg = *(std::string *)params->at(2).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_4_L_4_Type) {
       auto myfunc = unary_call_4_4(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(3));
+      std::string arg = *(std::string *)params->at(3).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     }
   } else if constexpr (sizeof...(ArgsType) == 5) {
     const FunctionInputType &type = opr.get_input_type();
-    const SharedParametersPtr &params = opr.get_parameters();
+    const SharedArgumentsPtr &params = opr.get_args();
     assert(params->size() == 5);
     if (type == FunctionInputType::FI_Unary_S_5_L_1_Type) {
       auto myfunc = unary_call_5_1(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(0));
+      std::string arg = *(std::string *)params->at(0).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_5_L_2_Type) {
       auto myfunc = unary_call_5_2(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(1));
+      std::string arg = *(std::string *)params->at(1).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_5_L_3_Type) {
       auto myfunc = unary_call_5_3(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(2));
+      std::string arg = *(std::string *)params->at(2).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_5_L_4_Type) {
       auto myfunc = unary_call_5_4(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(3));
+      std::string arg = *(std::string *)params->at(3).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     } else if (type == FunctionInputType::FI_Unary_S_5_L_5_Type) {
       auto myfunc = unary_call_5_5(func, params);
-      return std::make_shared<UnaryCaller>(get_unary_func(myfunc),
-                                           params->at(4));
+      std::string arg = *(std::string *)params->at(4).get();
+      return std::make_shared<UnaryCaller>(get_unary_func(myfunc), arg);
     }
   }
   return nullptr;

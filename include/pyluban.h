@@ -27,11 +27,11 @@
 class PyToolKit;
 
 class PyEntityArray {
- private:
+private:
   EntityArray *data_;
   friend PyToolKit;
 
- public:
+public:
   PyEntityArray();
   ~PyEntityArray();
   int size();
@@ -39,10 +39,10 @@ class PyEntityArray {
 };
 
 class PyToolKit {
- private:
+private:
   Toolkit *toolkit;
 
- public:
+public:
   PyToolKit() = delete;
   PyToolKit(const PyToolKit &) = delete;
   PyToolKit(const PyToolKit &&) = delete;
@@ -52,4 +52,4 @@ class PyToolKit {
   void process_file(std::string input_file, std::string output_file);
 };
 
-#endif  // LUBAN_PYLUBAN_H
+#endif // LUBAN_PYLUBAN_H

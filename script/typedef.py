@@ -1,24 +1,19 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-# `LuBan` - 'c++ tool for transformating and hashing features'.
-# Copyright (C) 2019 - present uopensail <timepi123@gmail.com>
+# `LuBan` - 'c++ tool for transformating and hashing features'
+# Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+# LuBan is provided under: GNU Affero General Public License (AGPL3.0)
+# https://www.gnu.org/licenses/agpl-3.0.html unless stated otherwise.
 #
-# This file is part of `LuBan`.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation.
 #
-# `LuBan` is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# `LuBan` is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
-#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
 #
 
 import os
@@ -38,9 +33,7 @@ class VariableType(enum.IntEnum):
     VT_IntList: literal integer constant array
     VT_FloatList: literal floating point constant array
     VT_StringList: literal string constant array
-    VT_Original_Feature: original feature, value of tffeature type, defined in TensorFlow
-    VT_Selected_Feature: named variable, value of tffeature type
-    VT_Anonymous_Feature: anonymous variable, value of tffeature type
+    VT_Variable: variable
     """
 
     VT_Not_Defined = 0
@@ -50,9 +43,7 @@ class VariableType(enum.IntEnum):
     VT_IntList = 4
     VT_FloatList = 5
     VT_StringList = 6
-    VT_Origin_Feature = 7
-    VT_Selected_Feature = 8
-    VT_Anonymous_Feature = 9
+    VT_Variable = 7
 
     def is_constant_scalar(self) -> bool:
         """if the variable is constant scalar
@@ -60,8 +51,11 @@ class VariableType(enum.IntEnum):
         Returns:
             bool: _description_
         """
-        if self.value in (VariableType.VT_Int, VariableType.VT_Float,
-                          VariableType.VT_String):
+        if self.value in (
+            VariableType.VT_Int,
+            VariableType.VT_Float,
+            VariableType.VT_String,
+        ):
             return True
         return False
 
@@ -71,8 +65,11 @@ class VariableType(enum.IntEnum):
         Returns:
             bool: _description_
         """
-        if self.value in (VariableType.VT_IntList, VariableType.VT_FloatList,
-                          VariableType.VT_StringList):
+        if self.value in (
+            VariableType.VT_IntList,
+            VariableType.VT_FloatList,
+            VariableType.VT_StringList,
+        ):
             return True
         return False
 
@@ -85,11 +82,7 @@ class VariableType(enum.IntEnum):
         return self.is_constant_scalar() or self.is_constant_array()
 
     def is_variable(self) -> bool:
-        if self.value in (VariableType.VT_Anonymous_Feature,
-                          VariableType.VT_Origin_Feature,
-                          VariableType.VT_Selected_Feature):
-            return True
-        return False
+        return self.value == VariableType.VT_Variable
 
 
 class FunctionType(enum.IntEnum):
@@ -122,26 +115,14 @@ class Parameter:
         self.index, self.type, self.value = index, vtype, value
 
 
-def python_type_to_variable_type(t: type) -> VariableType:
-    """python type to VariableType."""
-
-    if t == float:
-        return VariableType.VT_Float
-    elif t == int:
-        return VariableType.VT_Int
-    elif t == str:
-        return VariableType.VT_String
-    elif t == List[float]:
-        return VariableType.VT_FloatList
-    elif t == List[int]:
-        return VariableType.VT_IntList
-    elif t == List[str]:
-        return VariableType.VT_StringList
-    raise TypeError(f"not support type:{t}")
-
-
 class FunctionInputType(enum.IntEnum):
-    """function input type."""
+    """function input type.
+    format is listed:
+    F(unction)I(nput)_Unary_S(ize)_{args_count}_L(ocation)_{variable_index}_Type
+    F(unction)I(nput)_Binary_S(ize)_{args_count}_L(ocation)_{variable_index}_{variable_index}_Type
+
+    """
+
     FI_Not_Defined = 0
     FI_Unary_S_1_L_1_Type = 1
     FI_Unary_S_2_L_1_Type = 2

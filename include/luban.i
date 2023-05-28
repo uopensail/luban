@@ -8,6 +8,22 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "pyluban.h"
+
+static PyStructSequence_Field entity_fields[] = {
+    {"gid", "group id of feature"},
+    {"data", "uint64 list"},
+    {NULL}
+};
+
+static PyStructSequence_Desc entity_desc = {
+    "Entity",
+    NULL,
+    entity_fields,
+    2
+};
+
+static PyTypeObject *EntityType = PyStructSequence_NewType(&entity_desc);
+
 %}
 
 %typemap(in) (char* IN_ARRAY1, int DIM1){
@@ -19,23 +35,7 @@
 
 
 %typemap(out) Entity * {
-  static bool isEntityTypeInit = false;
-  static PyStructSequence_Field entity_fields[] = {
-      {"gid", "group id of feature"},
-      {"data", "uint64 list"},
-      {NULL}};
-  static PyStructSequence_Desc entity__desc = {
-      "Entity",
-      NULL,
-      entity_fields,
-      2};
-  static PyTypeObject EntityType = {{{0, 0}, 0}, 0, 0, 0};
-  if (!isEntityTypeInit)
-  {
-    PyStructSequence_InitType(&EntityType, &entity__desc);
-    isEntityTypeInit = true;
-  }
-  $result = PyStructSequence_New(&EntityType);
+  $result = PyStructSequence_New(EntityType);
   PyObject *gid = PyLong_FromSsize_t($1->gid);
   PyObject *data = PyList_New($1->size);
   for (size_t j = 0; j < $1->size; ++j)

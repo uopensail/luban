@@ -25,45 +25,23 @@
 #include <time.h>
 #include <vector>
 
-template <class T> static T _min(T &a, T &b) { return a < b ? a : b; }
-static int64_t _mini(int64_t &a, int64_t &b) { return _min<int64_t>(a, b); }
-static std::string _mins(std::string &a, std::string &b) {
-  return _min<std::string>(a, b);
-}
-static float _minf(float &a, float &b) { return _min<float>(a, b); }
+static float _add(float &a, float &b) { return a + b; }
 
-template <class T> static T _max(T &a, T &b) { return a > b ? a : b; }
-static int64_t _maxi(int64_t &a, int64_t &b) { return _max<int64_t>(a, b); }
-static std::string _maxs(std::string &a, std::string &b) {
-  return _max<std::string>(a, b);
-}
-static float _maxf(float &a, float &b) { return _max<float>(a, b); }
+static float _sub(float &a, float &b) { return a - b; }
 
-static float _addf(float &a, float &b) { return a + b; }
-static int64_t _addi(int64_t &a, int64_t &b) { return a + b; }
+static float _mul(float &a, float &b) { return a * b; }
 
-static float _subf(float &a, float &b) { return a - b; }
-static int64_t _subi(int64_t &a, int64_t &b) { return a - b; }
-
-static float _mulf(float &a, float &b) { return a * b; }
-static int64_t _muli(int64_t &a, int64_t &b) { return a * b; }
-
-static float _divf(float &a, float &b) {
-  assert(b != 0);
-  return a / b;
-}
-static int64_t _divi(int64_t &a, int64_t &b) {
+static float _div(float &a, float &b) {
   assert(b != 0);
   return a / b;
 }
 
-static int64_t _modi(int64_t &a, int64_t &b) {
+static int64_t _mod(int64_t &a, int64_t &b) {
   assert(b != 0);
   return a % b;
 }
 
-static int64_t _powi(int64_t &a, int64_t &b) { return int64_t(pow(a, b)); }
-static float _powf(float &a, float &b) { return powf(a, b); }
+static float _pow(float &a, float &b) { return powf(a, b); }
 
 static int64_t _round(float &x) { return int64_t(roundf(x)); }
 
@@ -81,8 +59,7 @@ static float _log2(float &x) { return log2f(x); }
 
 static float _sqrt(float &x) { return sqrtf(x); }
 
-static float _absf(float &x) { return abs(x); }
-static int64_t _absi(int64_t &x) { return abs(x); }
+static float _abs(float &x) { return abs(x); }
 
 static float _sin(float &x) { return sinf(x); }
 
@@ -107,6 +84,64 @@ static float _atan(float &x) { return atanf(x); }
 static float _tanh(float &x) { return tanhf(x); }
 
 static float _atanh(float &x) { return atanhf(x); }
+
+static float _sigmoid(float &x) { return 1.0 / (1.0 + expf(-x)); }
+
+static float min(std::vector<float> &src) {
+  assert(src.size() > 0);
+  float ret = src[0];
+  for (auto &v : src) {
+    if (v < ret) {
+      ret = v;
+    }
+  }
+  return ret;
+}
+
+static float max(std::vector<float> &src) {
+  assert(src.size() > 0);
+  float ret = src[0];
+  for (auto &v : src) {
+    if (v > ret) {
+      ret = v;
+    }
+  }
+  return ret;
+}
+
+static float average(std::vector<float> &src) {
+  assert(src.size() > 0);
+  float ret = 0.0;
+  float n = float(src.size());
+  for (auto &v : src) {
+    ret += v;
+  }
+  return ret / n;
+}
+
+static float variance(std::vector<float> &src) {
+  if (src.size() <= 1) {
+    return 0.0;
+  }
+  float sum_of_value = 0.0;
+  float sum_of_square = 0.0;
+  float n = float(src.size());
+  for (auto &v : src) {
+    sum_of_value += v;
+    sum_of_square += v * v;
+  }
+  return (sum_of_square - sum_of_value * sum_of_value / n) / n;
+}
+
+static float stddev(std::vector<float> &src) { return sqrtf(variance(src)); }
+
+static float norm(std::vector<float> &src, float &n) {
+  float ret = 0.0;
+  for (auto &v : src) {
+    ret += powf(v, n);
+  }
+  return powf(ret, 1.0 / n);
+}
 
 static std::string year() {
   time_t t = time(nullptr);
@@ -155,6 +190,12 @@ static std::string second() {
   char tmp[64] = {0};
   strftime(tmp, sizeof(tmp), "%S", localtime(&t));
   return std::string((char *)tmp);
+}
+
+static int64_t now() {
+  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch());
+  return now.count();
 }
 
 static std::string from_unixtime(int64_t &ts, std::string &format) {
@@ -223,21 +264,6 @@ static std::string concat(std::string &a, std::string &b) {
   return ret;
 }
 
-static std::string _to_stringf(float &v) { return std::to_string(v); }
-static std::string _to_stringi(int64_t &v) { return std::to_string(v); }
-
-static int64_t _to_integerf(float &v) { return int64_t(v); }
-static int64_t _to_integers(std::string &v) { return std::atoll(v.c_str()); }
-
-static float _to_floati(int64_t &v) { return float(v); }
-static float _to_floats(std::string &v) { return std::atof(v.c_str()); }
-
-static int64_t now() {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now().time_since_epoch());
-  return now.count();
-}
-
 static float min_max(float &v, float &min, float &max) {
   assert(min != max);
   return (v - min) / (max - min);
@@ -249,7 +275,7 @@ static float z_score(float &v, float &mean, float &stdv) {
 }
 
 static int64_t binarize(float &v, float &threshold) {
-  return v < threshold ? 0.0 : 1.0;
+  return v < threshold ? 0 : 1;
 }
 
 static int64_t bucketize(float &v, std::vector<float> &boundaries) {
@@ -303,6 +329,17 @@ static std::vector<int64_t> topki(std::vector<int64_t> &src, int64_t &k) {
 
 static std::vector<float> topkf(std::vector<float> &src, int64_t &k) {
   return topk<float>(src, k);
+}
+
+static std::vector<std::string> cross(std::vector<std::string> &srcA,
+                                      std::vector<std::string> &srcB) {
+  std::vector<std::string> ret;
+  for (auto &va : srcA) {
+    for (auto &vb : srcB) {
+      ret.push_back(concat(va, vb));
+    }
+  }
+  return ret;
 }
 
 #endif // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP

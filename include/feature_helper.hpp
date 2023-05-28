@@ -61,44 +61,50 @@
   (luban_is_int_array(T) || luban_is_float_array(T) || luban_is_str_array(T))
 
 // fetch the data and tranform to array
+// due to RVO, return vector is ok
 template <typename T>
-static void to_array(const SharedFeaturePtr &feature, std::vector<T> &ret) {
+static std::vector<T> to_array(const SharedFeaturePtr &feature) {
+  std::vector<T> ret;
   if constexpr (luban_is_int(T)) {
     assert(feature->has_int64_list());
-    ret.clear();
     ret.reserve(feature->int64_list().value_size());
     for (int i = 0; i < feature->int64_list().value_size(); i++) {
       ret.push_back(static_cast<T>(feature->int64_list().value(i)));
     }
-    return;
   } else if constexpr (luban_is_float(T)) {
     assert(feature->has_int64_list() || feature->has_float_list());
-    // int64_t type can cast as float
+    // int64_t type can cast to float
     if (feature->has_int64_list()) {
-      ret.clear();
       ret.reserve(feature->int64_list().value_size());
       for (int i = 0; i < feature->int64_list().value_size(); i++) {
         ret.push_back(static_cast<T>(feature->int64_list().value(i)));
       }
-      return;
     } else if (feature->has_float_list()) {
-      ret.clear();
       ret.reserve(feature->float_list().value_size());
       for (int i = 0; i < feature->float_list().value_size(); i++) {
         ret.push_back(static_cast<T>(feature->float_list().value(i)));
       }
-      return;
     }
   } else if constexpr (luban_is_str(T)) {
-    assert(feature->has_bytes_list());
-    ret.clear();
-    ret.reserve(feature->bytes_list().value_size());
-    for (int i = 0; i < feature->bytes_list().value_size(); i++) {
-      ret.push_back(feature->bytes_list().value(i));
+    // int64_t, float type can cast to string
+    if (feature->has_int64_list()) {
+      ret.reserve(feature->int64_list().value_size());
+      for (int i = 0; i < feature->int64_list().value_size(); i++) {
+        ret.push_back(std::to_string(feature->int64_list().value(i)));
+      }
+    } else if (feature->has_float_list()) {
+      ret.reserve(feature->float_list().value_size());
+      for (int i = 0; i < feature->float_list().value_size(); i++) {
+        ret.push_back(std::to_string(feature->float_list().value(i)));
+      }
+    } else {
+      ret.reserve(feature->bytes_list().value_size());
+      for (int i = 0; i < feature->bytes_list().value_size(); i++) {
+        ret.push_back(feature->bytes_list().value(i));
+      }
     }
-    return;
   }
-  throw std::runtime_error("feature value error");
+  return ret;
 }
 
 // add value to feature
@@ -117,35 +123,44 @@ static void add_value(const SharedFeaturePtr &feature, const T &v) {
   throw std::runtime_error("type error");
 }
 
+// zero argument function call process
+template <typename U>
+static SimpleFunc get_simple_func(std::function<U()> func) {
+  auto foo = [=]() -> SharedFeaturePtr {
+    auto ret = std::make_shared<sample::Feature>();
+    auto tmp = func();
+    add_value<U>(ret, tmp);
+    return ret;
+  };
+  return foo;
+}
+
 // one argument function call process
 template <typename U, typename V>
 static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
                                         std::function<U(V &)> func) {
   if constexpr (luban_is_simple_type(V) && luban_is_simple_type(U)) {
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-    std::vector<V> data;
-    to_array<V>(feature, data);
+    auto data = to_array<V>(feature);
     if (data.size() == 0) {
       return nullptr;
     }
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < data.size(); i++) {
       auto tmp = func(data[i]);
       add_value<U>(ret, tmp);
     }
     return ret;
   } else if constexpr (luban_is_array_type(V) && luban_is_simple_type(U)) {
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
-    std::vector<typename V::value_type> data;
-    to_array<typename V::value_type>(feature, data);
+    auto data = to_array<typename V::value_type>(feature);
     if (data.size() == 0) {
       return nullptr;
     }
+    auto ret = std::make_shared<sample::Feature>();
     auto tmp = func(data);
     add_value<U>(ret, tmp);
     return ret;
   } else if constexpr (luban_is_array_type(V) && luban_is_array_type(U)) {
-    std::vector<typename V::value_type> data;
-    to_array<typename V::value_type>(feature, data);
+    auto data = to_array<typename V::value_type>(feature);
     if (data.size() == 0) {
       return nullptr;
     }
@@ -153,9 +168,9 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
     if (tmp.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < tmp.size(); i++) {
-      add_value<>(ret, tmp[i]);
+      add_value(ret, tmp[i]);
     }
     return ret;
   }
@@ -163,8 +178,7 @@ static SharedFeaturePtr unary_func_call(const SharedFeaturePtr &feature,
 }
 
 template <typename U, typename V>
-static std::function<SharedFeaturePtr(SharedFeaturePtr)>
-get_unary_func(std::function<U(V &)> func) {
+static UnaryFunc get_unary_func(std::function<U(V &)> func) {
   return std::bind(unary_func_call<U, V>, std::placeholders::_1, func);
 }
 
@@ -175,35 +189,29 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
                                          std::function<U(V &, W &)> func) {
   if constexpr (luban_is_simple_type(U) && luban_is_simple_type(V) &&
                 luban_is_simple_type(W)) {
-    std::vector<V> dataA;
-    std::vector<W> dataB;
-    to_array<V>(featureA, dataA);
-    to_array<W>(featureB, dataB);
+    auto dataA = to_array<V>(featureA);
+    auto dataB = to_array<W>(featureB);
 
-    if (dataA.size() == 0 || dataB.size() == 0) {
+    if (dataA.size() == 0 || dataB.size() == 0 ||
+        dataA.size() != dataB.size()) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataA.size(); i++) {
-      for (size_t j = 0; j < dataB.size(); j++) {
-        auto tmp = func(dataA[i], dataB[j]);
-        add_value<U>(ret, tmp);
-      }
+      auto tmp = func(dataA[i], dataB[i]);
+      add_value<U>(ret, tmp);
     }
     return ret;
   } else if constexpr (luban_is_simple_type(U) && luban_is_array_type(V) &&
                        luban_is_array_type(W)) {
-    std::vector<typename V::value_type> dataA;
-    to_array<typename V::value_type>(featureA, dataA);
-    std::vector<typename W::value_type> dataB;
-    to_array<typename W::value_type>(featureB, dataB);
+    auto dataA = to_array<typename V::value_type>(featureA);
+    auto dataB = to_array<typename W::value_type>(featureB);
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     auto tmp = func(dataA, dataB);
     add_value<U>(ret, tmp);
-
     return ret;
   } else if constexpr (luban_is_simple_type(U) && luban_is_array_type(V) &&
                        luban_is_simple_type(W)) {
@@ -214,7 +222,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataB.size(); i++) {
       auto tmp = func(dataA, dataB[i]);
       add_value<U>(ret, tmp);
@@ -222,15 +230,12 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     return ret;
   } else if constexpr (luban_is_simple_type(U) && luban_is_simple_type(V) &&
                        luban_is_array_type(W)) {
-    std::vector<V> dataA;
-    to_array<V>(featureA, dataA);
-    std::vector<typename W::value_type> dataB;
-    to_array<typename W::value_type>(featureB, dataB);
-    to_array<typename W::value_type>(featureB, dataB);
+    auto dataA = to_array<V>(featureA);
+    auto dataB = to_array<typename W::value_type>(featureB);
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < dataA.size(); i++) {
       auto tmp = func(dataA[i], dataB);
       add_value<U>(ret, tmp);
@@ -238,11 +243,8 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     return ret;
   } else if constexpr (luban_is_array_type(U) && luban_is_array_type(V) &&
                        luban_is_array_type(W)) {
-    std::vector<typename V::value_type> dataA;
-    to_array<typename V::value_type>(featureA, dataA);
-    std::vector<typename W::value_type> dataB;
-    to_array<typename W::value_type>(featureB, dataB);
-    to_array<W>(featureB, dataB);
+    auto dataA = to_array<typename V::value_type>(featureA);
+    auto dataB = to_array<typename W::value_type>(featureB);
     if (dataA.size() == 0 || dataB.size() == 0) {
       return nullptr;
     }
@@ -251,7 +253,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
     if (tmp.size() == 0) {
       return nullptr;
     }
-    SharedFeaturePtr ret = std::make_shared<sample::Feature>();
+    auto ret = std::make_shared<sample::Feature>();
     for (size_t i = 0; i < tmp.size(); i++) {
       add_value<typename U::value_type>(ret, tmp[i]);
     }
@@ -261,8 +263,7 @@ static SharedFeaturePtr binary_func_call(const SharedFeaturePtr &featureA,
 }
 
 template <typename U, typename V, typename W>
-static std::function<SharedFeaturePtr(SharedFeaturePtr, SharedFeaturePtr)>
-get_binary_func(std::function<U(V &, W &)> func) {
+static BinaryFunc get_binary_func(std::function<U(V &, W &)> func) {
   return std::bind(binary_func_call<U, V, W>, std::placeholders::_1,
                    std::placeholders::_2, func);
 }

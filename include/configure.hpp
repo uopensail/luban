@@ -36,9 +36,7 @@
  * VT_IntList: literal integer constant array
  * VT_FloatList: literal floating point constant array
  * VT_StringList: literal string constant array
- * VT_Original_Feature: original feature, value of tffeature type, defined in
- * TensorFlow VT_Selected_Feature: named variable, value of tffeature type
- * VT_Anonymous_Feature: anonymous variable, value of tffeature type
+ * VT_Variable: variable
  */
 enum VariableType {
   VT_Not_Defined = 0,
@@ -48,9 +46,7 @@ enum VariableType {
   VT_IntList,
   VT_FloatList,
   VT_StringList,
-  VT_Origin_Feature,
-  VT_Selected_Feature,
-  VT_Anonymous_Feature
+  VT_Variable
 };
 
 // define function type
@@ -61,10 +57,10 @@ enum FunctionType {
   FT_Binary_Func,
 };
 
-class ConfigureParameter {
+class Argument {
 public:
-  ConfigureParameter() = delete;
-  ConfigureParameter &operator=(const ConfigureParameter &p) {
+  Argument() = delete;
+  Argument &operator=(const Argument &p) {
     if (this == &p) {
       return *this;
     }
@@ -79,9 +75,7 @@ public:
       this->float_ = p.float_;
       break;
     case VariableType::VT_String:
-    case VariableType::VT_Origin_Feature:
-    case VariableType::VT_Selected_Feature:
-    case VariableType::VT_Anonymous_Feature:
+    case VariableType::VT_Variable:
       this->str_ = p.str_;
       break;
     case VariableType::VT_IntList:
@@ -99,7 +93,7 @@ public:
     return *this;
   }
 
-  ConfigureParameter(const ConfigureParameter &p) {
+  Argument(const Argument &p) {
     this->type_ = p.type_;
     this->index_ = p.index_;
 
@@ -111,9 +105,7 @@ public:
       this->float_ = p.float_;
       break;
     case VariableType::VT_String:
-    case VariableType::VT_Origin_Feature:
-    case VariableType::VT_Selected_Feature:
-    case VariableType::VT_Anonymous_Feature:
+    case VariableType::VT_Variable:
       this->str_ = p.str_;
       break;
     case VariableType::VT_IntList:
@@ -130,8 +122,8 @@ public:
     }
   }
 
-  // read toml config file and parse to ConfigureParameter
-  ConfigureParameter(const std::shared_ptr<cpptoml::table> &table) {
+  // read toml config file and parse to Argument
+  Argument(const std::shared_ptr<cpptoml::table> &table) {
     // check fields
     assert(table->contains("index") && table->contains("type") &&
            table->contains("data"));
@@ -160,13 +152,10 @@ public:
         this->str_list_.push_back(v);
       }
       break;
-
     case VariableType::VT_String:
       this->str_ = params.get<std::string>("data");
       break;
-    case VariableType::VT_Origin_Feature:
-    case VariableType::VT_Selected_Feature:
-    case VariableType::VT_Anonymous_Feature:
+    case VariableType::VT_Variable:
       this->str_ = params.get<std::string>("data");
       break;
     default:
@@ -174,7 +163,7 @@ public:
     }
   }
 
-  ~ConfigureParameter() {}
+  ~Argument() {}
   const int &get_index() const { return this->index_; }
   const VariableType &get_type() const { return this->type_; }
   const void *get() const {
@@ -184,9 +173,7 @@ public:
     case VariableType::VT_Float:
       return &this->float_;
     case VariableType::VT_String:
-    case VariableType::VT_Origin_Feature:
-    case VariableType::VT_Selected_Feature:
-    case VariableType::VT_Anonymous_Feature:
+    case VariableType::VT_Variable:
       return &this->str_;
     case VariableType::VT_IntList:
       return &this->int_list_;
@@ -212,7 +199,7 @@ private:
   std::vector<std::string> str_list_;
 };
 
-#define SharedParametersPtr std::shared_ptr<std::vector<ConfigureParameter>>
+#define SharedArgumentsPtr std::shared_ptr<std::vector<Argument>>
 
 /**
  * @brief define function input type
@@ -261,58 +248,51 @@ class ConfigureOperator {
 public:
   ConfigureOperator() = delete;
   ConfigureOperator(const ConfigureOperator &o)
-      : type_(o.type_), input_type_(o.input_type_), func_type_(o.func_type_),
-        name_(o.name_), function_(o.function_), parameters_(o.parameters_) {}
+      : itype_(o.itype_), ftype_(o.ftype_), name_(o.name_), func_(o.func_),
+        args_(o.args_) {}
   ConfigureOperator &operator=(const ConfigureOperator &o) {
     if (this == &o) {
       return *this;
     }
     this->name_ = o.name_;
-    this->function_ = o.function_;
-    this->parameters_ = o.parameters_;
-    this->type_ = o.type_;
-    this->func_type_ = o.func_type_;
-    this->input_type_ = o.input_type_;
+    this->func_ = o.func_;
+    this->args_ = o.args_;
+    this->ftype_ = o.ftype_;
+    this->itype_ = o.itype_;
     return *this;
   }
 
   ConfigureOperator(const std::shared_ptr<cpptoml::table> &table) {
     assert(table->contains("name") && table->contains("func") &&
-           table->contains("type") && table->contains("func_type") &&
-           table->contains("input_type"));
+           table->contains("func_type") && table->contains("input_type"));
     ParamsHelper params(table);
     this->name_ = params.get<std::string>("name");
-    this->function_ = params.get<std::string>("func");
-    this->type_ = static_cast<VariableType>(params.get<int>("type"));
-    this->func_type_ = static_cast<FunctionType>(params.get<int>("func_type"));
-    this->parameters_ = std::make_shared<std::vector<ConfigureParameter>>();
-    this->input_type_ =
+    this->func_ = params.get<std::string>("func");
+    this->ftype_ = static_cast<FunctionType>(params.get<int>("func_type"));
+    this->args_ = std::make_shared<std::vector<Argument>>();
+    this->itype_ =
         static_cast<FunctionInputType>(params.get<int>("input_type"));
 
-    if (table->contains("params")) {
-      for (const auto &t : *table->get_table_array("params")) {
-        this->parameters_->push_back(ConfigureParameter{t});
+    if (table->contains("args")) {
+      for (const auto &t : *table->get_table_array("args")) {
+        this->args_->push_back(Argument{t});
       }
     }
   }
 
   ~ConfigureOperator() {}
   const std::string &get_name() const { return this->name_; }
-  const std::string &get_function() const { return this->function_; }
-  const VariableType &get_type() const { return this->type_; }
-  const FunctionType &get_function_type() const { return this->func_type_; }
-  const FunctionInputType &get_input_type() const { return this->input_type_; }
-  const SharedParametersPtr &get_parameters() const {
-    return this->parameters_;
-  }
+  const std::string &get_function() const { return this->func_; }
+  const FunctionType &get_function_type() const { return this->ftype_; }
+  const FunctionInputType &get_input_type() const { return this->itype_; }
+  const SharedArgumentsPtr &get_args() const { return this->args_; }
 
 private:
-  VariableType type_;
-  FunctionInputType input_type_;
-  FunctionType func_type_;
+  FunctionInputType itype_;
+  FunctionType ftype_;
   std::string name_;
-  std::string function_;
-  SharedParametersPtr parameters_;
+  std::string func_;
+  SharedArgumentsPtr args_;
 };
 
 #endif // LUBAN_FEATURE_OPREATOR_CONFIGURE_HPP

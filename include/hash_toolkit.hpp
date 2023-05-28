@@ -40,13 +40,13 @@
 #pragma pack(push)
 #pragma pack(1)
 typedef struct Entity {
-  size_t gid;   // feature group id
-  size_t size;  // length of data
+  size_t gid;  // feature group id
+  size_t size; // length of data
   u_int64_t data[];
 } Entity;
 
 typedef struct EntityArray {
-  size_t size;  // length of array
+  size_t size; // length of array
   Entity *array[];
 } EntityArray;
 
@@ -105,8 +105,8 @@ static u_int64_t mask_gid(u_int64_t &hash_id, u_int64_t &gid) {
 }
 
 class FeatureHashToolkit {
- private:
-  Entity *hash_float_feature(const SharedFeaturePtr &feature, u_int64_t &gid) {
+private:
+  Entity *hash_float_feature(SharedFeaturePtr &feature, u_int64_t gid) {
     assert(feature->has_float_list());
     u_int64_t v;
     Entity *entity = new_entity(feature->float_list().value_size(), gid);
@@ -119,7 +119,7 @@ class FeatureHashToolkit {
     return entity;
   }
 
-  Entity *hash_string_feature(const SharedFeaturePtr &feature, u_int64_t &gid) {
+  Entity *hash_string_feature(SharedFeaturePtr feature, u_int64_t gid) {
     assert(feature->has_bytes_list());
     u_int64_t v;
     Entity *entity = new_entity(feature->bytes_list().value_size(), gid);
@@ -131,7 +131,7 @@ class FeatureHashToolkit {
     return entity;
   }
 
-  Entity *hash_int_feature(const SharedFeaturePtr &feature, u_int64_t &gid) {
+  Entity *hash_int_feature(SharedFeaturePtr feature, u_int64_t gid) {
     assert(feature->has_int64_list());
     u_int64_t v;
     Entity *entity = new_entity(feature->int64_list().value_size(), gid);
@@ -142,54 +142,54 @@ class FeatureHashToolkit {
     return entity;
   }
 
-  Entity *hash_feature(const SharedFeaturePtr &feature, u_int64_t &gid) {
+  Entity *hash_feature(SharedFeaturePtr feature, u_int64_t gid) {
     switch (feature->kind_case()) {
-      case sample::Feature::KindCase::kBytesList:
-        return hash_string_feature(feature, gid);
-      case sample::Feature::KindCase::kFloatList:
-        return hash_float_feature(feature, gid);
-      case sample::Feature::KindCase::kInt64List:
-        return hash_int_feature(feature, gid);
-      default:
-        return nullptr;
+    case sample::Feature::KindCase::kBytesList:
+      return hash_string_feature(feature, gid);
+    case sample::Feature::KindCase::kFloatList:
+      return hash_float_feature(feature, gid);
+    case sample::Feature::KindCase::kInt64List:
+      return hash_int_feature(feature, gid);
+    default:
+      return nullptr;
     }
   }
 
   u_int64_t *get_gid(const std::string &key) {
-    auto iter = feature_gid_map_.find(key);
-    if (iter != feature_gid_map_.end()) {
+    auto iter = feature_group_map_.find(key);
+    if (iter != feature_group_map_.end()) {
       return &iter->second;
     }
     return nullptr;
   }
 
- public:
+public:
   FeatureHashToolkit(
-      const std::unordered_map<std::string, u_int64_t> &feature_gid_map) {
-    for (auto &kv : feature_gid_map) {
-      feature_gid_map_[kv.first] = kv.second;
+      const std::unordered_map<std::string, u_int64_t> &feature_group_map) {
+    for (auto &kv : feature_group_map) {
+      feature_group_map_[kv.first] = kv.second;
     }
   }
-  ~FeatureHashToolkit() { feature_gid_map_.clear(); };
-  EntityArray *call(
-      const std::unordered_map<std::string, SharedFeaturePtr> &features) {
-    EntityArray *entity_array = new_entity_array(features.size());
-    u_int64_t *ptr = nullptr;
+  ~FeatureHashToolkit() { feature_group_map_.clear(); };
+  EntityArray *
+  call(const std::unordered_map<std::string, SharedFeaturePtr> &features) {
+    EntityArray *entity_array = new_entity_array(feature_group_map_.size());
     int index = 0;
-    for (const auto &kv : features) {
-      ptr = this->get_gid(kv.first);
-      if (ptr == nullptr) {
+
+    for (const auto &kv : feature_group_map_) {
+      auto it = features.find(kv.first);
+      if (it == features.end()) {
         entity_array->array[index] = nullptr;
       } else {
-        entity_array->array[index] = hash_feature(kv.second, *ptr);
+        entity_array->array[index] = hash_feature(it->second, kv.second);
       }
       index++;
     }
     return entity_array;
   }
 
- private:
-  std::unordered_map<std::string, u_int64_t> feature_gid_map_;
+private:
+  std::unordered_map<std::string, u_int64_t> feature_group_map_;
 };
 
 static void print_entity(Entity *entity) {
@@ -206,4 +206,4 @@ static void print_entity(Entity *entity) {
   }
   std::cout << "]" << std::endl;
 }
-#endif  // LUBAN_FEATURE_HASH_TOOLKIT_HPP
+#endif // LUBAN_FEATURE_HASH_TOOLKIT_HPP

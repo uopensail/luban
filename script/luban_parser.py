@@ -1,24 +1,19 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-# `LuBan` - 'c++ tool for transformating and hashing features'.
-# Copyright (C) 2019 - present uopensail <timepi123@gmail.com>
+# `LuBan` - 'c++ tool for transformating and hashing features'
+# Copyright (C) 2019 - present timepi <timepi123@gmail.com>
+# LuBan is provided under: GNU Affero General Public License (AGPL3.0)
+# https://www.gnu.org/licenses/agpl-3.0.html unless stated otherwise.
 #
-# This file is part of `LuBan`.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation.
 #
-# `LuBan` is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# `LuBan` is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with `LuBan`.  If not, see <http://www.gnu.org/licenses/>.
-#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
 #
 """
 author: timepi
@@ -29,12 +24,14 @@ descripton: Use Python to parse the configuration file
 import argparse
 import ast
 import json
-import os
-from typing import Any, List, Union, Tuple
+from typing import Any, List, Union
 
 import toml
-from operator_def import Operator
-from type_def import Parameter, VariableType
+from operatordef import Operator
+from typedef import Parameter, VariableType
+
+GLOBAL_OPERATORS = []
+GLOBAL_OPERATOR_INDEX = -1
 
 
 def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
@@ -47,8 +44,7 @@ def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
     Returns:
         Parameter: wrapper for the argument
     """
-    return Parameter(index=index, vtype=VariableType.VT_Selected_Feature,
-                     value=argv.id)
+    return Parameter(index=index, vtype=VariableType.VT_Variable, value=argv.id)
 
 
 def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]) -> Any:
@@ -67,7 +63,9 @@ def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]) -> Any:
     return None
 
 
-def parse_argv_constant(index: int, argv: Union[ast.Constant, ast.Str, ast.Num]) -> Parameter:
+def parse_argv_constant(
+    index: int, argv: Union[ast.Constant, ast.Str, ast.Num]
+) -> Parameter:
     """parse constant argument
 
     Args:
@@ -82,14 +80,11 @@ def parse_argv_constant(index: int, argv: Union[ast.Constant, ast.Str, ast.Num])
     """
     value = value_of_constant(argv)
     if isinstance(value, str):
-        return Parameter(index=index, vtype=VariableType.VT_String,
-                         value=value)
+        return Parameter(index=index, vtype=VariableType.VT_String, value=value)
     if isinstance(value, float):
-        return Parameter(index=index, vtype=VariableType.VT_Float,
-                         value=value)
+        return Parameter(index=index, vtype=VariableType.VT_Float, value=value)
     if isinstance(value, int):
-        return Parameter(index=index, vtype=VariableType.VT_Int,
-                         value=value)
+        return Parameter(index=index, vtype=VariableType.VT_Int, value=value)
     raise TypeError(f"not support type:{type(value)}")
 
 
@@ -101,12 +96,12 @@ def parse_argv_list(index: int, argv: ast.List) -> Parameter:
         argv (ast.List): argument
 
     Raises:
-        TypeError: _description_
+        TypeError: type not support
 
     Returns:
         Parameter: wrapper for the argument
     """
-    assert (len(argv.elts) > 0)
+    assert len(argv.elts) > 0
     elt, dtype = argv.elts[0], VariableType.VT_Not_Defined
     fv = value_of_constant(elt)
     if isinstance(fv, str):
@@ -120,7 +115,7 @@ def parse_argv_list(index: int, argv: ast.List) -> Parameter:
 
     argvs = list(map(value_of_constant, argv.elts))
     for v in argvs:
-        assert (type(fv) == type(v))
+        assert type(fv) == type(v)
 
     return Parameter(index=index, vtype=dtype, value=argvs)
 
@@ -133,12 +128,13 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
         argv (ast.Call): argument
 
     Raises:
-        TypeError: _description_
+        TypeError: type not support
 
     Returns:
         Parameter: wrapper for the argument
     """
-    assert (isinstance(argv.func, ast.Name))
+    global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
+    assert isinstance(argv.func, ast.Name)
     function, params = argv.func.id, []
 
     for i, argv in enumerate(argv.args):
@@ -155,14 +151,16 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
             params.append(parse_argv_binop(index=i, argv=argv))
         else:
             raise TypeError(f"not support type:{type(argv)}")
-
-    opr = Operator(name=f"anonymous_{id(params)}",
-                   function=function, parameters=params)
-    return Parameter(index=index, vtype=VariableType.VT_Anonymous_Feature, value=opr)
+    GLOBAL_OPERATOR_INDEX += 1
+    opr = Operator(
+        name=f"anonymous_{GLOBAL_OPERATOR_INDEX}", function=function, parameters=params
+    )
+    GLOBAL_OPERATORS.append(opr)
+    return Parameter(index=index, vtype=VariableType.VT_Variable, value=opr)
 
 
 def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
-    """processing parameter -- binary operator. At least one 
+    """processing parameter -- binary operator. At least one
     parameter must be input traversal, not all constants.
 
     Args:
@@ -170,40 +168,44 @@ def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
         argv (ast.BinOp): argument
 
     Raises:
-        RuntimeError: _description_
-        TypeError: _description_
+        RuntimeError: const express not support
+        TypeError: op not support
 
     Returns:
         Parameter: wrapper for the argument
     """
+    global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
     function, params = None, []
 
     def is_literal_constant(v: Any):
         return isinstance(v, (ast.Constant, ast.Num, ast.Str, ast.List))
+
     if is_literal_constant(argv.left) and is_literal_constant(argv.right):
         raise RuntimeError("binop must have at least one variable")
 
     if isinstance(argv.op, ast.Div):
-        function = "_div"
+        function = "div"
     elif isinstance(argv.op, ast.Add):
-        function = "_add"
+        function = "add"
     elif isinstance(argv.op, ast.Sub):
-        function = "_sub"
+        function = "sub"
     elif isinstance(argv.op, ast.Mult):
-        function = "_mul"
+        function = "mul"
     elif isinstance(argv.op, ast.Mod):
-        function = "_mod"
+        function = "mod"
     elif isinstance(argv.op, ast.Pow):
-        function = "_pow"
+        function = "pow"
     else:
         raise TypeError(f"not support: {type(argv.op)}")
 
     params.append(parse_argv(0, argv.left))
     params.append(parse_argv(1, argv.right))
-
-    opr = Operator(name=f"anonymous_{id(argv)}",
-                   function=function, parameters=params)
-    return Parameter(index=index, vtype=VariableType.VT_Anonymous_Feature, value=opr)
+    GLOBAL_OPERATOR_INDEX += 1
+    opr = Operator(
+        name=f"anonymous_{GLOBAL_OPERATOR_INDEX}", function=function, parameters=params
+    )
+    GLOBAL_OPERATORS.append(opr)
+    return Parameter(index=index, vtype=VariableType.VT_Variable, value=opr)
 
 
 def parse_argv(index: int, argv: Any) -> Parameter:
@@ -214,7 +216,7 @@ def parse_argv(index: int, argv: Any) -> Parameter:
         argv (Any): argument
 
     Raises:
-        TypeError: _description_
+        TypeError: type not suuport
 
     Returns:
         Parameter: wrapper for the argument
@@ -232,7 +234,7 @@ def parse_argv(index: int, argv: Any) -> Parameter:
     TypeError(f"not support type:{type(argv)}")
 
 
-def parse_expression(expression: str, gid: int) -> Tuple[Operator, int]:
+def parse_expression(expression: str) -> Operator:
     """Process expressions.
 
     Args:
@@ -245,18 +247,17 @@ def parse_expression(expression: str, gid: int) -> Tuple[Operator, int]:
     Returns:
         Operator: top operator
     """
-
     module = ast.parse(expression)
     # do some checking
-    assert (isinstance(module, ast.Module))
-    assert (isinstance(module.body, list) and len(module.body) == 1)
+    assert isinstance(module, ast.Module)
+    assert isinstance(module.body, list) and len(module.body) == 1
     assign_expr = module.body[0]
-    assert (isinstance(assign_expr, ast.Assign))
+    assert isinstance(assign_expr, ast.Assign)
     assign_children = list(ast.iter_child_nodes(assign_expr))
-    assert (isinstance(assign_children, list) and len(assign_children) == 2)
+    assert isinstance(assign_children, list) and len(assign_children) == 2
 
     # Get the name of the variable on the left
-    assert (isinstance(assign_children[0], ast.Name))
+    assert isinstance(assign_children[0], ast.Name)
     feature_name = assign_children[0].id
 
     # process the right function expression
@@ -269,109 +270,90 @@ def parse_expression(expression: str, gid: int) -> Tuple[Operator, int]:
         my_opr = tmp.value
     else:
         raise TypeError(f"not support type:{type(assign_children[1])}")
-    assert (isinstance(tmp.value, Operator))
+    assert isinstance(tmp.value, Operator)
     my_opr.name = feature_name
-    return my_opr, gid
+    return my_opr
 
 
-def parse_expressions(expressions: List[Any]):
+def parse_expressions(expressions: List[str]) -> List[Operator]:
     """Process multiple expressions and merge the same expressions
 
     Args:
-        expressions (List[Any]): expressions to process
+        expressions (List[str]): expressions to process
 
     Returns:
-        _type_: _description_
+        List[Operator]: operators to returns
     """
-    def walk(my_opr: Operator, opr_list: list):
-        for p in my_opr.parameters:
-            if p.type == VariableType.VT_Anonymous_Feature:
-                walk(p.value, opr_list)
-        opr_list.append(my_opr)
-    oprs = []
-
-    groups = []
-    for (expression, gid) in expressions:
-        opr, gid = parse_expression(expression, gid)
-        groups.append({"gid": gid, "opr": opr})
-        walk(opr, oprs)
-    anonymous_index, opr_list, status = 0,  [], True
-    for opr in oprs:
-        status = True
-        for my_opr in opr_list:
-            if opr == my_opr:
-                opr.name = my_opr.name
-                status = False
+    global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
+    for expression in expressions:
+        parse_expression(expression)
+    unique_oprs = []
+    for opr in GLOBAL_OPERATORS:
+        exists = False
+        for unique_opr in unique_oprs:
+            if opr == unique_opr:
+                opr.name = unique_opr.name
+                exists = True
                 break
-        if not status:
-            continue
-
-        if opr.name.startswith("anonymous_"):
-            opr.name = f"anonymous_{anonymous_index}"
-            anonymous_index += 1
-        opr_list.append(opr)
-    return opr_list, groups
+        if not exists:
+            unique_oprs.append(opr)
+    return unique_oprs
 
 
 class Parser:
     @staticmethod
     def do(input_file: str, output_file: str):
-        """process expr
+        """do parse
+
+        Args:
+            input_file (str): json config
+            output_file (str): toml config
 
         Raises:
-            ValueError: _description_
+            ValueError: variable unknown
         """
         dic = json.load(open(input_file, "r"))
-        expressions = []
-        for item in dic["features"]:
-            expressions.append((item['expr'], item['gid']))
-        ops, groups = parse_expressions(expressions)
-        configs = {}
-
-        for op in ops:
-            config = {'name': op.name, 'params': [],
-                      'input_type': op.input_type.value}
-            for p in op.parameters:
-                param = {'type': p.type.value, 'index': p.index}
-                if p.type == VariableType.VT_Anonymous_Feature:
-                    if p.value.name not in configs:
-                        raise ValueError(f"{p.value.name} unkown")
-                    param['data'] = p.value.name
-                else:
-                    param['data'] = p.value
-                    if p.type == VariableType.VT_Selected_Feature:
-                        if p.value not in configs:
-                            p.type = VariableType.VT_Origin_Feature
-                            param['type'] = p.type.value
-                config['params'].append(param)
-
-            config['func_type'] = op.func_type.value
-            config['func'] = op.function
-            if len(config['params']) == 0:
-                del config['params']
-            if op.name.startswith("anonymous_"):
-                config['type'] = VariableType.VT_Anonymous_Feature.value
-            else:
-                config['type'] = VariableType.VT_Selected_Feature.value
-            configs[op.name] = config
+        oprs = parse_expressions(dic["transforms"])
+        variables = {}
         ret = []
-        for _, conf in configs.items():
-            ret.append(conf)
-        ans = {"operators": ret, "groups": []}
-        for item in groups:
-            ans['groups'].append(
-                {"name": item["opr"].name, "gid": item['gid']})
-        toml.dump(ans, open(output_file, 'w'))
+        for op in oprs:
+            config = {
+                "name": op.name,
+                "args": [],
+                "input_type": op.input_type.value,
+                "func": op.function,
+                "func_type": op.func_type.value,
+            }
+            for p in op.parameters:
+                param = {
+                    "type": p.type.value,
+                    "index": p.index,
+                    "data": p.value,
+                }
+                if p.type == VariableType.VT_Variable:
+                    if isinstance(p.value, Operator):
+                        if p.value.name not in variables:
+                            raise ValueError(f"{p.value.name} unknown")
+                        param["data"] = p.value.name
+                config["args"].append(param)
+
+            if len(config["args"]) == 0:
+                del config["args"]
+            ret.append(config)
+            variables[op.name] = True
+        ans = {"transforms": ret, "outputs": dic["outputs"]}
+        toml.dump(ans, open(output_file, "w"))
 
 
 def main():
-    """main function
-    """
+    """main function"""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", "-i", type=str,
-                        required=True, help="json config file")
-    parser.add_argument("--output", "-o", type=str,
-                        required=True, help="toml config file")
+    parser.add_argument(
+        "--input", "-i", type=str, required=True, help="json config file"
+    )
+    parser.add_argument(
+        "--output", "-o", type=str, required=True, help="toml config file"
+    )
     args = parser.parse_args()
     Parser.do(args.input, args.output)
 

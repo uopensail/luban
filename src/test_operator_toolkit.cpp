@@ -63,15 +63,15 @@ int main() {
       "BYHhgf4FCh4KBnVfc19pZBIUChIKEGM4NTY2ZmI4M2U3ZTg0YmEKHAoHdWNfbV9pcBIRCg8K"
       "DTIwMy44MS4xNzcuNTQ=";
   auto ddata = base64_decode(data);
-  //   std::cout << ddata << std::endl;
+  // std::cout << ddata << std::endl;
 
-  sample::Features* features = new sample::Features();
+  sample::Features *features = new sample::Features();
   features->ParseFromString(ddata);
-  // std::cout << features.DebugString() << std::endl;
+  std::cout << features->DebugString() << std::endl;
 
-  Toolkit toolkit("test.toml");
+  Toolkit toolkit("config.toml");
 
-  EntityArray* array = toolkit.process(features);
+  EntityArray *array = toolkit.process(features);
   for (int i = 0; i < array->size; i++) {
     print_entity(array->array[i]);
   }

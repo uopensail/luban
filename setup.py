@@ -97,6 +97,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    scripts=["script/luban_parser.py", "script/operator_def.py", "script/type_def.py"],
+    scripts=["script/luban_parser.py", "script/operatordef.py", "script/typedef.py"],
     entry_points={"console_scripts": ["luban_parser = luban_parser:main"]},
 )
