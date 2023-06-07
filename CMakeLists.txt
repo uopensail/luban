@@ -17,9 +17,9 @@ include/helper.h include/MurmurHash3.h include/toolkit.hpp)
 SET(LUBAN_SOURCE  src/MurmurHash3.cc src/base64.cpp  src/feature.pb.cc)
 
 add_library(toolkit SHARED ${LUBAN_INCLUDE} ${LUBAN_SOURCE})
-#add_library(toolkit STATIC ${LUBAN_INCLUDE} ${LUBAN_SOURCE})
+
 add_library(luban SHARED ${LUBAN_INCLUDE} include/luban.h ${LUBAN_SOURCE} src/luban.cpp)
-#add_library(luban STATIC ${LUBAN_INCLUDE} include/luban.h ${LUBAN_SOURCE} src/luban.cpp)
+
 
 add_executable(optoolkit_test ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/test_operator_toolkit.cpp)
 

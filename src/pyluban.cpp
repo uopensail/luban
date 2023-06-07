@@ -1,7 +1,5 @@
 #include "pyluban.h"
 
-#include <google/protobuf/util/json_util.h>
-
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -48,33 +46,46 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
   // split the file
   auto split_file = [](std::string filename, int num) {
     std::cout << "reading file: " << filename << std::endl;
-    std::ifstream reader(filename, std::ios::in);
+    std::ifstream reader(filename, std::ios::in | std::ios::binary);
     if (!reader) {
       exit(1);
     }
+    int index = 0;
+    u_int64_t length = 0;
+    u_int64_t max_len = 1024;
+    char *data_buffer = new char[max_len];
+    // splited file is not tfrecord format, is self defined format
+    // length, data
     std::ofstream **fds = new std::ofstream *[num];
     for (int i = 0; i < num; i++) {
-      fds[i] =
-          new std::ofstream(filename + "_" + std::to_string(i), std::ios::out);
+      fds[i] = new std::ofstream(filename + "_" + std::to_string(i),
+                                 std::ios::out | std::ios::binary);
     }
-    size_t count = 0;
-    std::string line;
-    int index = 0;
-    while (std::getline(reader, line)) {
+    u_int64_t count = 0;
+    while (reader.read((char *)&length, 8)) {
+      if (length + 8 > max_len) {
+        delete[] data_buffer;
+        max_len = 2 * length;
+        data_buffer = new char[max_len];
+      }
       count++;
-      std::cout << "reading file: " << filename << "line NO.: " << count
-                << std::endl;
+      if (count % 1000 == 0) {
+        std::cout << "reading file: " << filename << " line NO.: " << count
+                  << std::endl;
+      }
+      reader.read(data_buffer, length + 8);
       index = rand() % num;
-      fds[index]->write(line.c_str(), line.size());
-      fds[index]->write("\n", 1);
+      fds[index]->write((char *)&length, 8);
+      fds[index]->write(data_buffer + 4, length);
     }
-    std::cout << "finish reading file: " << filename << "total line count"
-              << count << std::endl;
+    delete[] data_buffer;
     reader.close();
     for (int i = 0; i < num; i++) {
       fds[i]->close();
     }
     delete[] fds;
+    std::cout << "finish reading file: " << filename
+              << " total line count: " << count << std::endl;
   };
 
   auto write_record = [](std::ofstream &writer, int label, EntityArray *data) {
@@ -114,7 +125,7 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
     while (getline(reader, line)) {
       count++;
       if (count % 1000 == 0) {
-        std::cout << "reading file: " << filename << " line NO." << count
+        std::cout << "reading file: " << filename << " line NO. " << count
                   << std::endl;
       }
       line += "\n";
@@ -130,30 +141,35 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
                          std::string output_file) {
     std::cout << "processing file: " << input_file << std::endl;
 
-    google::protobuf::util::JsonParseOptions opts;
-    opts.ignore_unknown_fields = true;
     std::ofstream writer(output_file, std::ios::out);
     if (!writer) {
       exit(-1);
     }
-    std::ifstream reader(input_file, std::ios::in);
+
+    std::ifstream reader(input_file, std::ios::in | std::ios::binary);
     if (!reader) {
       exit(-1);
     }
-    int count = 0, label = -1;
-    std::string line;
-    while (getline(reader, line)) {
-      count++;
-      if (count % 1000 == 0) {
-        std::cout << "reading file: " << input_file << " line NO." << count
-                  << std::endl;
+    u_int64_t length = 0;
+    u_int64_t max_len = 1024;
+    u_int64_t count = 0;
+    int label = -1;
+    char *data_buffer = new char[max_len];
+
+    while (reader.read((char *)&length, 8)) {
+      if (length > max_len) {
+        delete[] data_buffer;
+        max_len = 2 * length;
+        data_buffer = new char[max_len];
       }
+      count++;
+      reader.read(data_buffer, length);
       sample::Example example;
-      if (google::protobuf::util::JsonStringToMessage(line, &example, opts)
-              .ok()) {
+      if (example.ParseFromArray(reinterpret_cast<void *>(data_buffer),
+                                 length)) {
         const sample::Features &features = example.features();
         label = get_label(features);
-        auto array = toolkit->process((sample::Features *)&features);
+        auto array = toolkit->process((sample::Features *)(&features));
         write_record(writer, label, array);
         del_entity_array(array);
       }
@@ -163,16 +179,19 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
     reader.close();
     remove(input_file.c_str());
     writer.close();
+    delete[] data_buffer;
   };
 
   int num = std::max<int>(1, std::thread::hardware_concurrency() - 1);
   split_file(input_file, num);
   std::vector<std::thread> threads;
-  threads.reserve(num);
   for (int i = 0; i < num; i++) {
-    threads.at(i) =
-        std::thread(thread_func, toolkit, input_file + "_" + std::to_string(i),
-                    output_file + "_" + std::to_string(i));
+    threads.emplace_back(std::thread(thread_func, toolkit,
+                                     input_file + "_" + std::to_string(i),
+                                     output_file + "_" + std::to_string(i)));
+  }
+
+  for (int i = 0; i < num; i++) {
     threads[i].join();
   }
 

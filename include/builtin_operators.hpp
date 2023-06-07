@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <math.h>
-
 #include <assert.h>
-#include <string>
+#include <math.h>
 #include <time.h>
+
+#include <string>
 #include <vector>
 
 static float _add(float &a, float &b) { return a + b; }
@@ -308,7 +308,7 @@ template <typename T>
 static std::vector<T> topk(std::vector<T> &src, int64_t &k) {
   std::vector<T> dst;
   dst.reserve(k);
-  size_t count = 0;
+  int64_t count = 0;
   for (auto &v : src) {
     if (count < k) {
       dst.push_back(v);
@@ -342,4 +342,4 @@ static std::vector<std::string> cross(std::vector<std::string> &srcA,
   return ret;
 }
 
-#endif // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP
+#endif  // LUBAN_FEATURE_BUILTIN_OPERATORS_HPP

@@ -24,56 +24,51 @@
 
 #include "helper.h"
 
-#define luban_is_int(T)                                                        \
-  (std::is_same_v<std::remove_pointer_t<T>, long long> ||                      \
-   std::is_same_v<std::remove_pointer_t<T>, int> ||                            \
-   std::is_same_v<std::remove_pointer_t<T>, long> ||                           \
-   std::is_same_v<std::remove_pointer_t<T>, unsigned long> ||                  \
+#define luban_is_int(T)                                       \
+  (std::is_same_v<std::remove_pointer_t<T>, long long> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, int> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, long> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, unsigned long> || \
    std::is_same_v<std::remove_pointer_t<T>, unsigned long long>)
 
-#define luban_is_int_array(T)                                                  \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<long long>> ||         \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<int>> ||               \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<long>> ||              \
-   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long>> ||     \
+#define luban_is_int_array(T)                                              \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<long long>> ||     \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<int>> ||           \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<long>> ||          \
+   std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<unsigned long long>>)
 
-#define luban_is_float(T)                                                      \
-  (std::is_same_v<std::remove_pointer_t<T>, float> ||                          \
+#define luban_is_float(T)                             \
+  (std::is_same_v<std::remove_pointer_t<T>, float> || \
    std::is_same_v<std::remove_pointer_t<T>, double>)
 
-#define luban_is_float_array(T)                                                \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<float>> ||             \
+#define luban_is_float_array(T)                                    \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<float>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<double>>)
 
-#define luban_is_str(T)                                                        \
-  (std::is_same_v<std::remove_pointer_t<T>, std::string> ||                    \
+#define luban_is_str(T)                                     \
+  (std::is_same_v<std::remove_pointer_t<T>, std::string> || \
    std::is_same_v<std::remove_pointer_t<T>, std::string_view>)
 
-#define luban_is_str_array(T)                                                  \
-  (std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string>> ||       \
+#define luban_is_str_array(T)                                            \
+  (std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string>> || \
    std::is_same_v<std::remove_pointer_t<T>, std::vector<std::string_view>>)
 
-#define luban_is_simple_type(T)                                                \
+#define luban_is_simple_type(T) \
   (luban_is_int(T) || luban_is_float(T) || luban_is_str(T))
 
-#define luban_is_array_type(T)                                                 \
+#define luban_is_array_type(T) \
   (luban_is_int_array(T) || luban_is_float_array(T) || luban_is_str_array(T))
+
+#define luban_is_number(T) (luban_is_float(T) || luban_is_int(T))
 
 // fetch the data and tranform to array
 // due to RVO, return vector is ok
 template <typename T>
 static std::vector<T> to_array(const SharedFeaturePtr &feature) {
   std::vector<T> ret;
-  if constexpr (luban_is_int(T)) {
-    assert(feature->has_int64_list());
-    ret.reserve(feature->int64_list().value_size());
-    for (int i = 0; i < feature->int64_list().value_size(); i++) {
-      ret.push_back(static_cast<T>(feature->int64_list().value(i)));
-    }
-  } else if constexpr (luban_is_float(T)) {
+  if constexpr (luban_is_number(T)) {
     assert(feature->has_int64_list() || feature->has_float_list());
-    // int64_t type can cast to float
     if (feature->has_int64_list()) {
       ret.reserve(feature->int64_list().value_size());
       for (int i = 0; i < feature->int64_list().value_size(); i++) {
@@ -268,4 +263,4 @@ static BinaryFunc get_binary_func(std::function<U(V &, W &)> func) {
                    std::placeholders::_2, func);
 }
 
-#endif // LUBAN_FEATURE_HELPER_HPP
+#endif  // LUBAN_FEATURE_HELPER_HPP

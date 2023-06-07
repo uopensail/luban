@@ -103,6 +103,17 @@ class Operator:
         """math function has prefix `_`"""
         global MATH_FUNCTIONS
         if self.function in MATH_FUNCTIONS:
+            if self.function == 'mod':
+                for arg in self.parameters:
+                    if arg.type.is_constant():
+                        arg.value = int(arg.value)
+                        arg.type = VariableType.VT_Int
+            else:
+                for arg in self.parameters:
+                    if arg.type.is_constant():
+                        arg.value = float(arg.value)
+                        arg.type = VariableType.VT_Float
+
             self.function = f"_{self.function}"
 
     def _check_args_len(self):
@@ -112,7 +123,8 @@ class Operator:
             ValueError: arguments lenght must <= 5
         """
         if len(self.parameters) > 5:
-            raise ValueError(f"not support: len(argvs) = {len(self.parameters) } > 5")
+            raise ValueError(
+                f"not support: len(argvs) = {len(self.parameters) } > 5")
 
     def _update_type(self):
         """update types of operator
@@ -127,7 +139,8 @@ class Operator:
                 vars.append(str(i + 1))
 
         if len(vars) > 2:
-            raise ValueError(f"not support: variable number = {len(vars)}  > 2")
+            raise ValueError(
+                f"not support: variable number = {len(vars)}  > 2")
         args_len = len(self.parameters)
         if len(vars) == 2:
             self.input_type = eval(
