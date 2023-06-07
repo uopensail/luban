@@ -534,7 +534,7 @@ def generate_tfrecord(data_path: str):
     example = tf.train.Example()
     Parse(json.dumps(record), example)
     data = example.SerializeToString()
-    for i in range(1000000):
+    for i in range(10000):
         writer.write(data)
     writer.close()
 

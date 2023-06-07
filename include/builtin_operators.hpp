@@ -1,3 +1,4 @@
+//
 // `LuBan` - 'c++ tool for transformating and hashing features'
 // Copyright (C) 2019 - present timepi <timepi123@gmail.com>
 // LuBan is provided under: GNU Affero General Public License (AGPL3.0)
