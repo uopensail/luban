@@ -63,7 +63,7 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
     }
     u_int64_t count = 0;
     while (reader.read((char *)&length, 8)) {
-      if (length + 8 > max_len) {
+      if (length > max_len) {
         delete[] data_buffer;
         max_len = 2 * length;
         data_buffer = new char[max_len];
@@ -73,10 +73,15 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
         std::cout << "reading file: " << filename << " line NO.: " << count
                   << std::endl;
       }
-      reader.read(data_buffer, length + 8);
+      // header's checksum,4bits
+      reader.ignore(4);
+      reader.read(data_buffer, length);
+      // footer's checksum, 4bits
+      reader.ignore(4);
+
       index = rand() % num;
       fds[index]->write((char *)&length, 8);
-      fds[index]->write(data_buffer + 4, length);
+      fds[index]->write(data_buffer, length);
     }
     delete[] data_buffer;
     reader.close();
