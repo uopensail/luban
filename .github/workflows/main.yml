@@ -32,7 +32,11 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.6.1
         env:
-          CIBW_BEFORE_ALL_MACOS: brew install rocksdb
+          CIBW_BEFORE_ALL_MACOS: brew install protobuf
+          CIBW_BEFORE_ALL_LINUX: >
+              yum install -y protobuf protobuf-devel &&
+              cd helper && bash helper.sh && cd - &&
+              pwd
           CIBW_ARCHS_LINUX: auto, aarch64 
 
       - uses: actions/upload-artifact@v2
@@ -47,13 +51,11 @@ jobs:
 
       - name: Build sdist
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libprotobuf-dev protobuf-compiler
+          sudo apt-get update &&
+          sudo apt-get install -y libprotobuf-dev protobuf-compiler &&
           cd helper && bash helper.sh && cd -
-          pwd
+          pwd     
           pipx run build --sdist 
-
-
       - uses: actions/upload-artifact@v2
         with:
           path: dist/*.tar.gz
