@@ -26,7 +26,7 @@ import sys
 
 from setuptools import Extension, find_packages, setup
 
-COMPILE_OPTIONS = []
+COMPILE_OPTIONS = ["-DProtobuf_SOURCE=BUNDLED"]
 LINK_OPTIONS = []
 
 
