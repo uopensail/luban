@@ -32,13 +32,17 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.6.1
         env:
-          CIBW_BEFORE_ALL_MACOS: brew install protobuf
+          CIBW_BEFORE_ALL_MACOS: >
+            brew install protobuf &&
+            cd helper && bash helper.sh && cd -
           CIBW_BEFORE_ALL_LINUX: >
-            yum -y install gcc automake autoconf libtool make gcc-c++ \
-            && cd /tmp && wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-all-3.20.0.tar.gz \
-            && tar zxvf protobuf-all-3.20.0.tar.gz && cd protobuf-3.20.0 \
-            && ./autogen.sh && ./configure \
-            && make && make install
+            WORKSPACE=`pwd` &&  
+            yum -y install gcc automake autoconf libtool make gcc-c++ &&
+            cd /tmp && wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-all-3.20.0.tar.gz &&
+            tar zxvf protobuf-all-3.20.0.tar.gz && cd protobuf-3.20.0 &&
+            ./autogen.sh && ./configure && 
+            make && make install && 
+            cd ${WORKSPACE}/helper && bash helper.sh && cd ${WORKSPACE}
           CIBW_ARCHS_LINUX: auto, aarch64 
 
       - uses: actions/upload-artifact@v2
