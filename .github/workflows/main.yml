@@ -47,8 +47,8 @@ jobs:
 
       - name: Build sdist
         run: |
-          apt-get update
-          apt-get install -y libprotobuf-dev protobuf-compiler
+          sudo apt-get update
+          sudo apt-get install -y libprotobuf-dev protobuf-compiler
           cd helper && bash helper.sh && cd -
           pwd
           pipx run build --sdist 
