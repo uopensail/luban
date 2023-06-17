@@ -1,8 +1,11 @@
 name: Build and upload to PyPI
 
 on:
-  release:
-    types: [published]
+#  release:
+#    types: [published]
+  push:
+    branches:
+      - pypi-ci
 
 jobs:
   build_wheels:
@@ -43,7 +46,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build sdist
-        run: pipx run build --sdist
+        run: |
+          apt-get update
+          apt-get install -y libprotobuf-dev protobuf-compiler
+          cd helper && bash helper.sh && cd -
+          pwd
+          pipx run build --sdist 
+
 
       - uses: actions/upload-artifact@v2
         with:
