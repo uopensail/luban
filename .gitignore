@@ -36,10 +36,8 @@ cmake-build-debug
 pyluban.egg-info/
 dist/
 build/
-*.txt
 .vscode
 .cache/
 __pycache__/
-*.toml
 *.json
 *.tfrecord
