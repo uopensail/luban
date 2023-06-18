@@ -75,7 +75,8 @@ pyluban_module = Extension(
     extra_compile_args=COMPILE_OPTIONS,
     extra_link_args=LINK_OPTIONS,
 )
-
+with open("README.md", "r", encoding="utf-8") as fd:
+    long_description = fd.read()
 setup(
     name="pyluban",
     version="1.0.0",
@@ -88,7 +89,7 @@ setup(
     py_modules=["pyluban"],
     ext_modules=[pyluban_module],
     keywords="feature operator and hasher",
-    long_description="",
+    long_description=long_description,
     install_requires=["toml==0.10.2"],
     long_description_content_type="text/markdown",
     classifiers=[
