@@ -36,14 +36,7 @@ jobs:
             brew install protobuf &&
             cd helper && bash helper.sh && cd -
           CIBW_BEFORE_ALL_LINUX: >
-            WORKSPACE=`pwd` &&  
-            yum -y install gcc automake autoconf libtool make gcc-c++ wget &&
-            mkdir -pv /tmp && 
-            cd /tmp && wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-all-3.20.0.tar.gz &&
-            tar zxvf protobuf-all-3.20.0.tar.gz && cd protobuf-3.20.0 &&
-            ./autogen.sh && ./configure && 
-            make && make install && 
-            cd ${WORKSPACE}/helper && bash helper.sh && cd ${WORKSPACE}
+            cd helper && bash helper.sh && cd -
           CIBW_ARCHS_LINUX: auto, aarch64 
 
       - uses: actions/upload-artifact@v2
