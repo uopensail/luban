@@ -80,7 +80,7 @@ setup(
     name="pyluban",
     version="1.0.0",
     description="Python wrapper for luban.",
-    license="License :: AGLP3",
+    license="License :: AGLP 3",
     author="uopensail",
     author_email="",
     url="https://github.com/uopensail/luban",
@@ -94,7 +94,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
-        "License :: AGPL 3",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
