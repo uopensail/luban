@@ -54,6 +54,7 @@ if is_new_osx():
     COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
+    LINK_OPTIONS.append("-lpthread")
     LINK_OPTIONS.append("-nodefaultlibs")
 else:
     COMPILE_OPTIONS.append("-std=c++17")

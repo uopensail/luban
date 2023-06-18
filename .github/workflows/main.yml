@@ -33,6 +33,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.6.1
         env:
           CIBW_BEFORE_ALL_MACOS: >
+            uname -a &&
             brew install protobuf &&
             cd helper && bash helper.sh && cd -
           CIBW_BEFORE_ALL_LINUX: >
