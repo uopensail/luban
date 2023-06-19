@@ -26,7 +26,7 @@ import sys
 
 from setuptools import Extension, find_packages, setup
 
-COMPILE_OPTIONS = []
+COMPILE_OPTIONS = ["-DProtobuf_SOURCE=BUNDLED"]
 LINK_OPTIONS = []
 
 
@@ -35,11 +35,16 @@ def is_new_osx():
     if sys.platform != "darwin":
         return False
     mac_ver = platform.mac_ver()[0]
-    if mac_ver.startswith("10"):
-        minor_version = int(mac_ver.split(".")[1])
-        return minor_version >= 7
-    return False
+    ver_ss = mac_ver.split(".")
+    version = int(ver_ss[0])
 
+    if version > 10:
+        return True
+    elif version == 10:
+        minor_version = int(ver_ss[1])
+        return minor_version >= 7
+    else:
+        return False
 
 if is_new_osx():
     # On Mac, use libc++ because Apple deprecated use of
@@ -49,6 +54,7 @@ if is_new_osx():
     COMPILE_OPTIONS.append("-Wno-unused-function")
     LINK_OPTIONS.append("-lc++")
     LINK_OPTIONS.append("-lprotobuf")
+    LINK_OPTIONS.append("-lpthread")
     LINK_OPTIONS.append("-nodefaultlibs")
 else:
     COMPILE_OPTIONS.append("-std=c++17")
@@ -70,12 +76,13 @@ pyluban_module = Extension(
     extra_compile_args=COMPILE_OPTIONS,
     extra_link_args=LINK_OPTIONS,
 )
-
+with open("README.md", "r", encoding="utf-8") as fd:
+    long_description = fd.read()
 setup(
     name="pyluban",
-    version="1.0.0",
+    version="1.0.2",
     description="Python wrapper for luban.",
-    license="License :: GPL 3",
+    license="License :: AGLP 3",
     author="uopensail",
     author_email="",
     url="https://github.com/uopensail/luban",
@@ -83,13 +90,13 @@ setup(
     py_modules=["pyluban"],
     ext_modules=[pyluban_module],
     keywords="feature operator and hasher",
-    long_description="",
+    long_description=long_description,
     install_requires=["toml==0.10.2"],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
-        "License :: AGPL 3",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
