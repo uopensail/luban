@@ -80,7 +80,7 @@ with open("README.md", "r", encoding="utf-8") as fd:
     long_description = fd.read()
 setup(
     name="pyluban",
-    version="1.0.0",
+    version="1.0.2",
     description="Python wrapper for luban.",
     license="License :: AGLP 3",
     author="uopensail",

@@ -1,5 +1,5 @@
 # luban
-[中文文档](README_ZN.md)
+[中文文档](https://github.com/uopensail/luban/blob/main/README_ZN.md)
 ## Why Need?
 
 The feature-processing module is used in different scenarios, such as: model training and model inference. Usually, we use Python to train models, and feature-processing is also done in Python. However, in model inference, the shorter the inference run time, the better. So we usually use C++/java/golang or other languages to do model inference.
@@ -71,59 +71,17 @@ The expressions here are similar to Python's syntax. Originally, we wanted to us
 
 ## Install
 
-### install protobuf 
-The installation script under CentOS 7 is below, other systems is similar.
+### install On MacOS ARM
 
 ```shell
-#!/bin/shell
-
-yum install -y git wget
-yum install -y openssl openssl-devel gcc-c++
-yum install -y snappy snappy-devel autoconf automake libtool
-yum install -y bzip2 bzip2-devel lz4-devel libzstd-devel
-yum install -y epel-release gflags gflags-devel which 
-
-# install cmake
-# use cmake to compile this project for c/c++ lib
-cd /tmp 
-wget https://github.com/Kitware/CMake/releases/download/v3.18.2/cmake-3.18.2.tar.gz
-tar -xvf cmake-3.18.2.tar.gz
-cd cmake-3.18.2
-./bootstrap
-gmake && gmake install
-
-# instal libunwind
-cd /tmp
-wget http://download.savannah.gnu.org/releases/libunwind/libunwind-1.5.0.tar.gz
-tar -xvf libunwind-1.5.0.tar.gz
-cd libunwind-1.5.0
-CFLAGS=-fPIC ./configure
-make CFLAGS=-fPIC && make CFLAGS=-fPIC install 
-
-# install gperftools and tcmalloc
-cd /tmp
-wget https://github.com/gperftools/gperftools/releases/download/gperftools-2.7/gperftools-2.7.tar.gz
-tar -xvf gperftools-2.7.tar.gz 
-cd gperftools-2.7
-./configure
-make -j6 && make install 
-
-# install protobuf
-cd /tmp
-git clone https://github.com/protocolbuffers/protobuf.git
-cd protobuf 
-git checkout v3.8.0 && git submodule update --init --recursive
-./autogen.sh
-./configure 
-make && make install
-ldconfig
-
-rm -rf /tmp/*
+brew install protobuf
+pip install pyluba
 ```
 
-### install pyluban
+### Unix Like
+
 ```shell
-python setup.py install --install-scripts=/usr/local/bin
+pip install pyluba
 ```
 
 ## Q&A
