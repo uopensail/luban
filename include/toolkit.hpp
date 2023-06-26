@@ -25,14 +25,14 @@
 #include "runtime.hpp"
 
 class Toolkit {
-private:
-  EntityArray *
-  process_from_realtime_features(RunTimeFeatures &realtime_features) {
+ private:
+  EntityArray *process_from_realtime_features(
+      RunTimeFeatures &realtime_features) {
     this->operator_->call(realtime_features);
     return this->hasher_->call(realtime_features.get_features());
   }
 
-public:
+ public:
   Toolkit() = delete;
   Toolkit(const Toolkit &) = delete;
   Toolkit(const Toolkit &&) = delete;
@@ -48,15 +48,19 @@ public:
     this->operator_ =
         std::make_shared<FeatureOperatorToolkit>(operator_configs);
 
-    std::unordered_map<std::string, u_int64_t> feature_group_map;
+    std::unordered_map<std::string, SlotMeta> feature_slot_map;
     auto groups = g->get_table_array("outputs");
+    int length;
+    int64_t slot;
     for (auto &table : *groups) {
-      assert(table->contains("name") && table->contains("group"));
+      assert(table->contains("name") && table->contains("slot"));
       ParamsHelper params(table);
-      feature_group_map[params.get<std::string>("name")] =
-          (u_int64_t)params.get<int64_t>("group");
+      slot = params.get<int64_t>("slot");
+      length = params.get<int>("length", 1);
+      feature_slot_map[params.get<std::string>("name")] =
+          SlotMeta{slot, length};
     }
-    this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_group_map);
+    this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_slot_map);
   }
 
   EntityArray *process(char *features, int len) {
@@ -73,17 +77,17 @@ public:
     return this->process_from_realtime_features(rt_features);
   }
 
-  EntityArray *
-  process(const std::initializer_list<sample::Features *> &features_list) {
+  EntityArray *process(
+      const std::initializer_list<sample::Features *> &features_list) {
     RunTimeFeatures rt_features(features_list);
     return this->process_from_realtime_features(rt_features);
   }
 
   ~Toolkit() {}
 
-private:
+ private:
   std::shared_ptr<FeatureHashToolkit> hasher_;
   std::shared_ptr<FeatureOperatorToolkit> operator_;
 };
 
-#endif // LUBAN_TOOLKIT_HPP
+#endif  // LUBAN_TOOLKIT_HPP

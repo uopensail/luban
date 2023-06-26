@@ -24,11 +24,12 @@ If feature-process module is written in many different languages, they may be in
     "outputs": [
         {
             "name": "A",
-            "group": 0
+            "slot": 0,
+            "length": 2,
         },
         {
             "name": "G",
-            "group": 1
+            "slot": 1
         }
     ]
 }
@@ -75,13 +76,13 @@ The expressions here are similar to Python's syntax. Originally, we wanted to us
 
 ```shell
 brew install protobuf
-pip install pyluba
+pip install pyluban
 ```
 
 ### Unix Like
 
 ```shell
-pip install pyluba
+pip install pyluban
 ```
 
 ## Q&A

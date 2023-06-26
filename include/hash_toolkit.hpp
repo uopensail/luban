@@ -27,22 +27,21 @@
 #include "MurmurHash3.h"
 #include "feature_helper.hpp"
 
-#ifdef __APPLE__
-#define u_int64_t __uint64_t
-#elif __linux__
-#define u_int64_t uint64_t
-#endif
+#define MAX_SLOT 128
+#define FEATURE_SLOT_BITS 8
+#define FEAUTRE_HASH_MASK 0xFFFFFFFFFFFFFFll
 
-#define FEATURE_GID_BITS 8
-#define MAX_GID 256
-#define FEAUTRE_HASH_MASK 0xFFFFFFFFFFFFFFul
+typedef struct SlotMeta {
+  int64_t slot;
+  int length;
+} SlotMeta;
 
 #pragma pack(push)
 #pragma pack(1)
 typedef struct Entity {
-  size_t gid;   // feature group id
-  size_t size;  // length of data
-  u_int64_t data[];
+  size_t slot;     // feature slot id
+  size_t size;     // length of data
+  int64_t data[];  // feature data
 } Entity;
 
 typedef struct EntityArray {
@@ -53,9 +52,9 @@ typedef struct EntityArray {
 #pragma pack(pop)
 
 // create an entity
-static Entity *new_entity(size_t size, size_t gid) {
-  auto entity = (Entity *)malloc(sizeof(Entity) + sizeof(u_int64_t) * size);
-  entity->gid = gid;
+static Entity *new_entity(size_t size, int64_t slot) {
+  auto entity = (Entity *)calloc(1, sizeof(Entity) + sizeof(int64_t) * size);
+  entity->slot = slot;
   entity->size = size;
   return entity;
 }
@@ -89,67 +88,72 @@ static size_t get_entity_size(const Entity *entity) {
     return 0;
   }
 
-  return sizeof(Entity) + sizeof(u_int64_t) * entity->size;
+  return sizeof(Entity) + sizeof(int64_t) * entity->size;
 }
 
 // hash
-static u_int64_t mmh3(const std::string &key) {
-  u_int64_t ret[2];
-  MurmurHash3_x64_128(key.c_str(), key.size(), 0, &ret);
-  return ret[0];
+static int64_t mmh3(const std::string &key) {
+  char ret[16];
+  MurmurHash3_x64_128(key.c_str(), key.size(), 0, ret);
+  return ((int64_t *)ret)[0] & FEAUTRE_HASH_MASK;
 }
 
-static u_int64_t mask_gid(u_int64_t &hash_id, u_int64_t &gid) {
-  assert(gid >= 0 && gid < MAX_GID);
-  return (gid << (64 - FEATURE_GID_BITS)) + (hash_id & FEAUTRE_HASH_MASK);
+static int64_t mask_slot(int64_t hash, size_t slot) {
+  assert(slot >= 0 && slot < MAX_SLOT);
+  int64_t ret = slot;
+  ret <<= (64 - FEATURE_SLOT_BITS);
+  ret |= (hash & FEAUTRE_HASH_MASK);
+  return ret;
 }
 
 class FeatureHashToolkit {
  private:
-  Entity *hash_float_feature(SharedFeaturePtr &feature, u_int64_t gid) {
+  Entity *hash_float_feature(SharedFeaturePtr &feature, SlotMeta &meta) {
     assert(feature->has_float_list());
-    u_int64_t v;
-    Entity *entity = new_entity(feature->float_list().value_size(), gid);
-
-    for (int i = 0; i < feature->float_list().value_size(); i++) {
+    int64_t v;
+    int size = std::min<int>(feature->float_list().value_size(), meta.length);
+    Entity *entity = new_entity(meta.length, meta.slot);
+    for (int i = 0; i < size; i++) {
       v = mmh3(std::to_string(
           static_cast<int64_t>(floorf(feature->float_list().value(i)))));
-      entity->data[i] = mask_gid(v, gid);
+      entity->data[i] = mask_slot(v, meta.slot);
     }
     return entity;
   }
 
-  Entity *hash_string_feature(SharedFeaturePtr feature, u_int64_t gid) {
+  Entity *hash_string_feature(SharedFeaturePtr feature, SlotMeta &meta) {
     assert(feature->has_bytes_list());
-    u_int64_t v;
-    Entity *entity = new_entity(feature->bytes_list().value_size(), gid);
+    int64_t v;
+    int size = std::min<int>(feature->bytes_list().value_size(), meta.length);
+    Entity *entity = new_entity(meta.length, meta.slot);
 
-    for (int i = 0; i < feature->bytes_list().value_size(); i++) {
+    for (int i = 0; i < size; i++) {
       v = mmh3(feature->bytes_list().value(i));
-      entity->data[i] = mask_gid(v, gid);
+      entity->data[i] = mask_slot(v, meta.slot);
     }
     return entity;
   }
 
-  Entity *hash_int_feature(SharedFeaturePtr feature, u_int64_t gid) {
+  Entity *hash_int_feature(SharedFeaturePtr feature, SlotMeta &meta) {
     assert(feature->has_int64_list());
-    u_int64_t v;
-    Entity *entity = new_entity(feature->int64_list().value_size(), gid);
-    for (int i = 0; i < feature->int64_list().value_size(); i++) {
+    int64_t v;
+    int size = std::min<int>(feature->int64_list().value_size(), meta.length);
+    Entity *entity = new_entity(meta.length, meta.slot);
+    for (int i = 0; i < size; i++) {
       v = mmh3(std::to_string(feature->int64_list().value(i)));
-      entity->data[i] = mask_gid(v, gid);
+      entity->data[i] = mask_slot(v, meta.slot);
     }
     return entity;
   }
 
-  Entity *hash_feature(SharedFeaturePtr feature, u_int64_t gid) {
+  Entity *hash_feature(SharedFeaturePtr feature, SlotMeta &meta) {
     switch (feature->kind_case()) {
       case sample::Feature::KindCase::kBytesList:
-        return hash_string_feature(feature, gid);
+        return hash_string_feature(feature, meta);
       case sample::Feature::KindCase::kFloatList:
-        return hash_float_feature(feature, gid);
+        return hash_float_feature(feature, meta);
       case sample::Feature::KindCase::kInt64List:
-        return hash_int_feature(feature, gid);
+        return hash_int_feature(feature, meta);
       default:
         return nullptr;
     }
@@ -157,29 +161,29 @@ class FeatureHashToolkit {
 
  public:
   FeatureHashToolkit(
-      const std::unordered_map<std::string, u_int64_t> &feature_group_map) {
-    for (auto &kv : feature_group_map) {
-      feature_group_map_[kv.first] = kv.second;
+      const std::unordered_map<std::string, SlotMeta> &feature_slot_map) {
+    for (auto &kv : feature_slot_map) {
+      feature_slot_map_[kv.first] = kv.second;
     }
   }
-  ~FeatureHashToolkit() { feature_group_map_.clear(); };
+  ~FeatureHashToolkit() { feature_slot_map_.clear(); };
   EntityArray *call(
       const std::unordered_map<std::string, SharedFeaturePtr> &features) {
-    EntityArray *entity_array = new_entity_array(feature_group_map_.size());
-
-    for (const auto &kv : feature_group_map_) {
+    EntityArray *entity_array = new_entity_array(feature_slot_map_.size());
+    size_t index = 0;
+    for (auto &kv : this->feature_slot_map_) {
       auto it = features.find(kv.first);
-      if (it == features.end()) {
-        entity_array->array[kv.second] = nullptr;
-      } else {
-        entity_array->array[kv.second] = hash_feature(it->second, kv.second);
+      if (it != features.end()) {
+        entity_array->array[index] = hash_feature(it->second, kv.second);
+        index++;
       }
     }
+    entity_array->size = index;
     return entity_array;
   }
 
  private:
-  std::unordered_map<std::string, u_int64_t> feature_group_map_;
+  std::unordered_map<std::string, SlotMeta> feature_slot_map_;
 };
 
 static void print_entity(Entity *entity) {

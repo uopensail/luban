@@ -23,11 +23,12 @@
     "outputs": [
         {
             "name": "A",
-            "group": 0
+            "slot": 0,
+            "length": 2,
         },
         {
             "name": "G",
-            "group": 1
+            "slot": 1
         }
     ]
 }
@@ -69,13 +70,13 @@
 
 ```shell
 brew install protobuf
-pip install pyluba
+pip install pyluban
 ```
 
 ### Unix Like
 
 ```shell
-pip install pyluba
+pip install pyluban
 ```
 
 ## Q&A

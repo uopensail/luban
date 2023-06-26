@@ -32,23 +32,23 @@ config = {
     "outputs": [
         {
             "name": "d_s_id",
-            "group": 0
+            "slot": 0
         },
         {
             "name": "country",
-            "group": 1
+            "slot": 1
         },
         {
             "name": "clicks",
-            "group": 2
+            "slot": 2
         },
         {
             "name": "publish",
-            "group": 3
+            "slot": 3
         },
         {
             "name": "now",
-            "group": 4
+            "slot": 4
         }
     ]
 }
