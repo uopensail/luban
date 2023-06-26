@@ -65,21 +65,21 @@ func_type = 1
 
 [[outputs]]
 name = "d_s_id"
-group = 0
+slot = 0
 
 [[outputs]]
 name = "country"
-group = 1
+slot = 1
 
 [[outputs]]
 name = "clicks"
-group = 2
+slot = 2
 
 [[outputs]]
 name = "publish"
-group = 3
+slot = 3
 
 [[outputs]]
 name = "now"
-group = 4
+slot = 4
 

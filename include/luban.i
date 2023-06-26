@@ -10,7 +10,7 @@
 #include "pyluban.h"
 
 static PyStructSequence_Field entity_fields[] = {
-    {"gid", "group id of feature"},
+    {"slot", "slot of feature"},
     {"data", "uint64 list"},
     {NULL}
 };
@@ -36,13 +36,13 @@ static PyTypeObject *EntityType = PyStructSequence_NewType(&entity_desc);
 
 %typemap(out) Entity * {
   $result = PyStructSequence_New(EntityType);
-  PyObject *gid = PyLong_FromSsize_t($1->gid);
+  PyObject *slot = PyLong_FromSsize_t($1->slot);
   PyObject *data = PyList_New($1->size);
   for (size_t j = 0; j < $1->size; ++j)
   {
     PyList_SET_ITEM(data, j, PyLong_FromSsize_t($1->data[j]));
   }
-  PyStructSequence_SetItem($result, 0, gid);
+  PyStructSequence_SetItem($result, 0, slot);
   PyStructSequence_SetItem($result, 1, data);
 }
 %include "pyluban.h"

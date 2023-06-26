@@ -3325,7 +3325,7 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 #include "pyluban.h"
 
 static PyStructSequence_Field entity_fields[] = {
-    {"gid", "group id of feature"},
+    {"slot", "slot of feature"},
     {"data", "uint64 list"},
     {NULL}
 };
@@ -4411,13 +4411,13 @@ SWIGINTERN PyObject *_wrap_PyEntityArray_get(PyObject *SWIGUNUSEDPARM(self), PyO
   result = (Entity *)(arg1)->get(arg2);
   {
     resultobj = PyStructSequence_New(EntityType);
-    PyObject *gid = PyLong_FromSsize_t(result->gid);
+    PyObject *slot = PyLong_FromSsize_t(result->slot);
     PyObject *data = PyList_New(result->size);
     for (size_t j = 0; j < result->size; ++j)
     {
       PyList_SET_ITEM(data, j, PyLong_FromSsize_t(result->data[j]));
     }
-    PyStructSequence_SetItem(resultobj, 0, gid);
+    PyStructSequence_SetItem(resultobj, 0, slot);
     PyStructSequence_SetItem(resultobj, 1, data);
   }
   return resultobj;

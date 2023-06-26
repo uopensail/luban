@@ -76,6 +76,8 @@ pip install pyluban
 ### Unix Like
 
 ```shell
+python setup.py install --install-scripts=/usr/local/bin
+
 pip install pyluban
 ```
 
