@@ -27,8 +27,8 @@ import json
 from typing import Any, List, Union
 
 import toml
-from operatordef import Operator
-from typedef import Parameter, VariableType
+from .operatordef import Operator
+from .typedef import Parameter, VariableType
 
 GLOBAL_OPERATORS = []
 GLOBAL_OPERATOR_INDEX = -1
@@ -300,49 +300,59 @@ def parse_expressions(expressions: List[str]) -> List[Operator]:
     return unique_oprs
 
 
-class Parser:
-    @staticmethod
-    def do(input_file: str, output_file: str):
-        """do parse
+def check_outputs(slots: List[dict]):
+    """check wheather outputs's slots
 
-        Args:
-            input_file (str): json config
-            output_file (str): toml config
+    Args:
+        slots (List[dict]): slots
+    """
+    slots.sort(key=lambda x: x["slot"])
+    for i in range(len(slots)):
+        assert slots[i]["slot"] == i
 
-        Raises:
-            ValueError: variable unknown
-        """
-        dic = json.load(open(input_file, "r"))
-        oprs = parse_expressions(dic["transforms"])
-        variables = {}
-        ret = []
-        for op in oprs:
-            config = {
-                "name": op.name,
-                "args": [],
-                "input_type": op.input_type.value,
-                "func": op.function,
-                "func_type": op.func_type.value,
+
+def parse(input_file: str, output_file: str):
+    """do parse
+
+    Args:
+        input_file (str): json config
+        output_file (str): toml config
+
+    Raises:
+        ValueError: variable unknown
+    """
+    dic = json.load(open(input_file, "r"))
+    check_outputs(dic["outputs"])
+    oprs = parse_expressions(dic["transforms"])
+    variables = {}
+    ret = []
+    for op in oprs:
+        config = {
+            "name": op.name,
+            "args": [],
+            "input_type": op.input_type.value,
+            "func": op.function,
+            "func_type": op.func_type.value,
+        }
+        for p in op.parameters:
+            param = {
+                "type": p.type.value,
+                "index": p.index,
+                "data": p.value,
             }
-            for p in op.parameters:
-                param = {
-                    "type": p.type.value,
-                    "index": p.index,
-                    "data": p.value,
-                }
-                if p.type == VariableType.VT_Variable:
-                    if isinstance(p.value, Operator):
-                        if p.value.name not in variables:
-                            raise ValueError(f"{p.value.name} unknown")
-                        param["data"] = p.value.name
-                config["args"].append(param)
+            if p.type == VariableType.VT_Variable:
+                if isinstance(p.value, Operator):
+                    if p.value.name not in variables:
+                        raise ValueError(f"{p.value.name} unknown")
+                    param["data"] = p.value.name
+            config["args"].append(param)
 
-            if len(config["args"]) == 0:
-                del config["args"]
-            ret.append(config)
-            variables[op.name] = True
-        ans = {"transforms": ret, "outputs": dic["outputs"]}
-        toml.dump(ans, open(output_file, "w"))
+        if len(config["args"]) == 0:
+            del config["args"]
+        ret.append(config)
+        variables[op.name] = True
+    ans = {"transforms": ret, "outputs": dic["outputs"]}
+    toml.dump(ans, open(output_file, "w"))
 
 
 def main():
@@ -355,7 +365,7 @@ def main():
         "--output", "-o", type=str, required=True, help="toml config file"
     )
     args = parser.parse_args()
-    Parser.do(args.input, args.output)
+    parse(args.input, args.output)
 
 
 if __name__ == "__main__":

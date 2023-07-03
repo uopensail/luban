@@ -80,8 +80,3 @@ python setup.py install --install-scripts=/usr/local/bin
 
 pip install pyluban
 ```
-
-## Q&A
-
-1. 出现这个问题：`Fatal Python error: type_traverse() called for non-heap type 'Entity'`
-这个是[python内部的bug](https://bugs.python.org/issue28709)，在后续的python3.8及以上版本修复了。

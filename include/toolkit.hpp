@@ -26,10 +26,10 @@
 
 class Toolkit {
  private:
-  EntityArray *process_from_realtime_features(
-      RunTimeFeatures &realtime_features) {
+  void process_from_realtime_features(RunTimeFeatures &realtime_features,
+                                      int64_t *array) {
     this->operator_->call(realtime_features);
-    return this->hasher_->call(realtime_features.get_features());
+    this->hasher_->call(realtime_features.get_features(), array);
   }
 
  public:
@@ -45,45 +45,48 @@ class Toolkit {
     for (const auto &table : *transforms) {
       operator_configs.push_back({table});
     }
-    this->operator_ =
-        std::make_shared<FeatureOperatorToolkit>(operator_configs);
 
-    std::unordered_map<std::string, SlotMeta> feature_slot_map;
     auto groups = g->get_table_array("outputs");
-    int length;
+    std::vector<SlotMeta> features;
+    features.resize(groups->get().size());
+    size_t length;
     int64_t slot;
     for (auto &table : *groups) {
       assert(table->contains("name") && table->contains("slot"));
       ParamsHelper params(table);
       slot = params.get<int64_t>("slot");
-      length = params.get<int>("length", 1);
-      feature_slot_map[params.get<std::string>("name")] =
-          SlotMeta{slot, length};
+      length = params.get<size_t>("length", 1);
+      features[slot] = SlotMeta{slot, length, params.get<std::string>("name")};
     }
-    this->hasher_ = std::make_shared<FeatureHashToolkit>(feature_slot_map);
+
+    this->operator_ =
+        std::make_shared<FeatureOperatorToolkit>(operator_configs);
+
+    this->hasher_ = std::make_shared<FeatureHashToolkit>(features);
   }
 
-  EntityArray *process(char *features, int len) {
+  void process(char *features, int len, int64_t *array) {
     sample::Features *tf_features = new sample::Features();
     tf_features->ParseFromArray(features, len);
     RunTimeFeatures rt_features(tf_features);
-    auto ret = this->process_from_realtime_features(rt_features);
+    this->process_from_realtime_features(rt_features, array);
     delete tf_features;
-    return ret;
   }
 
-  EntityArray *process(sample::Features *features) {
+  void process(sample::Features *features, int64_t *array) {
     RunTimeFeatures rt_features(features);
-    return this->process_from_realtime_features(rt_features);
+    return this->process_from_realtime_features(rt_features, array);
   }
 
-  EntityArray *process(
-      const std::initializer_list<sample::Features *> &features_list) {
+  void process(const std::initializer_list<sample::Features *> &features_list,
+               int64_t *array) {
     RunTimeFeatures rt_features(features_list);
-    return this->process_from_realtime_features(rt_features);
+    return this->process_from_realtime_features(rt_features, array);
   }
 
   ~Toolkit() {}
+
+  size_t width() { return this->hasher_->width(); }
 
  private:
   std::shared_ptr<FeatureHashToolkit> hasher_;

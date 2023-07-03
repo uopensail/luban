@@ -24,32 +24,18 @@
 
 #include "toolkit.hpp"
 
-class PyToolKit;
-
-class PyEntityArray {
-private:
-  EntityArray *data_;
-  friend PyToolKit;
-
-public:
-  PyEntityArray();
-  ~PyEntityArray();
-  int size();
-  Entity *get(int index);
-};
-
 class PyToolKit {
-private:
+ private:
   Toolkit *toolkit;
 
-public:
+ public:
   PyToolKit() = delete;
   PyToolKit(const PyToolKit &) = delete;
   PyToolKit(const PyToolKit &&) = delete;
   PyToolKit(std::string config_file);
   ~PyToolKit();
-  void process(char *features, int len, PyEntityArray &entity);
+  std::vector<int64_t> process(char *features, int len);
   void process_file(std::string input_file, std::string output_file);
 };
 
-#endif // LUBAN_PYLUBAN_H
+#endif  // LUBAN_PYLUBAN_H

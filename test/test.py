@@ -16,67 +16,37 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
 #
-import os
 import json
-import pyluban
+import os
+
 import tensorflow as tf
 from google.protobuf.json_format import Parse
+
+import luban
+import luban_parser
 
 config = {
     "transforms": [
         "country = lower(u_s_country)",
-        "clicks = concat(\"item_id=\", u_r_click)",
-        "publish = from_unixtime(d_s_publishTime/1000, \"%Y%m%d\")",
-        "now = now()"
+        'clicks = concat("item_id=", u_r_click)',
+        'publish = from_unixtime(d_s_publishTime/1000, "%Y%m%d")',
+        "now = now()",
     ],
     "outputs": [
-        {
-            "name": "d_s_id",
-            "slot": 0
-        },
-        {
-            "name": "country",
-            "slot": 1
-        },
-        {
-            "name": "clicks",
-            "slot": 2
-        },
-        {
-            "name": "publish",
-            "slot": 3
-        },
-        {
-            "name": "now",
-            "slot": 4
-        }
-    ]
+        {"name": "d_s_id", "slot": 0},
+        {"name": "country", "slot": 1},
+        {"name": "clicks", "slot": 2},
+        {"name": "publish", "slot": 3},
+        {"name": "now", "slot": 4},
+    ],
 }
 
 record = {
     "features": {
         "feature": {
-            "uc_m_networkType": {
-                "bytesList": {
-                    "value": [
-                        "V0lGSQ=="
-                    ]
-                }
-            },
-            "uc_m_timestamp": {
-                "int64List": {
-                    "value": [
-                        "1606447233"
-                    ]
-                }
-            },
-            "u_s_id": {
-                "bytesList": {
-                    "value": [
-                        "Yzg1NjZmYjgzZTdlODRiYQ=="
-                    ]
-                }
-            },
+            "uc_m_networkType": {"bytesList": {"value": ["V0lGSQ=="]}},
+            "uc_m_timestamp": {"int64List": {"value": ["1606447233"]}},
+            "u_s_id": {"bytesList": {"value": ["Yzg1NjZmYjgzZTdlODRiYQ=="]}},
             "u_r_click_int": {
                 "int64List": {
                     "value": [
@@ -100,45 +70,15 @@ record = {
                         "12238856",
                         "12177396",
                         "12176051",
-                        "12136341"
+                        "12136341",
                     ]
                 }
             },
-            "d_r_impValid": {
-                "int64List": {
-                    "value": [
-                        "108008"
-                    ]
-                }
-            },
-            "d_r_videoTime": {
-                "int64List": {
-                    "value": [
-                        "0"
-                    ]
-                }
-            },
-            "d_r_readTime": {
-                "int64List": {
-                    "value": [
-                        "483213809"
-                    ]
-                }
-            },
-            "uc_m_ip": {
-                "bytesList": {
-                    "value": [
-                        "MjAzLjgxLjE3Ny41NA=="
-                    ]
-                }
-            },
-            "d_s_publishTime": {
-                "int64List": {
-                    "value": [
-                        "1606169930000"
-                    ]
-                }
-            },
+            "d_r_impValid": {"int64List": {"value": ["108008"]}},
+            "d_r_videoTime": {"int64List": {"value": ["0"]}},
+            "d_r_readTime": {"int64List": {"value": ["483213809"]}},
+            "uc_m_ip": {"bytesList": {"value": ["MjAzLjgxLjE3Ny41NA=="]}},
+            "d_s_publishTime": {"int64List": {"value": ["1606169930000"]}},
             "u_d_videoSubcats": {
                 "bytesList": {
                     "value": [
@@ -146,17 +86,11 @@ record = {
                         "ZGFuY2U=",
                         "aHVtb3Vy",
                         "bW92aWVfc2VyaWVz",
-                        "Y3JpbWU="
+                        "Y3JpbWU=",
                     ]
                 }
             },
-            "uc_m_appSource": {
-                "bytesList": {
-                    "value": [
-                        "bGF1bmNoZXI="
-                    ]
-                }
-            },
+            "uc_m_appSource": {"bytesList": {"value": ["bGF1bmNoZXI="]}},
             "u_r_d_s_cat2": {
                 "bytesList": {
                     "value": [
@@ -180,17 +114,11 @@ record = {
                         "YWNjaWRlbnQ=",
                         "bWV0cm8=",
                         "Y2VsZWJyaXR5",
-                        "Y2VsZWJyaXR5"
+                        "Y2VsZWJyaXR5",
                     ]
                 }
             },
-            "uc_m_feedFrom": {
-                "int64List": {
-                    "value": [
-                        "255"
-                    ]
-                }
-            },
+            "uc_m_feedFrom": {"int64List": {"value": ["255"]}},
             "u_d_textSubcats": {
                 "bytesList": {
                     "value": [
@@ -198,24 +126,12 @@ record = {
                         "bWV0cm8=",
                         "bG9jYWxfcG9saXRpY3M=",
                         "Z2xvYmFsX3BvbGl0aWNz",
-                        "cmVsYXRpb25zaGlw"
+                        "cmVsYXRpb25zaGlw",
                     ]
                 }
             },
-            "d_s_sourceName": {
-                "bytesList": {
-                    "value": [
-                        "VGhlIE9sZCBUaW1lcw=="
-                    ]
-                }
-            },
-            "d_s_newsType": {
-                "int64List": {
-                    "value": [
-                        "1"
-                    ]
-                }
-            },
+            "d_s_sourceName": {"bytesList": {"value": ["VGhlIE9sZCBUaW1lcw=="]}},
+            "d_s_newsType": {"int64List": {"value": ["1"]}},
             "u_r_source": {
                 "bytesList": {
                     "value": [
@@ -230,24 +146,16 @@ record = {
                         "VmlkZW8gUmVwdWJsaWM=",
                         "QXJvdW5kIFRoZSBXb3JsZA==",
                         "VEhFIFNUQVJT",
-                        "TkcgU3RhcnM="
+                        "TkcgU3RhcnM=",
                     ]
                 }
             },
             "uc_m_requestId": {
                 "bytesList": {
-                    "value": [
-                        "YTIyMjFhOTgtNTAwMC00M2EyLWFiNGEtYTljNTZhOTdkZGIy"
-                    ]
+                    "value": ["YTIyMjFhOTgtNTAwMC00M2EyLWFiNGEtYTljNTZhOTdkZGIy"]
                 }
             },
-            "d_s_cat1": {
-                "bytesList": {
-                    "value": [
-                        "YXJ0X2N1bHR1cmU="
-                    ]
-                }
-            },
+            "d_s_cat1": {"bytesList": {"value": ["YXJ0X2N1bHR1cmU="]}},
             "u_r_click": {
                 "bytesList": {
                     "value": [
@@ -271,52 +179,16 @@ record = {
                         "MTIyMzg4NTY=",
                         "MTIxNzczOTY=",
                         "MTIxNzYwNTE=",
-                        "MTIxMzYzNDE="
+                        "MTIxMzYzNDE=",
                     ]
                 }
             },
-            "u_s_country": {
-                "bytesList": {
-                    "value": [
-                        "S0U="
-                    ]
-                }
-            },
-            "d_r_click": {
-                "int64List": {
-                    "value": [
-                        "5536"
-                    ]
-                }
-            },
-            "d_s_contentType": {
-                "int64List": {
-                    "value": [
-                        "1"
-                    ]
-                }
-            },
-            "d_s_tags": {
-                "bytesList": {
-                    "value": [
-                        "b3ZlcjdkYXlz"
-                    ]
-                }
-            },
-            "d_r_clickValid": {
-                "int64List": {
-                    "value": [
-                        "5566"
-                    ]
-                }
-            },
-            "d_r_imp": {
-                "int64List": {
-                    "value": [
-                        "296487"
-                    ]
-                }
-            },
+            "u_s_country": {"bytesList": {"value": ["S0U="]}},
+            "d_r_click": {"int64List": {"value": ["5536"]}},
+            "d_s_contentType": {"int64List": {"value": ["1"]}},
+            "d_s_tags": {"bytesList": {"value": ["b3ZlcjdkYXlz"]}},
+            "d_r_clickValid": {"int64List": {"value": ["5566"]}},
+            "d_r_imp": {"int64List": {"value": ["296487"]}},
             "u_r_d_s_sourceName": {
                 "bytesList": {
                     "value": [
@@ -340,24 +212,12 @@ record = {
                         "VmlkZW8gUmVwdWJsaWM=",
                         "QXJvdW5kIFRoZSBXb3JsZA==",
                         "VEhFIFNUQVJT",
-                        "TkcgU3RhcnM="
+                        "TkcgU3RhcnM=",
                     ]
                 }
             },
-            "d_s_id": {
-                "int64List": {
-                    "value": [
-                        "12415760"
-                    ]
-                }
-            },
-            "uc_m_from": {
-                "int64List": {
-                    "value": [
-                        "1"
-                    ]
-                }
-            },
+            "d_s_id": {"int64List": {"value": ["12415760"]}},
+            "uc_m_from": {"int64List": {"value": ["1"]}},
             "u_r_d_s_cat1": {
                 "bytesList": {
                     "value": [
@@ -381,7 +241,7 @@ record = {
                         "Y29tbXVuaXR5",
                         "Y29tbXVuaXR5",
                         "ZW50ZXJ0YWlubWVudA==",
-                        "ZW50ZXJ0YWlubWVudA=="
+                        "ZW50ZXJ0YWlubWVudA==",
                     ]
                 }
             },
@@ -392,7 +252,7 @@ record = {
                         "Y29tbXVuaXR5",
                         "cG9saXRpY3M=",
                         "bGlmZXN0eWxl",
-                        "YmVhdXR5"
+                        "YmVhdXR5",
                     ]
                 }
             },
@@ -413,17 +273,11 @@ record = {
                         "ZW5fdG9waWMxMjhfNDQ=",
                         "ZW5fdG9waWMxMjhfNg==",
                         "ZW5fdG9waWMxMjhfMjU=",
-                        "ZW5fdG9waWMxMjhfMTAz"
+                        "ZW5fdG9waWMxMjhfMTAz",
                     ]
                 }
             },
-            "label": {
-                "int64List": {
-                    "value": [
-                        "1"
-                    ]
-                }
-            },
+            "label": {"int64List": {"value": ["1"]}},
             "d_s_channelID": {
                 "bytesList": {
                     "value": [
@@ -435,7 +289,7 @@ record = {
                         "MTIz",
                         "MTM2",
                         "Mzg=",
-                        "MTAw"
+                        "MTAw",
                     ]
                 }
             },
@@ -446,31 +300,13 @@ record = {
                         "Y2VsZWJyaXR5",
                         "bG9jYWxfcG9saXRpY3M=",
                         "cmVsYXRpb25zaGlw",
-                        "cG9saXRpY2FsX3NjYW5kYWw="
+                        "cG9saXRpY2FsX3NjYW5kYWw=",
                     ]
                 }
             },
-            "d_s_coverType": {
-                "int64List": {
-                    "value": [
-                        "3"
-                    ]
-                }
-            },
-            "uc_m_page": {
-                "int64List": {
-                    "value": [
-                        "8"
-                    ]
-                }
-            },
-            "d_s_language": {
-                "bytesList": {
-                    "value": [
-                        "ZW4="
-                    ]
-                }
-            },
+            "d_s_coverType": {"int64List": {"value": ["3"]}},
+            "uc_m_page": {"int64List": {"value": ["8"]}},
+            "d_s_language": {"bytesList": {"value": ["ZW4="]}},
             "d_s_countryCode": {
                 "bytesList": {
                     "value": [
@@ -489,17 +325,11 @@ record = {
                         "Wlc=",
                         "WkE=",
                         "U0w=",
-                        "TFI="
+                        "TFI=",
                     ]
                 }
             },
-            "d_s_cat2": {
-                "bytesList": {
-                    "value": [
-                        "aGlzdG9yeQ=="
-                    ]
-                }
-            }
+            "d_s_cat2": {"bytesList": {"value": ["aGlzdG9yeQ=="]}},
         }
     }
 }
@@ -513,23 +343,19 @@ def test_process(config_file: str):
     """
     example = tf.train.Example()
     Parse(json.dumps(record), example)
-    toolkit = pyluban.PyToolKit(config_file=config_file)
-    entity_array = pyluban.PyEntityArray()
-    toolkit.process(features=example.features.SerializeToString(),
-                    entity=entity_array)
-    size = entity_array.size()
-    for i in range(size):
-        entity = entity_array.get(i)
-        print(entity)
+    toolkit = luban.PyToolKit(config_file=config_file)
+    keys = toolkit.process(features=example.features.SerializeToString())
+    for key in keys:
+        print(key)
 
 
 def generate_tfrecord(data_path: str):
     """use tensorflow to generate tfrecord
 
     Args:
-        data_path (str): tfrecord file 
+        data_path (str): tfrecord file
     """
-    print(f'now generating tfrecord: {data_path}')
+    print(f"now generating tfrecord: {data_path}")
     writer = tf.io.TFRecordWriter(data_path)
     example = tf.train.Example()
     Parse(json.dumps(record), example)
@@ -548,20 +374,18 @@ def test_process_file(config_path: str, data_path: str, output_path: str):
         output_path (str): output file
     """
     generate_tfrecord(data_path)
-    toolkit = pyluban.PyToolKit(config_path)
+    toolkit = luban.PyToolKit(config_path)
     toolkit.process_file(data_path, output_path)
 
 
 if __name__ == "__main__":
-    pwd = os.getcwd()
-    json_config_path = os.path.join(pwd, "config.json")
-    toml_config_path = os.path.join(pwd, "config.toml")
-    f = open(json_config_path, 'w')
+    json_config_path = "config.json"
+    toml_config_path = "config.toml"
+    f = open(json_config_path, "w")
     f.write(json.dumps(config))
     f.close()
-    cmd = f"luban_parser -i {json_config_path} -o {toml_config_path}"
-    os.system(cmd)
+    luban_parser.parse(json_config_path, toml_config_path)
     test_process(toml_config_path)
-    data_path = os.path.join(pwd, "data.tfrecord")
-    output_path = os.path.join(pwd, "out.txt")
+    data_path = "data.tfrecord"
+    output_path = "out.txt"
     test_process_file(toml_config_path, data_path, output_path)

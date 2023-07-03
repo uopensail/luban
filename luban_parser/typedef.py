@@ -16,12 +16,9 @@
 # GNU Affero General Public License for more details.
 #
 
-import os
-import sys
+
 import enum
-import types
-import inspect
-from typing import Any, List, Union
+from typing import Any
 
 
 class VariableType(enum.IntEnum):

@@ -8,38 +8,19 @@
 
 #include "feature.pb.h"
 
-PyEntityArray::PyEntityArray() : data_(nullptr) {}
-
-Entity *PyEntityArray::get(int index) {
-  if (data_ == nullptr) {
-    return nullptr;
-  }
-  if ((index >= 0) && (index < data_->size)) {
-    return data_->array[index];
-  }
-  return nullptr;
-}
-
-PyEntityArray ::~PyEntityArray() { del_entity_array(data_); }
-
-int PyEntityArray ::size() {
-  if (data_ == nullptr) {
-    return 0;
-  }
-  return data_->size;
-}
-
 PyToolKit::PyToolKit(std::string config_file) {
   toolkit = new Toolkit(config_file);
 }
 
 PyToolKit::~PyToolKit() { delete toolkit; }
 
-void PyToolKit::process(char *features, int len, PyEntityArray &entity) {
+std::vector<int64_t> PyToolKit::process(char *features, int len) {
   sample::Features *feat = new sample::Features();
   feat->ParseFromArray(features, len);
-  entity.data_ = toolkit->process(feat);
+  std::vector<int64_t> array(toolkit->width(), 0);
+  toolkit->process(feat, array.data());
   delete feat;
+  return array;
 }
 
 void PyToolKit::process_file(std::string input_file, std::string output_file) {
@@ -93,14 +74,11 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
               << " total line count: " << count << std::endl;
   };
 
-  auto write_record = [](std::ofstream &writer, int label, EntityArray *data) {
+  auto write_record = [](std::ofstream &writer, int label, int64_t *array,
+                         size_t size) {
     writer << label;
-    for (size_t i = 0; i < data->size; i++) {
-      if (data->array[i] != nullptr) {
-        for (size_t j = 0; j < data->array[i]->size; j++) {
-          writer << " " << data->array[i]->data[j];
-        }
-      }
+    for (size_t i = 0; i < size; i++) {
+      writer << " " << array[i];
     }
     writer << "\n";
   };
@@ -159,13 +137,15 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
     u_int64_t max_len = 1024;
     u_int64_t count = 0;
     int label = -1;
-    char *data_buffer = new char[max_len];
+    char *data_buffer = (char *)malloc(max_len);
+    size_t width = toolkit->width();
+    int64_t *array = (int64_t *)calloc(width, sizeof(int64_t));
 
     while (reader.read((char *)&length, 8)) {
       if (length > max_len) {
-        delete[] data_buffer;
+        free(data_buffer);
         max_len = 2 * length;
-        data_buffer = new char[max_len];
+        data_buffer = (char *)malloc(max_len);
       }
       count++;
       reader.read(data_buffer, length);
@@ -174,17 +154,18 @@ void PyToolKit::process_file(std::string input_file, std::string output_file) {
                                  length)) {
         const sample::Features &features = example.features();
         label = get_label(features);
-        auto array = toolkit->process((sample::Features *)(&features));
-        write_record(writer, label, array);
-        del_entity_array(array);
+        memset(array, 0, sizeof(int64_t) * width);
+        toolkit->process((sample::Features *)(&features), array);
+        write_record(writer, label, array, width);
       }
     }
+    free(array);
+    free(data_buffer);
+    remove(input_file.c_str());
     std::cout << "finish processing file: " << input_file
               << " total line count: " << count << std::endl;
     reader.close();
-    remove(input_file.c_str());
     writer.close();
-    delete[] data_buffer;
   };
 
   int num = std::max<int>(1, std::thread::hardware_concurrency() - 1);

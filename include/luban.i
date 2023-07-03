@@ -1,4 +1,4 @@
-%module pyluban
+%module luban
 %include "stdint.i"
 %include "typemaps.i"
 %include "std_vector.i"
@@ -8,22 +8,6 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "pyluban.h"
-
-static PyStructSequence_Field entity_fields[] = {
-    {"slot", "slot of feature"},
-    {"data", "uint64 list"},
-    {NULL}
-};
-
-static PyStructSequence_Desc entity_desc = {
-    "Entity",
-    NULL,
-    entity_fields,
-    2
-};
-
-static PyTypeObject *EntityType = PyStructSequence_NewType(&entity_desc);
-
 %}
 
 %typemap(in) (char* IN_ARRAY1, int DIM1){
@@ -33,16 +17,5 @@ static PyTypeObject *EntityType = PyStructSequence_NewType(&entity_desc);
 
 %apply (char* IN_ARRAY1, int DIM1) {(char* features, int len)}
 
-
-%typemap(out) Entity * {
-  $result = PyStructSequence_New(EntityType);
-  PyObject *slot = PyLong_FromSsize_t($1->slot);
-  PyObject *data = PyList_New($1->size);
-  for (size_t j = 0; j < $1->size; ++j)
-  {
-    PyList_SET_ITEM(data, j, PyLong_FromSsize_t($1->data[j]));
-  }
-  PyStructSequence_SetItem($result, 0, slot);
-  PyStructSequence_SetItem($result, 1, data);
-}
 %include "pyluban.h"
+%template(Array) std::vector<int64_t>;

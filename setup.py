@@ -19,7 +19,7 @@
 """
 Created on Mon May 13 17:58:27 2019
 @author: TimePi
-@description: this is setup script for pyluban
+@description: this is setup script for luban
 """
 import platform
 import sys
@@ -46,6 +46,7 @@ def is_new_osx():
     else:
         return False
 
+
 if is_new_osx():
     # On Mac, use libc++ because Apple deprecated use of
     # libstdc
@@ -63,7 +64,7 @@ else:
     LINK_OPTIONS.append("-lpthread")
 
 pyluban_module = Extension(
-    name="_pyluban",
+    name="_luban",
     sources=[
         "src/MurmurHash3.cc",
         "src/base64.cpp",
@@ -75,11 +76,14 @@ pyluban_module = Extension(
     library_dirs=["/usr/local/lib"],
     extra_compile_args=COMPILE_OPTIONS,
     extra_link_args=LINK_OPTIONS,
+    language="c++",
 )
+
 with open("README.md", "r", encoding="utf-8") as fd:
     long_description = fd.read()
+
 setup(
-    name="pyluban",
+    name="luban",
     version="1.0.2",
     description="Python wrapper for luban.",
     license="License :: AGLP 3",
@@ -87,7 +91,7 @@ setup(
     author_email="",
     url="https://github.com/uopensail/luban",
     packages=find_packages(),
-    py_modules=["pyluban"],
+    py_modules=["luban"],
     ext_modules=[pyluban_module],
     keywords="feature operator and hasher",
     long_description=long_description,
@@ -103,7 +107,10 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    scripts=["script/luban_parser.py",
-             "script/operatordef.py", "script/typedef.py"],
+    scripts=[
+        "luban_parser/luban_parser.py",
+        "luban_parser/operatordef.py",
+        "luban_parser/typedef.py",
+    ],
     entry_points={"console_scripts": ["luban_parser = luban_parser:main"]},
 )
