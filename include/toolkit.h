@@ -14,28 +14,34 @@
 // GNU Affero General Public License for more details.
 //
 
-#ifndef PYLUBAN_H
-#define PYLUBAN_H
+#ifndef LUBAN_TOOLKIT_H
+#define LUBAN_TOOLKIT_H
 
 #pragma once
+#include <fstream>
+#include <iostream>
+#include <memory>
 
-#include <string>
-#include <vector>
+#include "operator.h"
+#include "placement.h"
 
-#include "toolkit.hpp"
+namespace luban {
 
-class PyToolKit {
- private:
-  Toolkit *toolkit;
+class Toolkit {
+ public:
+  Toolkit() = delete;
+  Toolkit(const Toolkit &) = delete;
+  Toolkit(const Toolkit &&) = delete;
+  Toolkit(const std::string &config_file);
+  ~Toolkit() = default;
+  void process(Features &features, Rows &r);
+  void process(Features &features, Matrices &m, int64_t row);
 
  public:
-  PyToolKit() = delete;
-  PyToolKit(const PyToolKit &) = delete;
-  PyToolKit(const PyToolKit &&) = delete;
-  PyToolKit(std::string config_file);
-  ~PyToolKit();
-  std::vector<int64_t> process(char *features, int len);
-  void process_file(std::string input_file, std::string output_file);
+  std::shared_ptr<Placement> m_placer;
+  std::shared_ptr<Operator> m_opr;
+  std::vector<FunctionConfigure> m_funcs;
 };
 
-#endif  // LUBAN_PYLUBAN_H
+}  // namespace luban
+#endif  // LUBAN_TOOLKIT_H
