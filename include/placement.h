@@ -76,6 +76,7 @@ class Placement {
  public:
   Placement() = delete;
   explicit Placement(std::string_view config);
+  explicit Placement(rapidjson::Value &value);
   ~Placement() = default;
   Matrices matrices(int64_t batch_size);
   Rows rows();

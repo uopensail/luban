@@ -74,6 +74,36 @@ void Matrix::put(int64_t row, SharedParameter value,
   }
 }
 
+Placement::Placement(rapidjson::Value &doc) {
+  m_groups.resize(doc["groups"].Size());
+  for (rapidjson::SizeType i = 0; i < doc["groups"].Size(); ++i) {
+    int id = doc["groups"][i]["id"].GetInt();
+    int64_t width = doc["groups"][i]["width"].GetInt64();
+    DataType type = static_cast<DataType>(doc["groups"][i]["type"].GetInt());
+    assert(type == DataType::kInt64 || type == DataType::kFloat32);
+    m_groups[id] = GroupConfigure{id, width, type};
+  }
+
+  for (rapidjson::SizeType i = 0; i < doc["features"].Size(); ++i) {
+    int group = doc["features"][i]["group"].GetInt();
+    std::string name = doc["features"][i]["name"].GetString();
+    int dim = doc["features"][i]["dim"].GetInt();
+    bool hash = doc["features"][i]["hash"].GetBool();
+    int64_t offset = doc["features"][i]["offset"].GetInt64();
+    DataType type = static_cast<DataType>(doc["features"][i]["type"].GetInt());
+    DataType gtype = m_groups[group].type;
+    Padding padding;
+    if (type == DataType::kInt64) {
+      padding = doc["features"][i]["padding"].GetInt64();
+    } else if (type == DataType::kFloat32) {
+      padding = doc["features"][i]["padding"].GetFloat();
+    }
+
+    m_features[name] =
+        FeatureConfigure{hash, type, group, dim, offset, padding};
+  }
+}
+
 Placement::Placement(std::string_view config) {
   rapidjson::Document doc;
   doc.Parse(config.data(), config.size());

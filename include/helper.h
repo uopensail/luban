@@ -24,8 +24,6 @@
 #include <typeinfo>
 #include <vector>
 
-namespace luban {
-
 template <typename T>
 constexpr std::string_view get_template_type() {
   std::string_view name, prefix, suffix;
@@ -65,5 +63,23 @@ void print_template_type() {
   }
 }
 
-}  // namespace luban
+#define check_int(T) (std::is_same_v<T, int64_t>)
+
+#define check_int_array(T) (std::is_same_v<T, std::vector<int64_t>>)
+
+#define check_float(T) (std::is_same_v<T, float>)
+
+#define check_float_array(T) (std::is_same_v<T, std::vector<float>>)
+
+#define check_str(T) (std::is_same_v<T, std::string>)
+
+#define check_str_array(T) (std::is_same_v<T, std::vector<std::string>>)
+
+#define check_simple_type(T) (check_int(T) || check_float(T) || check_str(T))
+
+#define check_array_type(T) \
+  (check_int_array(T) || check_float_array(T) || check_str_array(T))
+
+#define check_support_type(T) (check_simple_type(T) || check_array_type(T))
+
 #endif  // LUBAN_HELPER_H

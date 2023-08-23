@@ -29,7 +29,8 @@ PYBIND11_MODULE(pyluban, m) {
         return fea.stringnify();
       });
 
-  py::class_<luban::Placement>(m, "Placement")
+  py::class_<luban::Placement, std::shared_ptr<luban::Placement>>(m,
+                                                                  "Placement")
       .def("matrices", &luban::Placement::matrices)
       .def("rows", &luban::Placement::rows)
       .def("__repr__", [](const luban::Placement &p) -> std::string {
@@ -38,13 +39,14 @@ PYBIND11_MODULE(pyluban, m) {
 
   py::class_<luban::Toolkit>(m, "Toolkit")
       .def(py::init<const std::string &>())
+      .def_readonly("placer", &luban::Toolkit::m_placer)
       .def("process",
            py::overload_cast<luban::Features &, luban::Matrices &, int64_t>(
                &luban::Toolkit::process))
       .def("process", py::overload_cast<luban::Features &, luban::Rows &>(
                           &luban::Toolkit::process))
       .def("__repr__", [](const luban::Toolkit &t) -> std::string {
-        return "<pyluban.Toolkit";
+        return "<pyluban.Toolkit>";
       });
 
   py::class_<luban::Row, std::shared_ptr<luban::Row>>(m, "Row",

@@ -21,6 +21,8 @@ Toolkit::Toolkit(const std::string &config_file) {
     auto &v = doc["transforms"][i];
     m_funcs.emplace_back(v);
   }
+  m_placer = std::make_shared<Placement>(doc);
+  m_opr = std::make_shared<Operator>();
 }
 
 void Toolkit::process(Features &features, Rows &r) {

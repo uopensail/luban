@@ -31,7 +31,7 @@ class Features {
   Features(const std::vector<std::string_view> &values);
   Features(const std::vector<std::string> &values);
   Features &operator=(const Features &features);
-  ~Features() { std::cout << "~Features" << std::endl; };
+  ~Features() = default;
   SharedParameter operator[](const std::string &key);
   void insert(const std::string &key, SharedParameter feature);
   std::string stringnify();

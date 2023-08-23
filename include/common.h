@@ -73,6 +73,9 @@ static std::vector<T> to_vector(const SharedParameter &data) {
 template <>
 std::vector<std::string> to_vector(const SharedParameter &data) {
   std::vector<std::string> ret;
+  if (data == nullptr) {
+    return ret;
+  }
   struct _wrapper {
     void operator()(int64_t arg) { values.emplace_back(std::to_string(arg)); }
     void operator()(float arg) { values.emplace_back(std::to_string(arg)); }
@@ -102,6 +105,9 @@ std::vector<std::string> to_vector(const SharedParameter &data) {
 template <>
 std::vector<int64_t> to_vector(const SharedParameter &data) {
   std::vector<int64_t> ret;
+  if (data == nullptr) {
+    return ret;
+  }
   struct _wrapper {
     void operator()(int64_t arg) { values.emplace_back(arg); }
     void operator()(float arg) {
@@ -130,6 +136,9 @@ std::vector<int64_t> to_vector(const SharedParameter &data) {
 template <>
 std::vector<float> to_vector(const SharedParameter &data) {
   std::vector<float> ret;
+  if (data == nullptr) {
+    return ret;
+  }
   struct _wrapper {
     void operator()(float arg) { values.emplace_back(arg); }
     void operator()(int64_t arg) {

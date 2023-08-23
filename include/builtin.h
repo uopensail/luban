@@ -75,12 +75,74 @@ float _atan(float &x);
 float _tanh(float &x);
 float _atanh(float &x);
 float _sigmoid(float &x);
-float min(std::vector<float> &src);
-float max(std::vector<float> &src);
-float average(std::vector<float> &src);
-float variance(std::vector<float> &src);
-float stddev(std::vector<float> &src);
-float norm(std::vector<float> &src, float &n);
+
+template <typename T>
+T min(std::vector<float> &src) {
+  assert(src.size() > 0);
+  T ret = src[0];
+  for (auto &v : src) {
+    if (v < ret) {
+      ret = v;
+    }
+  }
+  return ret;
+}
+
+template <typename T>
+T max(std::vector<T> &src) {
+  assert(src.size() > 0);
+  T ret = src[0];
+  for (auto &v : src) {
+    if (v > ret) {
+      ret = v;
+    }
+  }
+  return ret;
+}
+
+template <typename T>
+float average(std::vector<T> &src) {
+  assert(src.size() > 0);
+  T ret = 0;
+  float n = float(src.size());
+  for (auto &v : src) {
+    ret += v;
+  }
+  return static_cast<float>(ret) / n;
+}
+
+template <typename T>
+float variance(std::vector<T> &src) {
+  if (src.size() <= 1) {
+    return 0.0;
+  }
+  T sum_of_value = 0;
+  T sum_of_square = 0;
+  float n = float(src.size());
+  for (auto &v : src) {
+    sum_of_value += v;
+    sum_of_square += v * v;
+  }
+
+  return (static_cast<float>(sum_of_square) -
+          static_cast<float>(sum_of_value * sum_of_value) / n) /
+         n;
+}
+
+template <typename T>
+float stddev(std::vector<T> &src) {
+  return sqrtf(variance<T>(src));
+}
+
+template <typename T>
+float norm(std::vector<T> &src, float &n) {
+  float ret = 0.0;
+  for (auto &v : src) {
+    ret += powf(static_cast<float>(v), n);
+  }
+  return powf(ret, 1.0 / n);
+}
+
 std::string year();
 std::string month();
 std::string day();
@@ -99,12 +161,45 @@ std::string upper(std::string &s);
 std::string lower(std::string &s);
 std::string substr(std::string &s, int64_t &start, int64_t &len);
 std::string concat(std::string &a, std::string &b);
-float min_max(float &v, float &min, float &max);
+
+template <typename T>
+float min_max(T &v, T &min, T &max) {
+  assert(min != max);
+  return static_cast<float>(v - min) / static_cast<float>(max - min);
+}
+
 float z_score(float &v, float &mean, float &stdv);
-int64_t binarize(float &v, float &threshold);
-int64_t bucketize(float &v, std::vector<float> &boundaries);
+
+template <typename T>
+int64_t binarize(T &v, T &threshold) {
+  return v < threshold ? 0 : 1;
+}
+
+template <typename T>
+int64_t bucketize(T &v, std::vector<T> &boundaries) {
+  auto start = boundaries.data();
+  auto end = start + boundaries.size();
+  return std::upper_bound(start, end, v) - start;
+}
+
 float box_cox(float &v, float &lambda);
-std::vector<float> normalize(std::vector<float> &src, float &norm);
+
+template <typename T>
+std::vector<float> normalize(std::vector<T> &src, float &norm) {
+  assert(norm >= 1);
+  std::vector<float> dst;
+  dst.reserve(src.size());
+  float norm_value = 0.0;
+  for (auto &v : src) {
+    norm_value += powf(abs(static_cast<float>(v)), norm);
+  }
+  norm_value = powf(norm_value, 1.0 / norm);
+
+  for (auto &v : src) {
+    dst.push_back(v / norm_value);
+  }
+  return dst;
+}
 
 template <typename T>
 std::vector<T> topk(std::vector<T> &src, int64_t &k) {
@@ -112,6 +207,38 @@ std::vector<T> topk(std::vector<T> &src, int64_t &k) {
   int64_t len = std::min<int64_t>(k, src.size());
   dst.assign(src.begin(), src.begin() + len);
   return dst;
+}
+
+template <typename T0, typename T1>
+T0 cast(T1 &value) {
+  if constexpr (std::is_same_v<T0, int64_t>) {
+    if constexpr (std::is_same_v<T1, int64_t>) {
+      return value;
+    } else if constexpr (std::is_same_v<T1, float>) {
+      return static_cast<int64_t>(value);
+    } else if constexpr (std::is_same_v<T1, std::string>) {
+      return static_cast<int64_t>(std::stoll(value));
+    }
+    throw std::runtime_error("not implemented");
+  } else if constexpr (std::is_same_v<T0, float>) {
+    if constexpr (std::is_same_v<T1, int64_t>) {
+      return static_cast<float>(value);
+    } else if constexpr (std::is_same_v<T1, float>) {
+      return value;
+    } else if constexpr (std::is_same_v<T1, std::string>) {
+      return std::stof(value);
+    }
+    throw std::runtime_error("type not supported");
+  } else if constexpr (std::is_same_v<T0, std::string>) {
+    if constexpr (std::is_same_v<T1, int64_t>) {
+      return std::to_string(value);
+    } else if constexpr (std::is_same_v<T1, float>) {
+      return std::to_string(value);
+    } else if constexpr (std::is_same_v<T1, std::string>) {
+      return value;
+    }
+    throw std::runtime_error("type not supported");
+  }
 }
 
 std::vector<std::string> cross(std::vector<std::string> &srcA,

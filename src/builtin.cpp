@@ -57,62 +57,6 @@ float _atanh(float &x) { return atanhf(x); }
 
 float _sigmoid(float &x) { return 1.0 / (1.0 + expf(-x)); }
 
-float min(std::vector<float> &src) {
-  assert(src.size() > 0);
-  float ret = src[0];
-  for (auto &v : src) {
-    if (v < ret) {
-      ret = v;
-    }
-  }
-  return ret;
-}
-
-float max(std::vector<float> &src) {
-  assert(src.size() > 0);
-  float ret = src[0];
-  for (auto &v : src) {
-    if (v > ret) {
-      ret = v;
-    }
-  }
-  return ret;
-}
-
-float average(std::vector<float> &src) {
-  assert(src.size() > 0);
-  float ret = 0.0;
-  float n = float(src.size());
-  for (auto &v : src) {
-    ret += v;
-  }
-  return ret / n;
-}
-
-float variance(std::vector<float> &src) {
-  if (src.size() <= 1) {
-    return 0.0;
-  }
-  float sum_of_value = 0.0;
-  float sum_of_square = 0.0;
-  float n = float(src.size());
-  for (auto &v : src) {
-    sum_of_value += v;
-    sum_of_square += v * v;
-  }
-  return (sum_of_square - sum_of_value * sum_of_value / n) / n;
-}
-
-float stddev(std::vector<float> &src) { return sqrtf(variance(src)); }
-
-float norm(std::vector<float> &src, float &n) {
-  float ret = 0.0;
-  for (auto &v : src) {
-    ret += powf(v, n);
-  }
-  return powf(ret, 1.0 / n);
-}
-
 std::string year() {
   time_t t = time(nullptr);
   char tmp[64] = {0};
@@ -237,22 +181,9 @@ std::string concat(std::string &a, std::string &b) {
   return ret;
 }
 
-float min_max(float &v, float &min, float &max) {
-  assert(min != max);
-  return (v - min) / (max - min);
-}
-
 float z_score(float &v, float &mean, float &stdv) {
   assert(stdv > 0.0);
   return (v - mean) / stdv;
-}
-
-int64_t binarize(float &v, float &threshold) { return v < threshold ? 0 : 1; }
-
-int64_t bucketize(float &v, std::vector<float> &boundaries) {
-  auto start = boundaries.data();
-  auto end = start + boundaries.size();
-  return std::upper_bound(start, end, v) - start;
 }
 
 float box_cox(float &v, float &lambda) {

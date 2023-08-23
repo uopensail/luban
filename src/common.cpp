@@ -29,7 +29,7 @@ FunctionConfigure::FunctionConfigure(const rapidjson::Value &doc) {
   }
 
   for (rapidjson::SizeType j = 0; j < doc["vars"].Size(); ++j) {
-    variables.push_back(doc["args"][j].GetString());
+    variables.push_back(doc["vars"][j].GetString());
   }
 }
 
