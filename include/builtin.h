@@ -131,7 +131,11 @@ float variance(std::vector<T> &src) {
 
 template <typename T>
 float stddev(std::vector<T> &src) {
-  return sqrtf(variance<T>(src));
+  float var = variance<T>(src);
+  if (var <= 0) {
+    return 0;
+  }
+  return sqrtf(var);
 }
 
 template <typename T>

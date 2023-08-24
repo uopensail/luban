@@ -82,6 +82,10 @@ Operator::Operator() {
   add_caller(max<int64_t>);
   m_funcs["max"] = get_func_call(max<float>);
 
+  add_caller(average<float>);
+  add_caller(average<int64_t>);
+  m_funcs["average"] = get_func_call(average<float>);
+
   add_caller(stddev<float>);
   add_caller(stddev<int64_t>);
   m_funcs["stddev"] = get_func_call(stddev<float>);

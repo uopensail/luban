@@ -21,6 +21,8 @@
 
 #include <assert.h>
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 #include <functional>
 #include <iostream>
@@ -197,6 +199,8 @@ SharedParameter parse_parameter(const std::string &data);
 void print_parameter(const SharedParameter &param);
 
 std::string parameter_stringnify(const SharedParameter &param);
+std::shared_ptr<rapidjson::Value> parameter_jsonify(
+    const SharedParameter &param);
 
 void extract_features(std::string_view data, SharedParameterMap &features);
 

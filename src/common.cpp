@@ -70,29 +70,29 @@ SharedParameter parse_parameter(const rapidjson::Value &data) {
     *p = data["value"].GetString();
     return p;
   } else if (type == DataType::kInt64Array) {
-    assert(data.IsArray());
+    assert(data["value"].IsArray());
     SharedParameter p = std::make_shared<Parameter>();
     std::vector<int64_t> value;
-    for (rapidjson::SizeType j = 0; j < data.Size(); ++j) {
-      value.push_back(data[j].GetInt64());
+    for (rapidjson::SizeType j = 0; j < data["value"].Size(); ++j) {
+      value.push_back(data["value"][j].GetInt64());
     }
     *p = value;
     return p;
   } else if (type == DataType::kFloat32Array) {
-    assert(data.IsArray());
+    assert(data["value"].IsArray());
     SharedParameter p = std::make_shared<Parameter>();
     std::vector<float> value;
-    for (rapidjson::SizeType j = 0; j < data.Size(); ++j) {
-      value.push_back(data[j].GetFloat());
+    for (rapidjson::SizeType j = 0; j < data["value"].Size(); ++j) {
+      value.push_back(data["value"][j].GetFloat());
     }
     *p = value;
     return p;
   } else if (type == DataType::kStringArray) {
-    assert(data.IsArray());
+    assert(data["value"].IsArray());
     SharedParameter p = std::make_shared<Parameter>();
     std::vector<std::string> value;
-    for (rapidjson::SizeType j = 0; j < data.Size(); ++j) {
-      value.push_back(data[j].GetString());
+    for (rapidjson::SizeType j = 0; j < data["value"].Size(); ++j) {
+      value.push_back(data["value"][j].GetString());
     }
     *p = value;
     return p;
@@ -107,51 +107,60 @@ SharedParameter parse_parameter(const std::string &data) {
 }
 
 std::string parameter_stringnify(const SharedParameter &param) {
-  std::string str("");
+  auto value = parameter_jsonify(param);
+  if (value == nullptr) {
+    return "";
+  }
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  value->Accept(writer);
+  return buffer.GetString();
+}
 
+std::shared_ptr<rapidjson::Value> parameter_jsonify(
+    const SharedParameter &param) {
   if (param == nullptr) {
-    str.append("<nil>");
-    return str;
+    return nullptr;
   }
+
   if (auto p = std::get_if<float>(param.get())) {
-    str.append(std::to_string(*p));
+    auto value = std::make_shared<rapidjson::Value>();
+    value->SetFloat(*p);
+    return value;
   } else if (auto p = std::get_if<std::vector<float>>(param.get())) {
-    str.append("[");
+    auto array = std::make_shared<rapidjson::Value>(rapidjson::kArrayType);
     for (size_t i = 0; i < p->size(); ++i) {
-      if (i != 0) {
-        str.append(",");
-      }
-      str.append(std::to_string((*p)[i]));
+      array->PushBack((*p)[i], rapidjson::Document().GetAllocator());
     }
-    str.append("]");
+    return array;
   } else if (auto p = std::get_if<std::vector<int64_t>>(param.get())) {
-    str.append("[");
+    auto array = std::make_shared<rapidjson::Value>(rapidjson::kArrayType);
     for (size_t i = 0; i < p->size(); ++i) {
-      if (i != 0) {
-        str.append(",");
-      }
-      str.append(std::to_string((*p)[i]));
+      array->PushBack((*p)[i], rapidjson::Document().GetAllocator());
     }
-    str.append("]");
+    return array;
   } else if (auto p = std::get_if<int64_t>(param.get())) {
-    str.append(std::to_string(*p));
+    auto value = std::make_shared<rapidjson::Value>();
+    value->SetInt64(*p);
+    return value;
   } else if (auto p = std::get_if<std::vector<std::string>>(param.get())) {
-    str.append("[");
+    auto array = std::make_shared<rapidjson::Value>(rapidjson::kArrayType);
     for (size_t i = 0; i < p->size(); ++i) {
-      if (i != 0) {
-        str.append(",");
-      }
-      str.append("\"");
-      str.append((*p)[i]);
-      str.append("\"");
+      std::string &s = (*p)[i];
+      array->PushBack(
+          rapidjson::Value(s.c_str(),
+                           static_cast<rapidjson::SizeType>(s.size())),
+          rapidjson::Document().GetAllocator());
     }
-    str.append("]");
+    return array;
   } else if (auto p = std::get_if<std::string>(param.get())) {
-    str.append("\"");
-    str.append(*p);
-    str.append("\"");
+    auto value = std::make_shared<rapidjson::Value>();
+    std::string &s = *p;
+    value->SetString(s.c_str(), static_cast<rapidjson::SizeType>(s.size()),
+                     rapidjson::Document().GetAllocator());
+    return value;
   }
-  return str;
+  return nullptr;
 }
 
 void print_parameter(const SharedParameter &param) {

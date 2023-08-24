@@ -126,19 +126,19 @@ int64_t unix_timestamp(std::string &t, std::string &format) {
 }
 
 std::string date_add(std::string &s, int64_t &n) {
-  std::string format = "%Y%m%d";
+  std::string format = "%Y-%m-%d";
   int64_t ts = unix_timestamp(s, format) + 86400 * n;
   return from_unixtime(ts, format);
 }
 
 std::string date_sub(std::string &s, int64_t &n) {
-  std::string format = "%Y%m%d";
+  std::string format = "%Y-%m-%d";
   int64_t ts = unix_timestamp(s, format) - 86400 * n;
   return from_unixtime(ts, format);
 }
 
 int64_t date_diff(std::string &d1, std::string &d2) {
-  std::string format = "%Y%m%d";
+  std::string format = "%Y-%m-%d";
   int64_t t1 = unix_timestamp(d1, format);
   int64_t t2 = unix_timestamp(d2, format);
   return int64_t((t1 - t2) / 86400);
