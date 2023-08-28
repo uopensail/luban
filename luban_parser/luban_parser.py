@@ -15,47 +15,179 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
 #
-"""
-author: timepi
-descripton: Use Python to parse the configuration file 
-            for C++ code to use.
+# author: timepi
+# descripton: Use Python to parse the configuration file
+#            for C++ code to use.
 
-"""
 import argparse
 import ast
+import enum
 import json
 from typing import Any, List, Union
-
-import toml
-from .operatordef import Operator
-from .typedef import Parameter, VariableType
 
 GLOBAL_OPERATORS = []
 GLOBAL_OPERATOR_INDEX = -1
 
+STRING_TYPE_MARKER = "___STRING__"
+INT64_TYPE_MARKER = "__INT64__"
+FLOAT_TYPE_MARKER = "__FLOAT__"
+
+MATH_FUNCTIONS = [
+    "add",
+    "sub",
+    "mul",
+    "div",
+    "mod",
+    "pow",
+    "round",
+    "floor",
+    "ceil",
+    "log",
+    "exp",
+    "log10",
+    "log2",
+    "sqrt",
+    "abs",
+    "sin",
+    "sinh",
+    "asin",
+    "asinh",
+    "cos",
+    "cosh",
+    "acos",
+    "acosh",
+    "tan",
+    "tanh",
+    "atan",
+    "atanh",
+    "sigmoid",
+]
+
+
+def replace_type_mark(value: str) -> str:
+    value = value.replace("<std::string>", STRING_TYPE_MARKER)
+    value = value.replace("<float>", FLOAT_TYPE_MARKER)
+    value = value.replace("<int64_t>", INT64_TYPE_MARKER)
+    return value
+
+
+def recover_type_mark(value: str) -> str:
+    value = value.replace(STRING_TYPE_MARKER, "<std::string>")
+    value = value.replace(FLOAT_TYPE_MARKER, "<float>")
+    value = value.replace(INT64_TYPE_MARKER, "<int64_t>")
+    return value
+
+
+class DataType(enum.IntEnum):
+    kError = -1
+    kInt64 = 0
+    kFloat32 = 1
+    kString = 2
+    kInt64Array = 3
+    kFloat32Array = 4
+    kStringArray = 5
+    kVariable = 6
+
+    def is_constant_scalar(self) -> bool:
+        return self.value in (
+            DataType.kInt64,
+            DataType.kFloat32,
+            DataType.kString,
+        )
+
+    def is_constant_array(self) -> bool:
+        return self.value in (
+            DataType.kInt64Array,
+            DataType.kFloat32Array,
+            DataType.kStringArray,
+        )
+
+    def is_constant(self) -> bool:
+        return self.is_constant_scalar() or self.is_constant_array()
+
+    def is_variable(self) -> bool:
+        return self.value == DataType.kVariable
+
+
+class Parameter:
+    def __init__(self, index: int, vtype: DataType, value: Any):
+        self.index = index
+        self.type = vtype
+        self.value = value
+
+
+class Operator:
+    def __init__(self, name: str, function: str, parameters: List[Parameter]):
+        self.name = name
+        self.function = recover_type_mark(function)
+        self.parameters = parameters
+        self.flag = 0
+        self._math_func_type_check()
+        self._update_flag()
+
+    def __eq__(self, __o: object) -> bool:
+        if __o is None or not isinstance(__o, Operator):
+            return False
+        if self.function != __o.function or len(self.parameters) != len(__o.parameters):
+            return False
+        __o.parameters.sort(key=lambda _: _.index)
+        for p1, p2 in zip(self.parameters, __o.parameters):
+            if p1.index != p2.index or p1.type != p2.type or p1.value != p2.value:
+                return False
+        return True
+
+    def _update_flag(self):
+        flag_str = "".join(
+            map(lambda arg: "0" if arg.type.is_constant() else "1", self.parameters)
+        )
+        self.flag = int(flag_str[::-1], 2)
+
+    def _math_func_type_check(self):
+        tmp, idx, suffix = self.function, self.function.find("<"), ""
+        if idx > 0:
+            tmp = tmp[:idx]
+            suffix = self.function[idx:]
+
+        if tmp not in MATH_FUNCTIONS:
+            return
+
+        self.function = f"_{self.function}"
+
+        # default float type
+        for arg in self.parameters:
+            if arg.type.is_constant():
+                arg.value, arg.type = float(arg.value), DataType.kFloat32
+
+        if self.function == "mod":
+            for arg in self.parameters:
+                if arg.type.is_constant():
+                    arg.value, arg.type = int(arg.value), DataType.kInt64
+            return
+
+        if suffix == "<int64_t>":
+            for arg in self.parameters:
+                if arg.type.is_constant():
+                    arg.value, arg.type = int(arg.value), DataType.kInt64
+
+    def __repr__(self) -> str:
+        params = []
+        if len(self.parameters) == 0:
+            return f"{self.name} = {self.function}()"
+        for p in self.parameters:
+            if p.type == DataType.kVariable:
+                params.append(f"`{p.value}`")
+            elif p.type == DataType.kString:
+                params.append(f'"{p.value}"')
+            else:
+                params.append(str(p.value))
+        return f'{self.name} = {self.function}({", ".join(params)})'
+
 
 def parse_argv_name(index: int, argv: ast.Name) -> Parameter:
-    """parse the argument name
-
-    Args:
-        index (int): argument index
-        argv (ast.Name): argument name
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
-    return Parameter(index=index, vtype=VariableType.VT_Variable, value=argv.id)
+    return Parameter(index=index, vtype=DataType.kVariable, value=argv.id)
 
 
 def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]) -> Any:
-    """get the value of a constant.
-
-    Args:
-        v (Union[ast.Constant, ast.Str, ast.Num]): value of constant, support different versions
-
-    Returns:
-        Any: return the value of the constant
-    """
     if isinstance(v, ast.Str):
         return v.s
     if isinstance(v, ast.Num):
@@ -66,50 +198,26 @@ def value_of_constant(v: Union[ast.Constant, ast.Str, ast.Num]) -> Any:
 def parse_argv_constant(
     index: int, argv: Union[ast.Constant, ast.Str, ast.Num]
 ) -> Parameter:
-    """parse constant argument
-
-    Args:
-        index (int): _description_
-        argv (Union[ast.Constant, ast.Str, ast.Num]): constant argument
-
-    Raises:
-        TypeError: not supported
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
     value = value_of_constant(argv)
     if isinstance(value, str):
-        return Parameter(index=index, vtype=VariableType.VT_String, value=value)
+        return Parameter(index=index, vtype=DataType.kString, value=value)
     if isinstance(value, float):
-        return Parameter(index=index, vtype=VariableType.VT_Float, value=value)
+        return Parameter(index=index, vtype=DataType.kFloat32, value=value)
     if isinstance(value, int):
-        return Parameter(index=index, vtype=VariableType.VT_Int, value=value)
+        return Parameter(index=index, vtype=DataType.kInt64, value=value)
     raise TypeError(f"not support type:{type(value)}")
 
 
 def parse_argv_list(index: int, argv: ast.List) -> Parameter:
-    """processing parameters - constant list.
-
-    Args:
-        index (int): argument index
-        argv (ast.List): argument
-
-    Raises:
-        TypeError: type not support
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
     assert len(argv.elts) > 0
-    elt, dtype = argv.elts[0], VariableType.VT_Not_Defined
+    elt, dtype = argv.elts[0], DataType.kError
     fv = value_of_constant(elt)
     if isinstance(fv, str):
-        dtype = VariableType.VT_StringList
+        dtype = DataType.kStringArray
     elif isinstance(fv, float):
-        dtype = VariableType.VT_FloatList
+        dtype = DataType.kFloat32Array
     elif isinstance(fv, int):
-        dtype = VariableType.VT_IntList
+        dtype = DataType.kInt64Array
     else:
         raise TypeError(f"not support type:{type(fv)}")
 
@@ -121,18 +229,6 @@ def parse_argv_list(index: int, argv: ast.List) -> Parameter:
 
 
 def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
-    """processing parameters - function call.
-
-    Args:
-        index (int): argument index
-        argv (ast.Call): argument
-
-    Raises:
-        TypeError: type not support
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
     global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
     assert isinstance(argv.func, ast.Name)
     function, params = argv.func.id, []
@@ -152,28 +248,15 @@ def parse_argv_call(index: int, argv: ast.Call) -> Parameter:
         else:
             raise TypeError(f"not support type:{type(argv)}")
     GLOBAL_OPERATOR_INDEX += 1
+
     opr = Operator(
         name=f"anonymous_{GLOBAL_OPERATOR_INDEX}", function=function, parameters=params
     )
     GLOBAL_OPERATORS.append(opr)
-    return Parameter(index=index, vtype=VariableType.VT_Variable, value=opr)
+    return Parameter(index=index, vtype=DataType.kVariable, value=opr)
 
 
 def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
-    """processing parameter -- binary operator. At least one
-    parameter must be input traversal, not all constants.
-
-    Args:
-        index (int): argument index
-        argv (ast.BinOp): argument
-
-    Raises:
-        RuntimeError: const express not support
-        TypeError: op not support
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
     global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
     function, params = None, []
 
@@ -205,22 +288,10 @@ def parse_argv_binop(index: int, argv: ast.BinOp) -> Parameter:
         name=f"anonymous_{GLOBAL_OPERATOR_INDEX}", function=function, parameters=params
     )
     GLOBAL_OPERATORS.append(opr)
-    return Parameter(index=index, vtype=VariableType.VT_Variable, value=opr)
+    return Parameter(index=index, vtype=DataType.kVariable, value=opr)
 
 
 def parse_argv(index: int, argv: Any) -> Parameter:
-    """unified function for processing parameters.
-
-    Args:
-        index (int): argument index
-        argv (Any): argument
-
-    Raises:
-        TypeError: type not suuport
-
-    Returns:
-        Parameter: wrapper for the argument
-    """
     if isinstance(argv, (ast.Constant, ast.Num, ast.Str)):
         return parse_argv_constant(index=index, argv=argv)
     if isinstance(argv, ast.Name):
@@ -235,18 +306,7 @@ def parse_argv(index: int, argv: Any) -> Parameter:
 
 
 def parse_expression(expression: str) -> Operator:
-    """Process expressions.
-
-    Args:
-        expression (str): expression to process
-        gid (int): group id
-
-    Raises:
-        TypeError: _description_
-
-    Returns:
-        Operator: top operator
-    """
+    expression = replace_type_mark(expression)
     module = ast.parse(expression)
     # do some checking
     assert isinstance(module, ast.Module)
@@ -276,14 +336,6 @@ def parse_expression(expression: str) -> Operator:
 
 
 def parse_expressions(expressions: List[str]) -> List[Operator]:
-    """Process multiple expressions and merge the same expressions
-
-    Args:
-        expressions (List[str]): expressions to process
-
-    Returns:
-        List[Operator]: operators to returns
-    """
     global GLOBAL_OPERATOR_INDEX, GLOBAL_OPERATORS
     for expression in expressions:
         parse_expression(expression)
@@ -300,15 +352,66 @@ def parse_expressions(expressions: List[str]) -> List[Operator]:
     return unique_oprs
 
 
-def check_outputs(slots: List[dict]):
-    """check wheather outputs's slots
+def parse_features(config: dict) -> dict:
+    features = {}
+    for feature in config["features"]:
+        dtype = DataType(feature["type"])
 
-    Args:
-        slots (List[dict]): slots
-    """
-    slots.sort(key=lambda x: x["slot"])
-    for i in range(len(slots)):
-        assert slots[i]["slot"] == i
+        hash = feature.get("hash", False)
+        padding = None
+        if dtype in (DataType.kInt64, DataType.kInt64Array):
+            padding = int(feature.get("padding", 0))
+        elif dtype in (DataType.kFloat32, DataType.kFloat32Array):
+            padding = float(feature.get("padding", 0))
+        elif dtype == DataType.kString:
+            hash = True
+            dtype = DataType.kInt64
+            padding = int(feature.get("padding", 0))
+        elif dtype == DataType.kStringArray:
+            hash = True
+            dtype = DataType.kInt64Array
+            padding = int(feature.get("padding", 0))
+
+        features[feature["name"]] = {
+            "name": feature["name"],
+            "expr": feature.get("expr", ""),
+            "type": dtype,
+            "padding": padding,
+            "group": -1,
+            "offset": 0,
+            "hash": hash,
+            "dim": feature.get("dim", 1),
+        }
+
+    return features
+
+
+def parse_group(config: dict, features: dict) -> tuple:
+    groups, feas = [], []
+
+    for i, group in enumerate(config["groups"]):
+        offset = 0
+        isfloat = False
+        dtype = DataType.kInt64
+        for fea in group:
+            tmp = {
+                "name": fea,
+                "type": features[fea]["type"],
+                "padding": features[fea]["padding"],
+                "group": i,
+                "offset": offset,
+                "hash": features[fea]["hash"],
+                "dim": features[fea]["dim"],
+            }
+
+            offset += tmp["dim"]
+            if tmp["type"] in (DataType.kFloat32, DataType.kFloat32Array):
+                isfloat = True
+            feas.append(tmp)
+        if isfloat:
+            dtype = DataType.kFloat32
+        groups.append({"id": i, "width": offset, "type": dtype})
+    return groups, feas
 
 
 def parse(input_file: str, output_file: str):
@@ -316,43 +419,46 @@ def parse(input_file: str, output_file: str):
 
     Args:
         input_file (str): json config
-        output_file (str): toml config
+        output_file (str): json config
 
     Raises:
         ValueError: variable unknown
     """
-    dic = json.load(open(input_file, "r"))
-    check_outputs(dic["outputs"])
-    oprs = parse_expressions(dic["transforms"])
+    configure = json.load(open(input_file, "r"))
+
+    features = parse_features(configure)
+
+    expressions = []
+    for k, v in features.items():
+        if len(v["expr"]) > 0:
+            expressions.append("%s = %s" % (k, v["expr"]))
+
+    oprs = parse_expressions(expressions)
     variables = {}
     ret = []
     for op in oprs:
         config = {
-            "name": op.name,
-            "args": [],
-            "input_type": op.input_type.value,
             "func": op.function,
-            "func_type": op.func_type.value,
+            "name": op.name,
+            "flag": op.flag,
+            "args": [],
+            "vars": [],
         }
         for p in op.parameters:
-            param = {
-                "type": p.type.value,
-                "index": p.index,
-                "data": p.value,
-            }
-            if p.type == VariableType.VT_Variable:
+            if p.type == DataType.kVariable:
                 if isinstance(p.value, Operator):
                     if p.value.name not in variables:
                         raise ValueError(f"{p.value.name} unknown")
-                    param["data"] = p.value.name
-            config["args"].append(param)
-
-        if len(config["args"]) == 0:
-            del config["args"]
+                    config["vars"].append(p.value.name)
+                else:
+                    config["vars"].append(p.value)
+            else:
+                config["args"].append({"type": p.type.value, "value": p.value})
         ret.append(config)
         variables[op.name] = True
-    ans = {"transforms": ret, "outputs": dic["outputs"]}
-    toml.dump(ans, open(output_file, "w"))
+    groups, features = parse_group(configure, features)
+    ans = {"transforms": ret, "groups": groups, "features": features}
+    json.dump(ans, open(output_file, "w"))
 
 
 def main():
@@ -362,7 +468,7 @@ def main():
         "--input", "-i", type=str, required=True, help="json config file"
     )
     parser.add_argument(
-        "--output", "-o", type=str, required=True, help="toml config file"
+        "--output", "-o", type=str, required=True, help="json config file"
     )
     args = parser.parse_args()
     parse(args.input, args.output)

@@ -24,21 +24,8 @@
 #include <typeinfo>
 #include <vector>
 
-#include "cpptoml.h"
-#include "feature.pb.h"
-
-#define SharedFeaturePtr std::shared_ptr<sample::Feature>
-#define SharedFeaturesPtr std::shared_ptr<sample::Features>
-
-using SimpleFunc = std::function<SharedFeaturePtr()>;
-
-using UnaryFunc = std::function<SharedFeaturePtr(SharedFeaturePtr)>;
-
-using BinaryFunc =
-    std::function<SharedFeaturePtr(SharedFeaturePtr, SharedFeaturePtr)>;
-
-// for debug
-template <typename T> constexpr std::string_view type_name() {
+template <typename T>
+constexpr std::string_view get_template_type() {
   std::string_view name, prefix, suffix;
 #ifdef __clang__
   name = __PRETTY_FUNCTION__;
@@ -58,64 +45,41 @@ template <typename T> constexpr std::string_view type_name() {
   return name;
 }
 
-#define PRINT_TYPE(X) std::cout << type_name<X>() << std::endl;
+#define print_type(T) std::cout << get_template_type<T>() << std::endl;
 
-template <typename T> void print_template_type() { PRINT_TYPE(T); }
+template <typename T>
+void print_template_type() {
+  print_type(T);
+}
 
-template <typename T1, typename T2, typename... Ts> void print_template_type() {
+template <typename T1, typename T2, typename... Ts>
+void print_template_type() {
   if (sizeof...(Ts) == 0) {
-    PRINT_TYPE(T1);
-    PRINT_TYPE(T2);
+    print_type(T1);
+    print_type(T2);
   } else {
-    PRINT_TYPE(T1);
+    print_type(T1);
     print_template_type<T2, Ts...>();
   }
 }
 
-class ParamsHelper {
-private:
-  std::shared_ptr<cpptoml::table> param_table_ptr;
+#define check_int(T) (std::is_same_v<T, int64_t>)
 
-public:
-  ParamsHelper() = delete;
+#define check_int_array(T) (std::is_same_v<T, std::vector<int64_t>>)
 
-  ~ParamsHelper() {}
+#define check_float(T) (std::is_same_v<T, float>)
 
-  ParamsHelper(const std::shared_ptr<cpptoml::table> &table)
-      : param_table_ptr(table) {}
+#define check_float_array(T) (std::is_same_v<T, std::vector<float>>)
 
-  ParamsHelper(const ParamsHelper &param)
-      : param_table_ptr(param.param_table_ptr) {}
+#define check_str(T) (std::is_same_v<T, std::string>)
 
-  ParamsHelper &operator=(const ParamsHelper &param) {
-    param_table_ptr = param.param_table_ptr;
-    return *this;
-  }
+#define check_str_array(T) (std::is_same_v<T, std::vector<std::string>>)
 
-  template <typename T> T get(std::string key) const {
-    if (param_table_ptr->contains(key)) {
-      return *(param_table_ptr->get_as<T>(key));
-    } else {
-      throw std::out_of_range{key + " is not a valid key"};
-    }
-  }
+#define check_simple_type(T) (check_int(T) || check_float(T) || check_str(T))
 
-  template <typename T> T get(std::string key, T value) const {
-    if (param_table_ptr->contains(key)) {
-      return *(param_table_ptr->get_as<T>(key));
-    } else {
-      return value;
-    }
-  }
+#define check_array_type(T) \
+  (check_int_array(T) || check_float_array(T) || check_str_array(T))
 
-  template <typename T>
-  const std::vector<T> &get_array(const std::string &key) {
-    if (param_table_ptr->contains(key)) {
-      return *(param_table_ptr->get_array_of<T>(key));
-    } else {
-      throw std::out_of_range{key + " is not a valid key"};
-    }
-  }
-};
+#define check_support_type(T) (check_simple_type(T) || check_array_type(T))
 
-#endif // LUBAN_HELPER_H
+#endif  // LUBAN_HELPER_H
