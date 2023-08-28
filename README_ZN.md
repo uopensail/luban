@@ -8,8 +8,8 @@
 
 表达式进行特征处理的工具, 支持如下的工具:
 
-1. c库: libluban
-2. python库: luban
+1. c/c++库: libluban
+2. python库: pyluban
 
 ## 配置方式
 
@@ -72,11 +72,7 @@
 
 ### groups
 
-经过处理后，不同的特征可能会放在不同的组。因为下游使用者是pytorch,不同类型的数据是不便放在一个tensor里面的。特征的最后的输出顺序是按照group里面配置的顺序进行输出的。
-
-
-
-
+经过处理后，不同的特征可能会放在不同的组。因为下游使用者是pytorch,不同类型的数据是不便放在一个tensor里面的。特征的最后的输出顺序是按照group里面配置的顺序进行输出的。**所有在groups配置的特征都需要在上面features里面进行配置**。
 
 ## 表达式的解析
 
@@ -93,14 +89,12 @@
 6. 不同类型的topk函数: topki, topkf, topks
 7. 常见的函数: min_max, z_score, binarize, bucketize, box_cox, normalize 
 
- 
-
 ```c
 // 下面是支持的操作列表
 // 如果是模板类型，则可以在配置函数名的时候加入类型特征
 // e.g.: _add<int64_t>, _add<float>
 // 如果不添加类型信息，则默认是float类型
-// 在实际执行的时候，工具会进行一些内置隐式数据类型转换，
+// 在实际执行的时候，工具会进行一些内置隐式数据类型转换
 
 T _add(T &a, T &b);
 T _sub(T &a, T &b);
@@ -163,12 +157,7 @@ std::vector<float> normalize(std::vector<T> &src, float &norm);
 std::vector<T> topk(std::vector<T> &src, int64_t &k);
 std::vector<std::string> cross(std::vector<std::string> &srcA,
                                std::vector<std::string> &srcB);
-
 ```
-
-
-
-
 
 ## 使用方法
 
@@ -195,42 +184,25 @@ python setup.py install --install-scripts=/usr/local/bin
 pip install pyluban
 ```
 
-
-
 ## Examples
 
-### Features
+### Features & FeaturesList
 
 特征的结构如下:
 
 ```json
 // json形式
-[
-    {"type": 0,                // 同上述的类型列表
-    "name":"int_val",          // 特征的名字，不可重复
-    "value": 10                // 具体的值
-    }, 
-    {"type": 1,              
-    "name":"float_val",      
-    "value": 10.3            
-    }, 
-    {"type": 2,              
-    "name":"str_val",      
-    "value": "10.3"          
-    }, 
-    {"type": 3,              
-    "name":"int_list",      
-    "value": [1,2,3,4]    
-    }, 
-    {"type": 4,              
-    "name":"float_list",      
-    "value": [1.1,2.2,3.3,4.4]    
-    }, 
-    {"type": 5,              
-    "name":"str_list",      
-    "value": ["1","2","3","4"]    
-    }, 
-]
+{
+    "A": {                        // key是特征的名字
+        "type": 0,                // 同上述的类型列表
+        "value": 10               // 具体的值
+    },
+    "B": {
+        "type": 1,                
+        "value": 10.9                
+    },
+    ...
+}
 ```
 
 python代码中如何解析特征
@@ -238,9 +210,7 @@ python代码中如何解析特征
 ```python
 import json
 import pyluban
-feas = [{"type": 0, "name":"int_val",          
-    "value": 10                // 具体的值
-    }, ] 
+feas = {"A": {"type": 0,"value": 10},...}
 
 feas_str = json.dumps(feas)
 
@@ -252,19 +222,30 @@ features = pyluban.Features([feas_str1, feas_str2, feas_str3])
 
 # 不输入就生成空
 features = pyluban.Features()
+
+# 创建一个featureslist
+l = pyluban.FeatuersList()
+
+# 添加一个值
+l.append(features)
+
+print(l[0])
+print(l)
+
+l[0] = features
 ```
 
 ## Function
 
-这个是函数处理的配置，通常情况下，使用者不需要使用到，在做单元测试的时候会使用到，这里也加以说明。
+这个是函数处理的配置，通常情况下，**使用者一般不会使用到**，在做单元测试的时候会使用到，这里也加以说明。
 
 ```json
 {
-    "func": func,
-    "name": name,
-    "flag": flag,
-    "args": args,
-    "vars": vars
+    "func":"_add<int64_t>",
+    "name":"X",
+    "flag":3,
+    "args": [],
+    "vars": ["A","B"]
 }
 ```
 
@@ -273,5 +254,178 @@ features = pyluban.Features()
 | func | 字符串   | 函数处理的名名字                                   |
 | name | 字符串   | 生成的新特征的名字                                  |
 | flag | 整型    | 每一个参数的标志位：在flag的二进制位中，第i位为1则表示该输入是变量；否则为常量 |
-| args | 字典列表  | 同features结构,可以不填name字段                     |
+| args | 字典列表  | 同features结构                                |
 | vars | 字符串列表 | 变量的名字列表                                    |
+
+## Toolkit
+
+通过配置类进行特征处理入口，使用者主要是使用这个类来处理特征。
+
+
+
+```python
+import pyluban
+import luban_parser
+# 这是原始的配置文件
+"""
+{
+    "features": [
+        {
+            "name": "A",
+            "expr": "(B+C)*F",
+            "type": 0,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "B",
+            "type": 0,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "C",
+            "type": 0,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "D",
+            "expr": "concat(\"prefix-\", E)",
+            "type": 0,
+            "hash": true,
+            "padding": 0,
+            "dim": 3
+        }
+    ],
+    "groups": [
+        [
+            "A",
+            "B"
+        ],
+        [
+            "D"
+        ]
+    ]
+}
+"""
+
+luban_parser.parser(input_file: str, output_file: str)
+
+# 这是通过luban_parser处理过后配置文件
+
+"""
+{
+    "transforms": [
+        {
+            "func": "_add<int64_t>",
+            "name": "anonymous_0",
+            "flag": 3,
+            "args": [],
+            "vars": [
+                "B",
+                "C"
+            ]
+        },
+        {
+            "func": "_mul<int64_t>",
+            "name": "A",
+            "flag": 3,
+            "args": [],
+            "vars": [
+                "anonymous_0",
+                "F"
+            ]
+        },
+        {
+            "func": "concat",
+            "name": "D",
+            "flag": 2,
+            "args": [
+                {
+                    "type": 2,
+                    "value": "prefix-"
+                }
+            ],
+            "vars": [
+                "E"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": 0,
+            "width": 2,
+            "type": 0
+        },
+        {
+            "id": 1,
+            "width": 3,
+            "type": 0
+        }
+    ],
+    "features": [
+        {
+            "name": "A",
+            "type": 0,
+            "padding": 0,
+            "group": 0,
+            "offset": 0,
+            "hash": false,
+            "dim": 1
+        },
+        {
+            "name": "B",
+            "type": 0,
+            "padding": 0,
+            "group": 0,
+            "offset": 1,
+            "hash": false,
+            "dim": 1
+        },
+        {
+            "name": "D",
+            "type": 0,
+            "padding": 0,
+            "group": 1,
+            "offset": 0,
+            "hash": true,
+            "dim": 3
+        }
+    ]
+}
+"""
+# config.json 是配置处理过后的文件，上述是配置的文件内容样例
+toolkit = pyluban.Toolkit("config.json")
+
+```
+
+
+
+#### Rows
+
+只处理一条特征的情形，Rows是一个list对象，长度是上述配置的group的数量，可以通过下标进行访问，然后转化成numpy的结构。
+
+```python
+# r是pyluban:Rows类型
+r = toolkit.process(features: pyluban:Features)
+
+
+for i in range(len(r)):
+    print(np.asarray(r[i]))
+```
+
+#### Matrices
+
+batch的方式来处理数据，Matrices是一个list对象，长度是上述配置的group的数量，可以通过下标进行访问，然后转化成numpy的结构。
+
+```python
+l = pyluban.FeaturesList()
+l.append(features: pyluban:Features)
+
+m = self.toolkit.process(l)
+
+for i in range(len(m)):
+    print(np.asarray(m[i]))
+```

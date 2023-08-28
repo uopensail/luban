@@ -14,29 +14,35 @@ Toolkit::Toolkit(const std::string &config_file) {
   infile.seekg(0);
   infile.read(&buffer[0], buffer.size());
 
-  rapidjson::Document doc;
-  doc.Parse(buffer.c_str());
+  const json &doc = json::parse(buffer);
+  const std::vector<json> &transforms = doc["transforms"];
 
-  for (rapidjson::SizeType i = 0; i < doc["transforms"].Size(); ++i) {
-    auto &v = doc["transforms"][i];
-    m_funcs.emplace_back(v);
+  for (auto &t : transforms) {
+    m_funcs.emplace_back(t);
   }
   m_placer = std::make_shared<Placement>(doc);
   m_opr = std::make_shared<Operator>();
 }
 
-void Toolkit::process(Features &features, Rows &r) {
+std::shared_ptr<Rows> Toolkit::process(SharedFeaturesPtr features) {
+  auto r = m_placer->rows();
   for (size_t i = 0; i < m_funcs.size(); ++i) {
-    m_opr->call(m_funcs[i], features);
+    m_opr->call(m_funcs[i], *features);
   }
-  m_placer->call(features, r);
+  m_placer->call(*features, r);
+  return r;
 }
 
-void Toolkit::process(Features &features, Matrices &m, int64_t row) {
-  for (size_t i = 0; i < m_funcs.size(); ++i) {
-    m_opr->call(m_funcs[i], features);
+std::shared_ptr<Matrices> Toolkit::process(SharedFeaturesListPtr list) {
+  int64_t size = list->size();
+  auto m = m_placer->matrices(size);
+  for (int64_t i = 0; i < size; ++i) {
+    for (size_t j = 0; j < m_funcs.size(); ++j) {
+      m_opr->call(m_funcs[j], *(list->operator[](i)));
+    }
+    m_placer->call(*(list->operator[](i)), m, i);
   }
-  m_placer->call(features, m, row);
+  return m;
 }
 
 }  // namespace luban

@@ -28,12 +28,3 @@ src/MurmurHash3.cc src/operator.cpp src/placement.cpp src/toolkit.cpp)
 
 # Define the Python module
 pybind11_add_module(pyluban ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/pyluban.cpp)
-
-# add_library(toolkit SHARED ${LUBAN_INCLUDE} ${LUBAN_SOURCE})
-
-# add_library(luban SHARED ${LUBAN_INCLUDE} include/luban.h ${LUBAN_SOURCE} src/luban.cpp)
-
-#add_executable(test ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/test_operator.cpp)
-
-# target_link_libraries(toolkit pthread)
-# target_link_libraries(luban pthread)

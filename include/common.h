@@ -20,12 +20,10 @@
 #pragma once
 
 #include <assert.h>
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 
 #include <functional>
 #include <iostream>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <variant>
@@ -34,6 +32,9 @@
 #include "MurmurHash3.h"
 #include "builtin.h"
 #include "helper.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 namespace luban {
 
@@ -63,7 +64,8 @@ typedef struct FunctionConfigure {
   std::vector<std::string> variables;
   std::vector<SharedParameter> literals;
   FunctionConfigure(const std::string &data);
-  FunctionConfigure(const rapidjson::Value &data);
+  FunctionConfigure(const json &data);
+  void parse(const json &data);
   std::string stringnify();
 } FunctionConfigure;
 
@@ -192,15 +194,12 @@ static std::vector<T> placement(const SharedParameter &feature, bool hash,
   return array;
 }
 
-SharedParameter parse_parameter(const rapidjson::Value &data);
-
-SharedParameter parse_parameter(const std::string &data);
+SharedParameter parse_parameter_from_json(const json &data);
+SharedParameter parse_parameter_from_string(const std::string &data);
 
 void print_parameter(const SharedParameter &param);
 
 std::string parameter_stringnify(const SharedParameter &param);
-std::shared_ptr<rapidjson::Value> parameter_jsonify(
-    const SharedParameter &param);
 
 void extract_features(std::string_view data, SharedParameterMap &features);
 

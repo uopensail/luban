@@ -33,12 +33,31 @@ class Features {
   Features &operator=(const Features &features);
   ~Features() = default;
   SharedParameter operator[](const std::string &key);
-  void insert(const std::string &key, SharedParameter feature);
+  void set(const std::string &key, SharedParameter feature);
   std::string stringnify();
 
  private:
   SharedParameterMap m_features;
 };
+
+using SharedFeaturesPtr = std::shared_ptr<Features>;
+
+class FeaturesList {
+ public:
+  FeaturesList() = default;
+  FeaturesList &operator=(const FeaturesList &);
+  ~FeaturesList() = default;
+  void push(SharedFeaturesPtr features);
+  SharedFeaturesPtr operator[](size_t index) const;
+  void set(size_t index, SharedFeaturesPtr features);
+  int64_t size() const;
+  std::string stringnify();
+
+ private:
+  std::vector<SharedFeaturesPtr> m_featureslist;
+};
+
+using SharedFeaturesListPtr = std::shared_ptr<FeaturesList>;
 
 }  // namespace luban
 

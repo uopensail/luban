@@ -4,10 +4,10 @@ namespace luban {
 
 Row::Row(DataType type, int64_t cols) : m_type(type), m_cols(cols) {
   if (type == DataType::kInt64) {
-    m_data = (char *)malloc(sizeof(int64_t) * m_cols);
+    m_data = (char *)calloc(m_cols, sizeof(int64_t));
     m_size = sizeof(int64_t);
   } else if (type == DataType::kFloat32) {
-    m_data = (char *)malloc(sizeof(float) * m_cols);
+    m_data = (char *)calloc(m_cols, sizeof(float));
     m_size = sizeof(float);
   } else {
     throw std::runtime_error("type error: " + std::to_string(type));
@@ -40,10 +40,10 @@ void Row::put(SharedParameter value, const FeatureConfigure &conf) {
 Matrix::Matrix(DataType type, int64_t rows, int64_t cols)
     : m_type(type), m_rows(rows), m_cols(cols) {
   if (type == DataType::kInt64) {
-    m_data = (char *)malloc(sizeof(int64_t) * m_rows * m_cols);
+    m_data = (char *)calloc(m_rows * m_cols, sizeof(int64_t));
     m_size = sizeof(int64_t);
   } else if (type == DataType::kFloat32) {
-    m_data = (char *)malloc(sizeof(float) * m_rows * m_cols);
+    m_data = (char *)calloc(m_rows * m_cols, sizeof(float));
     m_size = sizeof(float);
   } else {
     throw std::runtime_error("type error: " + std::to_string(type));
@@ -74,96 +74,79 @@ void Matrix::put(int64_t row, SharedParameter value,
   }
 }
 
-Placement::Placement(rapidjson::Value &doc) {
-  m_groups.resize(doc["groups"].Size());
-  for (rapidjson::SizeType i = 0; i < doc["groups"].Size(); ++i) {
-    int id = doc["groups"][i]["id"].GetInt();
-    int64_t width = doc["groups"][i]["width"].GetInt64();
-    DataType type = static_cast<DataType>(doc["groups"][i]["type"].GetInt());
+std::shared_ptr<Matrix> Matrices::operator[](int index) {
+  return m_matrices[index];
+}
+
+std::shared_ptr<Row> Rows::operator[](int index) { return m_rows[index]; }
+
+void Placement::parse(const json &doc) {
+  const std::vector<json> &groups = doc["groups"];
+  m_groups.resize(groups.size());
+  for (auto &group : groups) {
+    int id = group["id"].get<int>();
+    int64_t width = group["width"].get<int64_t>();
+    DataType type = static_cast<DataType>(group["type"].get<int>());
     assert(type == DataType::kInt64 || type == DataType::kFloat32);
     m_groups[id] = GroupConfigure{id, width, type};
   }
 
-  for (rapidjson::SizeType i = 0; i < doc["features"].Size(); ++i) {
-    int group = doc["features"][i]["group"].GetInt();
-    std::string name = doc["features"][i]["name"].GetString();
-    int dim = doc["features"][i]["dim"].GetInt();
-    bool hash = doc["features"][i]["hash"].GetBool();
-    int64_t offset = doc["features"][i]["offset"].GetInt64();
-    DataType type = static_cast<DataType>(doc["features"][i]["type"].GetInt());
+  const std::vector<json> &features = doc["features"];
+  for (auto &feature : features) {
+    int group = feature["group"].get<int>();
+    std::string name = feature["name"].get<std::string>();
+    int dim = feature["dim"].get<int>();
+    bool hash = feature["hash"].get<bool>();
+    int64_t offset = feature["offset"].get<int64_t>();
+    DataType type = static_cast<DataType>(feature["type"].get<int>());
     DataType gtype = m_groups[group].type;
     Padding padding;
     if (type == DataType::kInt64) {
-      padding = doc["features"][i]["padding"].GetInt64();
+      padding = feature["padding"].get<int64_t>();
     } else if (type == DataType::kFloat32) {
-      padding = doc["features"][i]["padding"].GetFloat();
+      padding = feature["padding"].get<float>();
     }
 
     m_features[name] =
         FeatureConfigure{hash, type, group, dim, offset, padding};
   }
 }
+
+Placement::Placement(const json &doc) { parse(doc); }
 
 Placement::Placement(std::string_view config) {
-  rapidjson::Document doc;
-  doc.Parse(config.data(), config.size());
-
-  m_groups.resize(doc["groups"].Size());
-  for (rapidjson::SizeType i = 0; i < doc["groups"].Size(); ++i) {
-    int id = doc["groups"][i]["id"].GetInt();
-    int64_t width = doc["groups"][i]["width"].GetInt64();
-    DataType type = static_cast<DataType>(doc["groups"][i]["type"].GetInt());
-    assert(type == DataType::kInt64 || type == DataType::kFloat32);
-    m_groups[id] = GroupConfigure{id, width, type};
-  }
-
-  for (rapidjson::SizeType i = 0; i < doc["features"].Size(); ++i) {
-    int group = doc["features"][i]["group"].GetInt();
-    std::string name = doc["features"][i]["name"].GetString();
-    int dim = doc["features"][i]["dim"].GetInt();
-    bool hash = doc["features"][i]["hash"].GetBool();
-    int64_t offset = doc["features"][i]["offset"].GetInt64();
-    DataType type = static_cast<DataType>(doc["features"][i]["type"].GetInt());
-    DataType gtype = m_groups[group].type;
-    Padding padding;
-    if (type == DataType::kInt64) {
-      padding = doc["features"][i]["padding"].GetInt64();
-    } else if (type == DataType::kFloat32) {
-      padding = doc["features"][i]["padding"].GetFloat();
-    }
-
-    m_features[name] =
-        FeatureConfigure{hash, type, group, dim, offset, padding};
-  }
+  const json &doc = json::parse(config);
+  parse(doc);
 }
 
-// duto RVO, return vector is ok
-Matrices Placement::matrices(int64_t batch_size) {
-  Matrices m;
+std::shared_ptr<Matrices> Placement::matrices(int64_t batch_size) {
+  auto m = std::make_shared<Matrices>();
   for (int64_t i = 0; i < m_groups.size(); i++) {
-    m.push_back(std::make_shared<Matrix>(m_groups[i].type, batch_size,
-                                         m_groups[i].width));
+    m->m_matrices.push_back(std::make_shared<Matrix>(
+        m_groups[i].type, batch_size, m_groups[i].width));
   }
   return m;
 }
 
-Rows Placement::rows() {
-  Rows r;
+std::shared_ptr<Rows> Placement::rows() {
+  auto r = std::make_shared<Rows>();
   for (int64_t i = 0; i < m_groups.size(); i++) {
-    r.push_back(std::make_shared<Row>(m_groups[i].type, m_groups[i].width));
+    r->m_rows.push_back(
+        std::make_shared<Row>(m_groups[i].type, m_groups[i].width));
   }
   return r;
 }
 
-void Placement::call(Features &features, Matrices &m, int64_t row) {
+void Placement::call(Features &features, std::shared_ptr<Matrices> &m,
+                     int64_t row) {
   for (auto &kv : m_features) {
-    m[kv.second.group]->put(row, features[kv.first], kv.second);
+    (*m)[kv.second.group]->put(row, features[kv.first], kv.second);
   }
 }
 
-void Placement::call(Features &features, Rows &r) {
+void Placement::call(Features &features, std::shared_ptr<Rows> &r) {
   for (auto &kv : m_features) {
-    r[kv.second.group]->put(features[kv.first], kv.second);
+    (*r)[kv.second.group]->put(features[kv.first], kv.second);
   }
 }
 

@@ -21,81 +21,145 @@ Created on Mon May 13 17:58:27 2019
 @author: TimePi
 @description: this is setup script for luban
 """
+import os
 import platform
+import re
+import subprocess
 import sys
+from pathlib import Path
 
 from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
-COMPILE_OPTIONS = ["-DProtobuf_SOURCE=BUNDLED"]
-LINK_OPTIONS = []
+# Convert distutils Windows platform specifiers to CMake -A arguments
+PLAT_TO_CMAKE = {
+    "win32": "Win32",
+    "win-amd64": "x64",
+    "win-arm32": "ARM",
+    "win-arm64": "ARM64",
+}
 
-
-def is_new_osx():
-    """Check whether we're on OSX >= 10.7"""
-    if sys.platform != "darwin":
-        return False
-    mac_ver = platform.mac_ver()[0]
-    ver_ss = mac_ver.split(".")
-    version = int(ver_ss[0])
-
-    if version > 10:
-        return True
-    elif version == 10:
-        minor_version = int(ver_ss[1])
-        return minor_version >= 7
-    else:
-        return False
+# A CMakeExtension needs a sourcedir instead of a file list.
+# The name must be the _single_ output extension from the CMake build.
+# If you need multiple extensions, see scikit-build.
+class CMakeExtension(Extension):
+    def __init__(self, name: str, sourcedir: str = "") -> None:
+        super().__init__(name, sources=[])
+        self.sourcedir = os.fspath(Path(sourcedir).resolve())
 
 
-if is_new_osx():
-    # On Mac, use libc++ because Apple deprecated use of
-    # libstdc
-    COMPILE_OPTIONS.append("-stdlib=libc++")
-    COMPILE_OPTIONS.append("-std=c++17")
-    COMPILE_OPTIONS.append("-Wno-unused-function")
-    LINK_OPTIONS.append("-lc++")
-    LINK_OPTIONS.append("-lprotobuf")
-    LINK_OPTIONS.append("-lpthread")
-    LINK_OPTIONS.append("-nodefaultlibs")
-else:
-    COMPILE_OPTIONS.append("-std=c++17")
-    COMPILE_OPTIONS.append("-Wno-unused-function")
-    LINK_OPTIONS.append("-lprotobuf")
-    LINK_OPTIONS.append("-lpthread")
+class CMakeBuild(build_ext):
+    def build_extension(self, ext: CMakeExtension) -> None:
+        # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
+        ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
+        extdir = ext_fullpath.parent.resolve()
 
-pyluban_module = Extension(
-    name="_luban",
-    sources=[
-        "src/MurmurHash3.cc",
-        "src/base64.cpp",
-        "src/feature.pb.cc",
-        "src/pyluban.cpp",
-        "src/luban_wrap.cxx",
-    ],
-    include_dirs=["/usr/local/include", "include"],
-    library_dirs=["/usr/local/lib"],
-    extra_compile_args=COMPILE_OPTIONS,
-    extra_link_args=LINK_OPTIONS,
-    language="c++",
-)
+        # Using this requires trailing slash for auto-detection & inclusion of
+        # auxiliary "native" libs
+
+        debug = int(os.environ.get("DEBUG", 0)) if self.debug is None else self.debug
+        cfg = "Debug" if debug else "Release"
+
+        # CMake lets you override the generator - we need to check this.
+        # Can be set with Conda-Build, for example.
+        cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
+
+        # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
+        # from Python.
+        cmake_args = [
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
+            f"-DPYTHON_EXECUTABLE={sys.executable}",
+            f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+        ]
+        build_args = []
+        # Adding CMake arguments set as environment variable
+        # (needed e.g. to build for ARM OSx on conda-forge)
+        if "CMAKE_ARGS" in os.environ:
+            cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
+
+        if self.compiler.compiler_type != "msvc":
+            # Using Ninja-build since it a) is available as a wheel and b)
+            # multithreads automatically. MSVC would require all variables be
+            # exported for Ninja to pick it up, which is a little tricky to do.
+            # Users can override the generator with CMAKE_GENERATOR in CMake
+            # 3.15+.
+            if not cmake_generator or cmake_generator == "Ninja":
+                try:
+                    import ninja
+
+                    ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
+                    cmake_args += [
+                        "-GNinja",
+                        f"-DCMAKE_MAKE_PROGRAM:FILEPATH={ninja_executable_path}",
+                    ]
+                except ImportError:
+                    pass
+
+        else:
+            # Single config generators are handled "normally"
+            single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
+
+            # CMake allows an arch-in-generator style for backward compatibility
+            contains_arch = any(x in cmake_generator for x in {"ARM", "Win64"})
+
+            # Specify the arch if using MSVC generator, but only if it doesn't
+            # contain a backward-compatibility arch spec already in the
+            # generator name.
+            if not single_config and not contains_arch:
+                cmake_args += ["-A", PLAT_TO_CMAKE[self.plat_name]]
+
+            # Multi-config generators have a different way to specify configs
+            if not single_config:
+                cmake_args += [
+                    f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"
+                ]
+                build_args += ["--config", cfg]
+
+        if sys.platform.startswith("darwin"):
+            # Cross-compile support for macOS - respect ARCHFLAGS if set
+            archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
+            if archs:
+                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
+
+        # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
+        # across all generators.
+        if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
+            # self.parallel is a Python 3 only way to set parallel jobs by hand
+            # using -j in the build_ext call, not supported by pip or PyPA-build.
+            if hasattr(self, "parallel") and self.parallel:
+                # CMake 3.12+ only.
+                build_args += [f"-j{self.parallel}"]
+
+        build_temp = Path(self.build_temp) / ext.name
+        if not build_temp.exists():
+            build_temp.mkdir(parents=True)
+
+        subprocess.run(
+            ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
+        )
+        subprocess.run(
+            ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
+        )
+
 
 with open("README.md", "r", encoding="utf-8") as fd:
     long_description = fd.read()
 
 setup(
-    name="luban",
-    version="1.0.2",
+    name="pyluban",
+    version="1.0.0",
     description="Python wrapper for luban.",
     license="License :: AGLP 3",
     author="uopensail",
     author_email="",
     url="https://github.com/uopensail/luban",
     packages=find_packages(),
-    py_modules=["luban"],
-    ext_modules=[pyluban_module],
+    py_modules=["pyluban", "luban_parser"],
+    ext_modules=[CMakeExtension("pyluban")],
+    cmdclass={"build_ext": CMakeBuild},
     keywords="feature operator and hasher",
     long_description=long_description,
-    install_requires=["toml==0.10.2"],
+    install_requires=[],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -109,8 +173,7 @@ setup(
     ],
     scripts=[
         "luban_parser/luban_parser.py",
-        "luban_parser/operatordef.py",
-        "luban_parser/typedef.py",
     ],
     entry_points={"console_scripts": ["luban_parser = luban_parser:main"]},
+    python_requires=">=3.8",
 )

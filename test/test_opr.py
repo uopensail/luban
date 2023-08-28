@@ -84,15 +84,15 @@ class OperatorTestCase(unittest.TestCase):
         )
 
     def create_floats(self, names):
-        args = []
+        args = {}
         for name in names:
-            args.append({"type": 1, "name": name, "value": random.random() * 100})
+            args[name] = {"type": 1, "value": random.random() * 100}
         return pyluban.Features(json.dumps(args))
 
     def create_ints(self, names):
-        args = []
+        args = {}
         for name in names:
-            args.append({"type": 0, "name": name, "value": random.randint(1000, 10000)})
+            args[name] = {"type": 0, "value": random.randint(1000, 10000)}
         return pyluban.Features(json.dumps(args))
 
     def test_add(self):
@@ -105,11 +105,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - add(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - add(dic["A"], arg[0]["value"])), 1e-6)
         self.assertLess(abs(dic["Y"] - add(dic["A"], arg[0]["value"])), 1e-6)
@@ -124,18 +124,18 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - add(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - add(dic["A"], arg[0]["value"])), 1e-6)
         self.assertLess(abs(dic["Y"] - add(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_add_cast_float(self):
         func1 = self.create_function("_add<int64_t>", "X", 3, [], ["A", "B"])
-        arg = [{"type": 1, "value": random.random()*100}]
+        arg = [{"type": 1, "value": random.random() * 100}]
         func2 = self.create_function("_add<int64_t>", "Y", 1, arg, ["A"])
         func3 = self.create_function("_add<int64_t>", "Z", 1, arg, ["A"])
         feas = self.create_floats(["A", "B"])
@@ -143,18 +143,18 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - add(int(dic["A"]), int(dic["B"]))), 1e-6)
         self.assertLess(abs(dic["Z"] - add(int(dic["A"]), int(arg[0]["value"]))), 1e-6)
         self.assertLess(abs(dic["Y"] - add(int(dic["A"]), int(arg[0]["value"]))), 1e-6)
 
     def test_add_cast_float(self):
         func1 = self.create_function("_add<float>", "X", 3, [], ["A", "B"])
-        arg = [{"type": 1, "value": random.randint(1000,10000)}]
+        arg = [{"type": 1, "value": random.randint(1000, 10000)}]
         func2 = self.create_function("_add<float>", "Y", 1, arg, ["A"])
         func3 = self.create_function("_add<float>", "Z", 1, arg, ["A"])
         feas = self.create_ints(["A", "B"])
@@ -162,11 +162,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - add(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - add(dic["A"], arg[0]["value"])), 1e-6)
         self.assertLess(abs(dic["Y"] - add(dic["A"], arg[0]["value"])), 1e-6)
@@ -181,11 +181,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - sub(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - sub(arg[0]["value"], dic["A"])), 1e-6)
         self.assertLess(abs(dic["Y"] - sub(dic["A"], arg[0]["value"])), 1e-6)
@@ -200,11 +200,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - mul(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - mul(arg[0]["value"], dic["A"])), 1e-6)
         self.assertLess(abs(dic["Y"] - mul(dic["A"], arg[0]["value"])), 1e-6)
@@ -219,11 +219,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - div(dic["A"], dic["B"])), 1e-6)
         self.assertLess(abs(dic["Z"] - div(arg[0]["value"], dic["A"])), 1e-6)
         self.assertLess(abs(dic["Y"] - div(dic["A"], arg[0]["value"])), 1e-6)
@@ -238,11 +238,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - np.log(dic["A"])), 1e-6)
         self.assertLess(abs(dic["Z"] - np.log(arg[0]["value"])), 1e-6)
         self.assertLess(abs(dic["Y"] - np.log(dic["A"])), 1e-6)
@@ -257,11 +257,11 @@ class OperatorTestCase(unittest.TestCase):
         opr.call(func1, feas)
         opr.call(func2, feas)
         opr.call(func3, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - sigmoid(dic["A"])), 1e-6)
         self.assertLess(abs(dic["Z"] - sigmoid(arg[0]["value"])), 1e-6)
         self.assertLess(abs(dic["Y"] - sigmoid(dic["A"])), 1e-6)
@@ -272,11 +272,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - average(arg[0]["value"])), 1e-6)
 
     def test_max(self):
@@ -285,11 +285,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - max(arg[0]["value"])), 1e-6)
 
     def test_min(self):
@@ -298,11 +298,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - min(arg[0]["value"])), 1e-6)
 
     def test_variance(self):
@@ -311,11 +311,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - variance(arg[0]["value"])), 1e-6)
 
     def test_stddev(self):
@@ -324,11 +324,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertLess(abs(dic["X"] - stddev(arg[0]["value"])), 1e-6)
 
     def test_year(self):
@@ -336,11 +336,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         now = datetime.now()
         self.assertEqual(int(dic["X"]), now.year)
 
@@ -349,11 +349,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         now = datetime.now()
         self.assertEqual(int(dic["X"]), now.month)
 
@@ -362,11 +362,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         now = datetime.now()
         self.assertEqual(int(dic["X"]), now.day)
 
@@ -375,11 +375,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         now = datetime.now()
         self.assertEqual(int(dic["X"]), now.hour)
 
@@ -388,11 +388,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         now = datetime.now()
         self.assertEqual(int(dic["X"]), int(now.timestamp() * 1000))
 
@@ -406,12 +406,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
-
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
         self.assertEqual(dic["X"], now.date().isoformat())
 
     def test_unix_timestamp(self):
@@ -424,11 +423,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(
             dic["X"], int(time.mktime(time.strptime(arg[0]["value"], "%Y-%m-%d")))
@@ -440,11 +439,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "2023-01-11")
 
@@ -454,11 +453,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "2023-01-01")
 
@@ -468,11 +467,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], 10)
 
@@ -482,11 +481,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "11-10-3202")
 
@@ -496,11 +495,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "ABCDEF")
 
@@ -510,11 +509,11 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "abcdef")
 
@@ -528,27 +527,27 @@ class OperatorTestCase(unittest.TestCase):
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
         self.assertEqual(dic["X"], "CDE")
 
     def test_concat(self):
-        arg = [{"type": 2, "value": "ABCD\"EF"}, {"type": 2, "value": "-123456"}]
+        arg = [{"type": 2, "value": 'ABCD"EF'}, {"type": 2, "value": "-123456"}]
         func = self.create_function("concat", "X", 0, arg, [])
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
-        values = json.loads(str(feas))
-        dic = {}
-        for item in values:
-            for k, v in item.items():
-                dic[k] = v
+        dic = json.loads(str(feas))
+        tmp = {}
+        for k, v in dic.items():
+            tmp[k] = v["value"]
+        dic = tmp
 
-        self.assertEqual(dic["X"], "ABCD\"EF-123456")
+        self.assertEqual(dic["X"], 'ABCD"EF-123456')
 
 
 if __name__ == "__main__":

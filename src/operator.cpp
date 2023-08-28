@@ -143,7 +143,7 @@ void Operator::call(const FunctionConfigure &conf, Features &features) {
   }
   const SharedParameter &p = iter->second(conf, features);
   if (p != nullptr) {
-    features.insert(conf.name, p);
+    features.set(conf.name, p);
   }
 }
 

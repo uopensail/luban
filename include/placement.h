@@ -68,20 +68,39 @@ class Matrix {
   char *m_data;
 };
 
-using Matrices = std::vector<std::shared_ptr<Matrix>>;
+class Matrices {
+ public:
+  Matrices() = default;
+  ~Matrices() = default;
+  std::shared_ptr<Matrix> operator[](int index);
 
-using Rows = std::vector<std::shared_ptr<Row>>;
+ public:
+  std::vector<std::shared_ptr<Matrix>> m_matrices;
+};
+
+class Rows {
+ public:
+  Rows() = default;
+  ~Rows() = default;
+  std::shared_ptr<Row> operator[](int index);
+
+ public:
+  std::vector<std::shared_ptr<Row>> m_rows;
+};
 
 class Placement {
  public:
   Placement() = delete;
   explicit Placement(std::string_view config);
-  explicit Placement(rapidjson::Value &value);
+  explicit Placement(const json &value);
   ~Placement() = default;
-  Matrices matrices(int64_t batch_size);
-  Rows rows();
-  void call(Features &features, Matrices &m, int64_t row);
-  void call(Features &features, Rows &r);
+  std::shared_ptr<Matrices> matrices(int64_t batch_size);
+  std::shared_ptr<Rows> rows();
+  void call(Features &features, std::shared_ptr<Matrices> &m, int64_t row);
+  void call(Features &features, std::shared_ptr<Rows> &r);
+
+ private:
+  void parse(const json &doc);
 
  public:
   std::vector<GroupConfigure> m_groups;

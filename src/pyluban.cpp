@@ -20,7 +20,7 @@ PYBIND11_MODULE(pyluban, m) {
         return "<pyluban.Operator>";
       });
 
-  py::class_<luban::Features>(m, "Features")
+  py::class_<luban::Features, std::shared_ptr<luban::Features>>(m, "Features")
       .def(py::init<>())
       .def(py::init<const std::string &>())
       .def(py::init<std::vector<std::string>>())
@@ -29,21 +29,74 @@ PYBIND11_MODULE(pyluban, m) {
         return fea.stringnify();
       });
 
-  py::class_<luban::Placement, std::shared_ptr<luban::Placement>>(m,
-                                                                  "Placement")
-      .def("matrices", &luban::Placement::matrices)
-      .def("rows", &luban::Placement::rows)
-      .def("__repr__", [](const luban::Placement &p) -> std::string {
-        return "<pyluban.Placement>";
+  py::class_<luban::FeaturesList, std::shared_ptr<luban::FeaturesList>>(
+      m, "FeaturesList")
+      .def(py::init<>())
+      .def("append", &luban::FeaturesList::push)
+      .def("__len__", [](luban::FeaturesList &list) { return list.size(); })
+      .def("__getitem__", &luban::FeaturesList::operator[])
+      .def("__setitem__", [](luban::FeaturesList &list, size_t i,
+                             luban::SharedFeaturesPtr v) { list.set(i, v); })
+      .def("__repr__", [](luban::FeaturesList &list) -> std::string {
+        return list.stringnify();
+      });
+
+  py::class_<luban::Matrices, std::shared_ptr<luban::Matrices>>(m, "Matrices")
+      .def("__len__", [](luban::Matrices &m) { return m.m_matrices.size(); })
+      .def("__getitem__", &luban::Matrices::operator[])
+      .def("__repr__", [](const luban::Matrices &m) -> std::string {
+        int size = m.m_matrices.size();
+        if (size == 0) {
+          return "<class pyluban.Matrices: null>";
+        }
+
+        int64_t rows = m.m_matrices[0]->m_rows;
+        int64_t cols = m.m_matrices[0]->m_cols;
+        std::string type = "int64";
+        if (m.m_matrices[0]->m_type == luban::DataType::kFloat32) {
+          type = "float32";
+        }
+        std::string ret = "<class pyluban.Matrices: shape:(";
+        ret.append(std::to_string(size));
+        ret.append(",");
+        ret.append(std::to_string(rows));
+        ret.append(",");
+        ret.append(std::to_string(cols));
+        ret.append("), dtype: ");
+        ret.append(type);
+        ret.append(">");
+        return ret;
+      });
+
+  py::class_<luban::Rows, std::shared_ptr<luban::Rows>>(m, "Rows")
+      .def("__len__", [](luban::Rows &r) { return r.m_rows.size(); })
+      .def("__getitem__", &luban::Rows::operator[])
+      .def("__repr__", [](const luban::Rows &r) -> std::string {
+        int size = r.m_rows.size();
+        if (size == 0) {
+          return "<class pyluban.Rows: null>";
+        }
+
+        int64_t cols = r.m_rows[0]->m_cols;
+        std::string type = "int64";
+        if (r.m_rows[0]->m_type == luban::DataType::kFloat32) {
+          type = "float32";
+        }
+        std::string ret = "<class pyluban.Rows: shape:(";
+        ret.append(std::to_string(size));
+        ret.append(",");
+        ret.append(std::to_string(cols));
+        ret.append("), dtype: ");
+        ret.append(type);
+        ret.append(">");
+        return ret;
       });
 
   py::class_<luban::Toolkit>(m, "Toolkit")
       .def(py::init<const std::string &>())
-      .def_readonly("placer", &luban::Toolkit::m_placer)
-      .def("process",
-           py::overload_cast<luban::Features &, luban::Matrices &, int64_t>(
-               &luban::Toolkit::process))
-      .def("process", py::overload_cast<luban::Features &, luban::Rows &>(
+      .def("process", py::overload_cast<luban::SharedFeaturesPtr>(
+                          &luban::Toolkit::process))
+      .def("process", py::overload_cast<luban::SharedFeaturesListPtr>(
                           &luban::Toolkit::process))
       .def("__repr__", [](const luban::Toolkit &t) -> std::string {
         return "<pyluban.Toolkit>";

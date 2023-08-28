@@ -34,8 +34,8 @@ class Toolkit {
   Toolkit(const Toolkit &&) = delete;
   Toolkit(const std::string &config_file);
   ~Toolkit() = default;
-  void process(Features &features, Rows &r);
-  void process(Features &features, Matrices &m, int64_t row);
+  std::shared_ptr<Rows> process(SharedFeaturesPtr features);
+  std::shared_ptr<Matrices> process(SharedFeaturesListPtr list);
 
  public:
   std::shared_ptr<Placement> m_placer;
