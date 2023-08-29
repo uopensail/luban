@@ -409,7 +409,7 @@ toolkit = pyluban.Toolkit("config.json")
 
 ```python
 # r是pyluban:Rows类型
-r = toolkit.process(features: pyluban:Features)
+r = toolkit.process(features: pyluban.Features)
 
 
 for i in range(len(r)):
@@ -422,7 +422,7 @@ batch的方式来处理数据，Matrices是一个list对象，长度是上述配
 
 ```python
 l = pyluban.FeaturesList()
-l.append(features: pyluban:Features)
+l.append(features: pyluban.Features)
 
 m = self.toolkit.process(l)
 

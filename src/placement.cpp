@@ -74,6 +74,10 @@ void Matrix::put(int64_t row, SharedParameter value,
   }
 }
 
+int64_t Rows::size() { return m_rows.size(); }
+
+int64_t Matrices::size() { return m_matrices.size(); }
+
 std::shared_ptr<Matrix> Matrices::operator[](int index) {
   return m_matrices[index];
 }

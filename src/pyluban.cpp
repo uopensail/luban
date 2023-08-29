@@ -42,7 +42,7 @@ PYBIND11_MODULE(pyluban, m) {
       });
 
   py::class_<luban::Matrices, std::shared_ptr<luban::Matrices>>(m, "Matrices")
-      .def("__len__", [](luban::Matrices &m) { return m.m_matrices.size(); })
+      .def("__len__", [](luban::Matrices &m) { return m.size(); })
       .def("__getitem__", &luban::Matrices::operator[])
       .def("__repr__", [](const luban::Matrices &m) -> std::string {
         int size = m.m_matrices.size();
@@ -69,7 +69,7 @@ PYBIND11_MODULE(pyluban, m) {
       });
 
   py::class_<luban::Rows, std::shared_ptr<luban::Rows>>(m, "Rows")
-      .def("__len__", [](luban::Rows &r) { return r.m_rows.size(); })
+      .def("__len__", [](luban::Rows &r) { return r.size(); })
       .def("__getitem__", &luban::Rows::operator[])
       .def("__repr__", [](const luban::Rows &r) -> std::string {
         int size = r.m_rows.size();

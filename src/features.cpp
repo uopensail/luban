@@ -56,6 +56,9 @@ void Features::set(const std::string &key, SharedParameter feature) {
   m_features[key] = feature;
 }
 
+void Features::merge(SharedFeaturesPtr features) {
+  m_features.merge(features->m_features);
+}
 std::string Features::stringnify() {
   json j;
   for (auto &kv : m_features) {

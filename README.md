@@ -67,7 +67,7 @@ Configure the relevant properties for each feature.
 | ---------- | ------------- | ----- | ------- | ------------------------------------------------------------------------------------------------------ |
 | name       | string        | N     | -       | name of feature                                                                                        |
 | expr       | string        | Y     | ""      | how to process feature                                                                                 |
-| type       | int           | N     | -       | 0: int64,<br/>1: float3,<br/>2: string<br/>3: vector<int64><br/>4: vector<float><br/>5: vector<string> |
+| type       | int           | N     | -       | 0: int64,<br/>1: float3,<br/>2: string<br/>3: vector\<int64\><br/>4: vector\<float\><br/>5: vector\<string\> |
 | hash       | bool          | Y     | false   | hash or not                                                                                            |
 | padding    | int64/float32 | Y     | 0/0.0   | fill value                                                                                             |
 | dim        | int           | Y     | 1       | dim of result                                                                                          |
@@ -417,7 +417,7 @@ In the case of only one feature, Rows is a list object with a length of the numb
 
 ```python
 # r pyluban:Rows type
-r = toolkit.process(features: pyluban:Features)
+r = toolkit.process(features: pyluban.Features)
 
 
 for i in range(len(r)):
@@ -430,7 +430,7 @@ Matrices is a list object with a length of the number of groups configured above
 
 ```python
 l = pyluban.FeaturesList()
-l.append(features: pyluban:Features)
+l.append(features: pyluban.Features)
 
 m = self.toolkit.process(l)
 

@@ -72,6 +72,7 @@ class Matrices {
  public:
   Matrices() = default;
   ~Matrices() = default;
+  int64_t size();
   std::shared_ptr<Matrix> operator[](int index);
 
  public:
@@ -82,6 +83,7 @@ class Rows {
  public:
   Rows() = default;
   ~Rows() = default;
+  int64_t size();
   std::shared_ptr<Row> operator[](int index);
 
  public:
