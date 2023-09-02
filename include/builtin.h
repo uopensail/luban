@@ -23,30 +23,25 @@
 #include <math.h>
 #include <time.h>
 
+#include "MurmurHash3.h"
+#ifdef __linux__
+#include <bits/stl_algo.h>
+#include <chrono>
+#include <stdexcept>
+#endif
+
 #include <string>
 #include <vector>
 
-#include "MurmurHash3.h"
-
 int64_t mmh3(const std::string &key);
 
-template <typename T>
-T _add(T &a, T &b) {
-  return a + b;
-}
+template <typename T> T _add(T &a, T &b) { return a + b; }
 
-template <typename T>
-T _sub(T &a, T &b) {
-  return a - b;
-}
+template <typename T> T _sub(T &a, T &b) { return a - b; }
 
-template <typename T>
-T _mul(T &a, T &b) {
-  return a * b;
-}
+template <typename T> T _mul(T &a, T &b) { return a * b; }
 
-template <typename T>
-T _div(T &a, T &b) {
+template <typename T> T _div(T &a, T &b) {
   assert(b != 0);
   return a / b;
 }
@@ -76,8 +71,7 @@ float _tanh(float &x);
 float _atanh(float &x);
 float _sigmoid(float &x);
 
-template <typename T>
-T min(std::vector<float> &src) {
+template <typename T> T min(std::vector<float> &src) {
   assert(src.size() > 0);
   T ret = src[0];
   for (auto &v : src) {
@@ -88,8 +82,7 @@ T min(std::vector<float> &src) {
   return ret;
 }
 
-template <typename T>
-T max(std::vector<T> &src) {
+template <typename T> T max(std::vector<T> &src) {
   assert(src.size() > 0);
   T ret = src[0];
   for (auto &v : src) {
@@ -100,8 +93,7 @@ T max(std::vector<T> &src) {
   return ret;
 }
 
-template <typename T>
-float average(std::vector<T> &src) {
+template <typename T> float average(std::vector<T> &src) {
   assert(src.size() > 0);
   T ret = 0;
   float n = float(src.size());
@@ -111,8 +103,7 @@ float average(std::vector<T> &src) {
   return static_cast<float>(ret) / n;
 }
 
-template <typename T>
-float variance(std::vector<T> &src) {
+template <typename T> float variance(std::vector<T> &src) {
   if (src.size() <= 1) {
     return 0.0;
   }
@@ -129,8 +120,7 @@ float variance(std::vector<T> &src) {
          n;
 }
 
-template <typename T>
-float stddev(std::vector<T> &src) {
+template <typename T> float stddev(std::vector<T> &src) {
   float var = variance<T>(src);
   if (var <= 0) {
     return 0;
@@ -138,8 +128,7 @@ float stddev(std::vector<T> &src) {
   return sqrtf(var);
 }
 
-template <typename T>
-float norm(std::vector<T> &src, float &n) {
+template <typename T> float norm(std::vector<T> &src, float &n) {
   float ret = 0.0;
   for (auto &v : src) {
     ret += powf(static_cast<float>(v), n);
@@ -166,21 +155,18 @@ std::string lower(std::string &s);
 std::string substr(std::string &s, int64_t &start, int64_t &len);
 std::string concat(std::string &a, std::string &b);
 
-template <typename T>
-float min_max(T &v, T &min, T &max) {
+template <typename T> float min_max(T &v, T &min, T &max) {
   assert(min != max);
   return static_cast<float>(v - min) / static_cast<float>(max - min);
 }
 
 float z_score(float &v, float &mean, float &stdv);
 
-template <typename T>
-int64_t binarize(T &v, T &threshold) {
+template <typename T> int64_t binarize(T &v, T &threshold) {
   return v < threshold ? 0 : 1;
 }
 
-template <typename T>
-int64_t bucketize(T &v, std::vector<T> &boundaries) {
+template <typename T> int64_t bucketize(T &v, std::vector<T> &boundaries) {
   auto start = boundaries.data();
   auto end = start + boundaries.size();
   return std::upper_bound(start, end, v) - start;
@@ -205,16 +191,14 @@ std::vector<float> normalize(std::vector<T> &src, float &norm) {
   return dst;
 }
 
-template <typename T>
-std::vector<T> topk(std::vector<T> &src, int64_t &k) {
+template <typename T> std::vector<T> topk(std::vector<T> &src, int64_t &k) {
   std::vector<T> dst;
   int64_t len = std::min<int64_t>(k, src.size());
   dst.assign(src.begin(), src.begin() + len);
   return dst;
 }
 
-template <typename T0, typename T1>
-T0 cast(T1 &value) {
+template <typename T0, typename T1> T0 cast(T1 &value) {
   if constexpr (std::is_same_v<T0, int64_t>) {
     if constexpr (std::is_same_v<T1, int64_t>) {
       return value;
@@ -248,4 +232,4 @@ T0 cast(T1 &value) {
 std::vector<std::string> cross(std::vector<std::string> &srcA,
                                std::vector<std::string> &srcB);
 
-#endif  // LUBAN_BUILTIN_H
+#endif // LUBAN_BUILTIN_H

@@ -1,4 +1,4 @@
-#include "features.h"
+#include "feature.h"
 
 namespace luban {
 
@@ -124,4 +124,4 @@ std::string FeaturesList::stringnify() {
   return ret;
 }
 
-}  // namespace luban
+} // namespace luban

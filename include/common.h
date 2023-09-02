@@ -21,6 +21,11 @@
 
 #include <assert.h>
 
+#include "MurmurHash3.h"
+#include "builtin.h"
+#include "helper.h"
+#include "json.hpp"
+
 #include <functional>
 #include <iostream>
 #include <map>
@@ -28,11 +33,6 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
-
-#include "MurmurHash3.h"
-#include "builtin.h"
-#include "helper.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -74,8 +74,7 @@ static std::vector<T> to_vector(const SharedParameter &data) {
   throw std::runtime_error("type not support: " + get_template_type<T>());
 }
 
-template <>
-std::vector<std::string> to_vector(const SharedParameter &data) {
+template <> std::vector<std::string> to_vector(const SharedParameter &data) {
   std::vector<std::string> ret;
   if (data == nullptr) {
     return ret;
@@ -106,8 +105,7 @@ std::vector<std::string> to_vector(const SharedParameter &data) {
   return ret;
 }
 
-template <>
-std::vector<int64_t> to_vector(const SharedParameter &data) {
+template <> std::vector<int64_t> to_vector(const SharedParameter &data) {
   std::vector<int64_t> ret;
   if (data == nullptr) {
     return ret;
@@ -137,8 +135,7 @@ std::vector<int64_t> to_vector(const SharedParameter &data) {
   return ret;
 }
 
-template <>
-std::vector<float> to_vector(const SharedParameter &data) {
+template <> std::vector<float> to_vector(const SharedParameter &data) {
   std::vector<float> ret;
   if (data == nullptr) {
     return ret;
@@ -203,5 +200,5 @@ std::string parameter_stringnify(const SharedParameter &param);
 
 void extract_features(std::string_view data, SharedParameterMap &features);
 
-}  // namespace luban
-#endif  // LUBAN_COMMON_H
+} // namespace luban
+#endif // LUBAN_COMMON_H

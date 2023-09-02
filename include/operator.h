@@ -18,7 +18,7 @@
 #define LUBAN_OPERATOR_H
 
 #include "common.h"
-#include "features.h"
+#include "feature.h"
 
 namespace luban {
 
@@ -26,15 +26,14 @@ using Function =
     std::function<SharedParameter(const FunctionConfigure &conf, Features &)>;
 
 class Wrapper {
- public:
+public:
   Wrapper() = delete;
   Wrapper(const FunctionConfigure &conf, Features &features);
   Wrapper(const Wrapper &w);
   Wrapper(const Wrapper &&w);
   ~Wrapper() = default;
 
-  template <typename T>
-  T *get() {
+  template <typename T> T *get() {
     struct _wrapper {
       void operator()(int64_t arg) {
         if constexpr (check_simple_type(T)) {
@@ -115,7 +114,7 @@ class Wrapper {
     }
   }
 
- private:
+private:
   int64_t m_index;
   int64_t m_lit;
   int64_t m_var;
@@ -127,7 +126,7 @@ class Wrapper {
 bool contain_nullptr();
 
 template <typename T, typename... Args>
-bool contain_nullptr(T *arg, Args *...args) {
+bool contain_nullptr(T *arg, Args *... args) {
   if constexpr (sizeof...(Args) == 0) {
     return arg == nullptr;
   } else {
@@ -136,7 +135,7 @@ bool contain_nullptr(T *arg, Args *...args) {
 }
 
 template <typename T0, typename... ArgsType>
-SharedParameter safe_func_call(T0 (*func)(ArgsType &...), ArgsType *...args) {
+SharedParameter safe_func_call(T0 (*func)(ArgsType &...), ArgsType *... args) {
   if (contain_nullptr(args...)) {
     return nullptr;
   }
@@ -159,17 +158,17 @@ static Function get_func_call(T0 (*func)(ArgsType &...)) {
 }
 
 class Operator {
- public:
+public:
   Operator();
   Operator(const Operator &) = delete;
   Operator(const Operator &&) = delete;
   ~Operator() = default;
   void call(const FunctionConfigure &conf, Features &features);
 
- private:
+private:
   std::unordered_map<std::string, Function> m_funcs;
 };
 
-}  // namespace luban
+} // namespace luban
 
-#endif  // LUBAN_OPERATOR_H
+#endif // LUBAN_OPERATOR_H

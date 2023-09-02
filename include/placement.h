@@ -20,7 +20,7 @@
 #pragma once
 
 #include "common.h"
-#include "features.h"
+#include "feature.h"
 
 namespace luban {
 
@@ -40,13 +40,13 @@ typedef struct FeatureConfigure {
 } FeatureConfigure;
 
 class Row {
- public:
+public:
   Row() = delete;
   Row(DataType type, int64_t cols);
   ~Row();
   void put(SharedParameter value, const FeatureConfigure &conf);
 
- public:
+public:
   DataType m_type;
   int64_t m_cols;
   int64_t m_size;
@@ -54,13 +54,13 @@ class Row {
 };
 
 class Matrix {
- public:
+public:
   Matrix() = delete;
   Matrix(DataType type, int64_t rows, int64_t cols);
   ~Matrix();
   void put(int64_t row, SharedParameter value, const FeatureConfigure &conf);
 
- public:
+public:
   DataType m_type;
   int64_t m_rows;
   int64_t m_cols;
@@ -69,29 +69,29 @@ class Matrix {
 };
 
 class Matrices {
- public:
+public:
   Matrices() = default;
   ~Matrices() = default;
   int64_t size();
   std::shared_ptr<Matrix> operator[](int index);
 
- public:
+public:
   std::vector<std::shared_ptr<Matrix>> m_matrices;
 };
 
 class Rows {
- public:
+public:
   Rows() = default;
   ~Rows() = default;
   int64_t size();
   std::shared_ptr<Row> operator[](int index);
 
- public:
+public:
   std::vector<std::shared_ptr<Row>> m_rows;
 };
 
 class Placement {
- public:
+public:
   Placement() = delete;
   explicit Placement(std::string_view config);
   explicit Placement(const json &value);
@@ -101,14 +101,14 @@ class Placement {
   void call(Features &features, std::shared_ptr<Matrices> &m, int64_t row);
   void call(Features &features, std::shared_ptr<Rows> &r);
 
- private:
+private:
   void parse(const json &doc);
 
- public:
+public:
   std::vector<GroupConfigure> m_groups;
   std::unordered_map<std::string, FeatureConfigure> m_features;
 };
 
-}  // namespace luban
+} // namespace luban
 
-#endif  // LUBAN_PLACEMENT_H
+#endif // LUBAN_PLACEMENT_H
