@@ -24,6 +24,7 @@
 #include <time.h>
 
 #include "MurmurHash3.h"
+
 #ifdef __linux__
 #include <bits/stl_algo.h>
 #include <chrono>
