@@ -31,9 +31,9 @@
 #include <stdexcept>
 #endif
 
+#include <iostream>
 #include <string>
 #include <vector>
-
 int64_t mmh3(const std::string &key);
 
 template <typename T> T _add(T &a, T &b) { return a + b; }

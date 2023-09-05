@@ -26,6 +26,7 @@
 #include "helper.h"
 #include "json.hpp"
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <map>

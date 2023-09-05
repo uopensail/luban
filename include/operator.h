@@ -140,6 +140,7 @@ SharedParameter safe_func_call(T0 (*func)(ArgsType &...), ArgsType *... args) {
     return nullptr;
   }
 
+  // print_template_type<T0, ArgsType...>();
   T0 ret = func((*args)...);
 
   SharedParameter p = std::make_shared<Parameter>();

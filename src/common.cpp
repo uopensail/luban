@@ -18,7 +18,24 @@ void FunctionConfigure::parse(const json &doc) {
   for (auto &arg : args) {
     literals.push_back(parse_parameter_from_json(arg));
   }
+
+#ifdef __linux__
+  // in linux, func get params from last to start
+  std::reverse(literals.begin(), literals.end());
+  std::reverse(variables.begin(), variables.end());
+  size_t len = variables.size() + literals.size();
+  int64_t reversed_flag = 0;
+
+  for (size_t i = 0; i < len; i++) {
+    if ((1 << i) & flag) {
+      reversed_flag += (1 << (len - 1 - i));
+    }
+  }
+  flag = reversed_flag;
+
+#endif
 }
+
 std::string FunctionConfigure::stringnify() {
   std::string ret(name);
   ret.append(" = ");
@@ -100,4 +117,4 @@ void extract_features(std::string_view data, SharedParameterMap &features) {
   }
 }
 
-}  // namespace luban
+} // namespace luban
