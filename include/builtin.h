@@ -25,7 +25,7 @@
 
 #include "MurmurHash3.h"
 
-#ifdef __GNUC__
+#ifdef __linux__
 #include <bits/stl_algo.h>
 #endif
 
