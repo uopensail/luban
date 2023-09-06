@@ -19,7 +19,7 @@ void FunctionConfigure::parse(const json &doc) {
     literals.push_back(parse_parameter_from_json(arg));
   }
 
-#ifdef __GNUC__
+#ifdef __GCC__
   // gcc, default cdecl, function params push to stack from right to left
   std::reverse(literals.begin(), literals.end());
   std::reverse(variables.begin(), variables.end());

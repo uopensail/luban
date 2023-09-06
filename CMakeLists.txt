@@ -3,6 +3,10 @@ project(pyluban)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+add_compile_definitions(__GCC__)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
