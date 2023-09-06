@@ -25,15 +25,16 @@
 
 #include "MurmurHash3.h"
 
-#ifdef __linux__
+#ifdef __GNUC__
 #include <bits/stl_algo.h>
-#include <chrono>
-#include <stdexcept>
 #endif
 
+#include <chrono>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
 int64_t mmh3(const std::string &key);
 
 template <typename T> T _add(T &a, T &b) { return a + b; }
