@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 project(pyluban)
 
+message(STATUS CMAKE_SYSTEM_VERSION)
+message(STATUS CMAKE_HOST_SYSTEM_VERSION)
 set(CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 add_compile_definitions(__GCC__)
 endif(CMAKE_COMPILER_IS_GNUCXX)
+
+if(APPLE)
+add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
+endif(APPLE)
+
 
 include_directories(include)
 include_directories(/usr/local/include)
