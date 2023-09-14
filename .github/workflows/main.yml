@@ -34,9 +34,9 @@ jobs:
         env:
           CIBW_BEFORE_ALL_MACOS: >
             uname -a
-            pip install pybind11
+            sudo  pip install pybind11
           CIBW_BEFORE_ALL_LINUX: >
-            pip install pybind11 && apt install python3-dev
+            sudo pip install pybind11 && sudo  apt install python3-dev
           CIBW_ARCHS_LINUX: auto, aarch64 
 
       - uses: actions/upload-artifact@v2
@@ -51,7 +51,7 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install pybind11 && apt install python3-dev
+          sudo pip install pybind11 && sudo apt install python3-dev
           pwd     
           pipx run build --sdist 
       - uses: actions/upload-artifact@v2
