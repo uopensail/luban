@@ -160,6 +160,7 @@ setup(
     keywords="feature operator and hasher",
     long_description=long_description,
     install_requires=[],
+    setup_requires=["pybind11>=2.11.1"],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
