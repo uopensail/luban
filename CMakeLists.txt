@@ -19,9 +19,12 @@ include_directories(/usr/local/include)
 include_directories(/usr/include)
 
 # Find and link to Python
-find_package(PythonInterp 3 REQUIRED)
-find_package(PythonLibs 3 REQUIRED)
+find_package (Python COMPONENTS Interpreter Development)
 include_directories(${PYTHON_INCLUDE_DIRS})
+
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
 
 # Include pybind11
 find_package(pybind11 REQUIRED)
