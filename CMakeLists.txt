@@ -19,7 +19,17 @@ include_directories(/usr/local/include)
 include_directories(/usr/include)
 
 # Find and link to Python
-set(PYTHON ${PYTHON_EXECUTABLE})
+execute_process(
+  COMMAND
+  	${PYTHON_EXECUTABLE} "-c" "print('Hello, world!')"
+  RESULT_VARIABLE _status
+  OUTPUT_VARIABLE _hello_world
+  ERROR_QUIET
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  message(STATUS "RESULT_VARIABLE is: ${_status}")
+  message(STATUS "OUTPUT_VARIABLE is: ${_hello_world}")
+  
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 
 include_directories(${PYTHON_INCLUDE_DIRS})
