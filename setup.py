@@ -47,7 +47,10 @@ class CMakeExtension(Extension):
         super().__init__(name, sources=[])
         self.sourcedir = os.fspath(Path(sourcedir).resolve())
 
-
+def site_dir():
+    import site
+    python_lib_dir = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') else sys.prefix
+    return python_lib_dir
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
@@ -67,11 +70,9 @@ class CMakeBuild(build_ext):
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # from Python.
         venv_dir = os.path.abspath(sys.executable+"/../../")
-        python_version = sys.version
-        pybind11_dir=f"{venv_dir}/lib/python{python_version}/site-packages/pybind11/share/cmake/pybind11"
-     
-        CMAKE_PREFIX_PATH = os.getenv("CMAKE_PREFIX_PATH")
-        print(f"Python Versin: {python_version} {CMAKE_PREFIX_PATH}")
+        site_packages_dir = site_dir()
+        pybind11_dir=f"{site_packages_dir}/pybind11/share/cmake/pybind11"
+    
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
