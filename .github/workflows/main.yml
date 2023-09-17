@@ -34,7 +34,7 @@ jobs:
         env:
           CIBW_BEFORE_ALL_MACOS: >
             uname -a && 
-            brew install -y python-devel
+            brew install  python-devel
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel
