@@ -20,7 +20,7 @@ include_directories(/usr/include)
 set (Python3_FIND_VIRTUALENV FIRST)
 set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
 
-find_package(Python COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
 include_directories(${Python_INCLUDE_DIRS})
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
