@@ -47,12 +47,6 @@ class CMakeExtension(Extension):
         super().__init__(name, sources=[])
         self.sourcedir = os.fspath(Path(sourcedir).resolve())
 
-def walk_dir(val):
-    for root, dirs, files in os.walk(val, topdown=False):
-        for name in files:
-            print(os.path.join(root, name))
-        for name in dirs:
-            print(os.path.join(root, name))
 
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
@@ -73,11 +67,15 @@ class CMakeBuild(build_ext):
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # from Python.
         venv_dir = os.path.abspath(sys.executable+"/../../")
-        walk_dir(venv_dir)
+        python_version = sys.version
+        pybind11_dir=f"{venv_dir}/lib/python{python_version}/site-packages/pybind11/share/cmake/pybind11"
+     
+        CMAKE_PREFIX_PATH = os.getenv("CMAKE_PREFIX_PATH")
+        print(f"Python Versin: {python_version} {CMAKE_PREFIX_PATH}")
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
-            f"-DCMAKE_PREFIX_PATH={venv_dir}",
+            f"-Dpybind11_DIR={pybind11_dir}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
         build_args = []

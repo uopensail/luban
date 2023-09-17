@@ -18,21 +18,7 @@ include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
 
-# Find and link to Python
-execute_process(
-  COMMAND
-  	${PYTHON_EXECUTABLE} "-c" "print('Hello, world!')"
-  RESULT_VARIABLE _status
-  OUTPUT_VARIABLE _hello_world
-  ERROR_QUIET
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  message(STATUS "RESULT_VARIABLE is: ${_status}")
-  message(STATUS "OUTPUT_VARIABLE is: ${_hello_world}")
-
-
-
-include_directories(${PYTHON_INCLUDE_DIRS})
+set(PYTHON ${PYTHON_EXECUTABLE})
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
