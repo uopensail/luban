@@ -17,7 +17,7 @@ endif(APPLE)
 include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
-
+set (Python3_FIND_VIRTUALENV FIRST)
 set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
 
 find_package(Python COMPONENTS Interpreter Development)
