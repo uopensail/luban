@@ -18,7 +18,9 @@ include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
 
-find_package(Python REQUIRED)
+set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
+
+find_package(Python COMPONENTS Interpreter Development)
 include_directories(${Python_INCLUDE_DIRS})
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
