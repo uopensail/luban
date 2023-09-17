@@ -33,7 +33,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.6.1
         env:
           CIBW_BEFORE_ALL_MACOS: >
-            uname -a
+            uname -a && 
+            brew install -y python-devel
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel
@@ -51,7 +52,6 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install pybind11 && sudo apt install python3-dev
           pwd     
           pipx run build --sdist 
       - uses: actions/upload-artifact@v2
