@@ -75,7 +75,7 @@ class CMakeBuild(build_ext):
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
-            #f"-Dpybind11_DIR={pybind11_dir}",
+            f"-Dpybind11_DIR={pybind11_dir}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
         build_args = []
@@ -154,7 +154,7 @@ with open("README.md", "r", encoding="utf-8") as fd:
 
 setup(
     name="pyluban",
-    version="1.0.0",
+    version="1.1.0",
     description="Python wrapper for luban.",
     license="License :: AGLP 3",
     author="uopensail",
