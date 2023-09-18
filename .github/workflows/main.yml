@@ -33,7 +33,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.6.1
         env:
           CIBW_BEFORE_ALL_MACOS: >
-            uname -a
+            uname -a && cmake --version
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel
