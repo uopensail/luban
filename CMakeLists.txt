@@ -1,20 +1,31 @@
 cmake_minimum_required(VERSION 3.16)
 project(pyluban)
 
+message(STATUS CMAKE_SYSTEM_VERSION)
+message(STATUS CMAKE_HOST_SYSTEM_VERSION)
 set(CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 add_compile_definitions(__GCC__)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+if(APPLE)
+add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
+endif(APPLE)
+
+
 include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
+set (Python3_FIND_VIRTUALENV FIRST)
+set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
 
-# Find and link to Python
-find_package(PythonInterp 3 REQUIRED)
-find_package(PythonLibs 3 REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
+find_package(Python3 COMPONENTS Interpreter Development)
+include_directories(${Python3_INCLUDE_DIRS})
+
+message(STATUS "PYTHON3_LIBRARIES = ${Python3_LIBRARIES}")
+message(STATUS "PYTHON3_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
 
 # Include pybind11
 find_package(pybind11 REQUIRED)

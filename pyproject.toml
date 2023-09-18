@@ -2,10 +2,13 @@
 requires = [
     "setuptools>=42",
     "toml==0.10.2",
+    "pybind11>=2.11.1",
+    "ninja>=1.11.1",
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
+build-verbosity = 3
 manylinux-x86_64-image = "docker.io/kungjim/manylinux2014_x86_64_centos_rocksdb:48b8ce9"
 manylinux-pypy_x86_64-image = "docker.io/kungjim/manylinux2014_x86_64_centos_rocksdb:48b8ce9"
 manylinux-aarch64-image = "docker.io/kungjim/manylinux2014_aarch64_centos_rocksdb:b12cc8b"
