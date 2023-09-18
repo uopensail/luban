@@ -18,14 +18,14 @@ include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
 set (Python3_FIND_VIRTUALENV FIRST)
-set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
+set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
 
 find_package(Python3 COMPONENTS Interpreter Development)
-include_directories(${Python_INCLUDE_DIRS})
+include_directories(${Python3_INCLUDE_DIRS})
 
-message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_LIBRARIES = ${Python3_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
-message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "PYTHON_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
 
 # Include pybind11
 find_package(pybind11 REQUIRED)
