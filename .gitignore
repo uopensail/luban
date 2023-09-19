@@ -43,3 +43,4 @@ __pycache__/
 *.tfrecord
 *egg-info
 *.toml
+*.whl
