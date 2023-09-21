@@ -25,29 +25,31 @@ import pyluban
 
 class ToolkitTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.toolkit = pyluban.Toolkit("config.json")
+        self.toolkit = pyluban.Toolkit("new_config.json")
         fea = {
-            "B": {"type": 0, "value": 1},
+            "A": {"type": 1, "value": 1.0},
+            "B": {"type": 1, "value": 1.0},
             "C": {"type": 0, "value": 2},
-            "F": {"type": 0, "value": 2100},
+            "D": {"type": 0, "value": 2100},
+            "F": {"type": 0, "value": 1000},
+            "G": {"type": 0, "value": 2},
+            # "H": {"type": 2, "value": "H"},
         }
 
         self.features = pyluban.Features(json.dumps(fea))
 
     def test(self):
-        l = pyluban.FeaturesList()
-        l.append(self.features)
-        print(len(l))
-        print(l[0])
-        print(l)
-        m = self.toolkit.process(l)
+        print(self.features)
+        m = self.toolkit.process(self.features)
+        print(self.features)
         print("m", m)
         print("m", len(m))
         arr = np.asarray(m[0])
         print(arr.dtype)
         print(arr)
         print(np.asarray(m[1]))
-        print(l[0])
+        print(np.asarray(m[2]))
+        pass
 
 
 if __name__ == "__main__":

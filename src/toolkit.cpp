@@ -46,7 +46,7 @@ Toolkit::Toolkit(const std::string &config_file) {
 
 std::shared_ptr<Rows> Toolkit::process_item(SharedFeaturesPtr features) {
   auto r = m_item_placer->rows();
-  for (size_t i = 0; i < m_item_funcs.size(); ++i) {
+  for (size_t i = 0; i < m_item_funcs.size(); i++) {
     m_opr->call(m_item_funcs[i], *features);
   }
   m_item_placer->call(*features, r);
@@ -70,15 +70,15 @@ std::shared_ptr<Rows> Toolkit::process(SharedFeaturesPtr features) {
     r->m_rows[m_item_placer->m_groups[i].id] =
         items->m_rows[m_item_placer->m_groups[i].index];
   }
-  items->m_rows.clear();
 
   auto user = process_user(features);
 
   for (size_t i = 0; i < m_user_placer->m_groups.size(); i++) {
     r->m_rows[m_user_placer->m_groups[i].id] =
-        items->m_rows[m_user_placer->m_groups[i].index];
+        user->m_rows[m_user_placer->m_groups[i].index];
   }
   user->m_rows.clear();
+  items->m_rows.clear();
   return r;
 }
 

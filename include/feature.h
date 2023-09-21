@@ -22,13 +22,11 @@
 namespace luban {
 
 class Features;
-class FeaturesList;
 
 using SharedFeaturesPtr = std::shared_ptr<Features>;
-using SharedFeaturesListPtr = std::shared_ptr<FeaturesList>;
 
 class Features {
- public:
+public:
   Features() = default;
   Features(std::string_view value);
   Features(const std::string &value);
@@ -43,25 +41,10 @@ class Features {
   void merge(SharedFeaturesPtr features);
   std::string stringnify();
 
- private:
+private:
   SharedParameterMap m_features;
 };
 
-class FeaturesList {
- public:
-  FeaturesList() = default;
-  FeaturesList &operator=(const FeaturesList &);
-  ~FeaturesList() = default;
-  void push(SharedFeaturesPtr features);
-  SharedFeaturesPtr operator[](size_t index) const;
-  void set(size_t index, SharedFeaturesPtr features);
-  int64_t size() const;
-  std::string stringnify();
+} // namespace luban
 
- private:
-  std::vector<SharedFeaturesPtr> m_featureslist;
-};
-
-}  // namespace luban
-
-#endif  // LUBAN_FEATURES_H
+#endif // LUBAN_FEATURES_H

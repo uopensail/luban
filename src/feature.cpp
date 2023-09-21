@@ -89,42 +89,4 @@ std::string Features::stringnify() {
   return j.dump();
 }
 
-FeaturesList &FeaturesList::operator=(const FeaturesList &list) {
-  if (this == &list) {
-    return *this;
-  }
-
-  m_featureslist.clear();
-  m_featureslist.assign(list.m_featureslist.begin(), list.m_featureslist.end());
-  return *this;
-}
-
-void FeaturesList::push(SharedFeaturesPtr features) {
-  m_featureslist.push_back(features);
-}
-
-SharedFeaturesPtr FeaturesList::operator[](size_t index) const {
-  assert(index >= 0 && index < m_featureslist.size());
-  return m_featureslist[index];
-}
-
-void FeaturesList::set(size_t index, SharedFeaturesPtr features) {
-  assert(index >= 0 && index < m_featureslist.size());
-  m_featureslist[index] = features;
-}
-
-int64_t FeaturesList::size() const { return m_featureslist.size(); }
-
-std::string FeaturesList::stringnify() {
-  std::string ret = "[";
-  for (size_t i = 0; i < m_featureslist.size(); ++i) {
-    if (i > 0) {
-      ret.append(", ");
-    }
-    ret.append(m_featureslist[i]->stringnify());
-  }
-  ret.append("]");
-  return ret;
-}
-
 } // namespace luban

@@ -29,18 +29,6 @@ PYBIND11_MODULE(pyluban, m) {
         return fea.stringnify();
       });
 
-  py::class_<luban::FeaturesList, std::shared_ptr<luban::FeaturesList>>(
-      m, "FeaturesList")
-      .def(py::init<>())
-      .def("append", &luban::FeaturesList::push)
-      .def("__len__", [](luban::FeaturesList &list) { return list.size(); })
-      .def("__getitem__", &luban::FeaturesList::operator[])
-      .def("__setitem__", [](luban::FeaturesList &list, size_t i,
-                             luban::SharedFeaturesPtr v) { list.set(i, v); })
-      .def("__repr__", [](luban::FeaturesList &list) -> std::string {
-        return list.stringnify();
-      });
-
   py::class_<luban::Rows, std::shared_ptr<luban::Rows>>(m, "Rows")
       .def("__len__", [](luban::Rows &r) { return r.size(); })
       .def("__getitem__", &luban::Rows::operator[])

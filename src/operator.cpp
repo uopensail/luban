@@ -17,7 +17,8 @@ bool contain_nullptr() { return false; }
 Operator::Operator() {
   m_funcs["now"] = get_func_call(now);
   m_funcs["year"] = get_func_call(year);
-  m_funcs["year"] = get_func_call(year);
+  m_funcs["month"] = get_func_call(month);
+  m_funcs["day"] = get_func_call(day);
   m_funcs["hour"] = get_func_call(hour);
   m_funcs["minute"] = get_func_call(minute);
   m_funcs["second"] = get_func_call(second);

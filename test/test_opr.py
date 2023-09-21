@@ -96,10 +96,10 @@ class OperatorTestCase(unittest.TestCase):
         return pyluban.Features(json.dumps(args))
 
     def test_add(self):
-        func1 = self.create_function("_add", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("addf", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.random() * 100}]
-        func2 = self.create_function("_add", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_add", "Z", 1, arg, ["A"])
+        func2 = self.create_function("addf", "Y", 1, arg, ["A"])
+        func3 = self.create_function("addf", "Z", 1, arg, ["A"])
         feas = self.create_floats(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -115,10 +115,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - add(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_add_int(self):
-        func1 = self.create_function("_add<int64_t>", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("addi", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.randint(1000, 100000)}]
-        func2 = self.create_function("_add<int64_t>", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_add<int64_t>", "Z", 1, arg, ["A"])
+        func2 = self.create_function("addi", "Y", 1, arg, ["A"])
+        func3 = self.create_function("addi", "Z", 1, arg, ["A"])
         feas = self.create_ints(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -153,10 +153,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - add(int(dic["A"]), int(arg[0]["value"]))), 1e-6)
 
     def test_add_cast_float(self):
-        func1 = self.create_function("_add<float>", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("addf", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.randint(1000, 10000)}]
-        func2 = self.create_function("_add<float>", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_add<float>", "Z", 1, arg, ["A"])
+        func2 = self.create_function("addf", "Y", 1, arg, ["A"])
+        func3 = self.create_function("addf", "Z", 1, arg, ["A"])
         feas = self.create_ints(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -172,10 +172,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - add(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_sub(self):
-        func1 = self.create_function("_sub", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("subf", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.random() * 100}]
-        func2 = self.create_function("_sub", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_sub", "Z", 2, arg, ["A"])
+        func2 = self.create_function("subf", "Y", 1, arg, ["A"])
+        func3 = self.create_function("subf", "Z", 2, arg, ["A"])
         feas = self.create_floats(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -191,10 +191,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - sub(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_mul(self):
-        func1 = self.create_function("_mul", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("mulf", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.random() * 100}]
-        func2 = self.create_function("_mul", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_mul", "Z", 2, arg, ["A"])
+        func2 = self.create_function("mulf", "Y", 1, arg, ["A"])
+        func3 = self.create_function("mulf", "Z", 2, arg, ["A"])
         feas = self.create_floats(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -210,10 +210,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - mul(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_div(self):
-        func1 = self.create_function("_div", "X", 3, [], ["A", "B"])
+        func1 = self.create_function("divf", "X", 3, [], ["A", "B"])
         arg = [{"type": 1, "value": random.random() * 100}]
-        func2 = self.create_function("_div", "Y", 1, arg, ["A"])
-        func3 = self.create_function("_div", "Z", 2, arg, ["A"])
+        func2 = self.create_function("divf", "Y", 1, arg, ["A"])
+        func3 = self.create_function("divf", "Z", 2, arg, ["A"])
         feas = self.create_floats(["A", "B"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -229,10 +229,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - div(dic["A"], arg[0]["value"])), 1e-6)
 
     def test_log(self):
-        func1 = self.create_function("_log", "X", 1, [], ["A"])
+        func1 = self.create_function("log", "X", 1, [], ["A"])
         arg = [{"type": 1, "value": random.random() * 100}]
-        func2 = self.create_function("_log", "Y", 1, [], ["A"])
-        func3 = self.create_function("_log", "Z", 0, arg, [])
+        func2 = self.create_function("log", "Y", 1, [], ["A"])
+        func3 = self.create_function("log", "Z", 0, arg, [])
         feas = self.create_floats(["A"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -248,10 +248,10 @@ class OperatorTestCase(unittest.TestCase):
         self.assertLess(abs(dic["Y"] - np.log(dic["A"])), 1e-6)
 
     def test_sigmoid(self):
-        func1 = self.create_function("_sigmoid", "X", 1, [], ["A"])
+        func1 = self.create_function("sigmoid", "X", 1, [], ["A"])
         arg = [{"type": 1, "value": random.random()}]
-        func2 = self.create_function("_sigmoid", "Y", 1, [], ["A"])
-        func3 = self.create_function("_sigmoid", "Z", 0, arg, [])
+        func2 = self.create_function("sigmoid", "Y", 1, [], ["A"])
+        func3 = self.create_function("sigmoid", "Z", 0, arg, [])
         feas = self.create_floats(["A"])
         opr = pyluban.Operator()
         opr.call(func1, feas)
@@ -281,7 +281,7 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_max(self):
         arg = [{"type": 4, "value": [random.random() for _ in range(10)]}]
-        func = self.create_function("max", "X", 0, arg, [])
+        func = self.create_function("maxf", "X", 0, arg, [])
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
@@ -294,7 +294,7 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_min(self):
         arg = [{"type": 4, "value": [random.random() for _ in range(10)]}]
-        func = self.create_function("min", "X", 0, arg, [])
+        func = self.create_function("minf", "X", 0, arg, [])
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
@@ -307,7 +307,7 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_variance(self):
         arg = [{"type": 4, "value": [random.random()] * 10}]
-        func = self.create_function("variance", "X", 0, arg, [])
+        func = self.create_function("variancef", "X", 0, arg, [])
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)
@@ -320,7 +320,7 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_stddev(self):
         arg = [{"type": 4, "value": [random.random() for _ in range(10)]}]
-        func = self.create_function("stddev", "X", 0, arg, [])
+        func = self.create_function("stddevf", "X", 0, arg, [])
         feas = pyluban.Features()
         opr = pyluban.Operator()
         opr.call(func, feas)

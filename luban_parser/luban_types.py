@@ -112,7 +112,7 @@ class Float32s(Parameter):
 class String(Parameter):
     def __init__(self, value):
         assert isinstance(value, str)
-        self.value = value
+        self.value = value[1:-1]
 
     @property
     def dtype(self):

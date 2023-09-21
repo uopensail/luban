@@ -41,8 +41,23 @@ std::string FunctionConfigure::stringnify() {
   ret.append(" = ");
   ret.append(func);
   ret.append("(");
-  int64_t v = 0, l = 0;
+
   int64_t len = variables.size() + literals.size();
+#ifdef __GCC__
+  int64_t v = variables.size() - 1, l = literals.size() - 1;
+  for (int64_t i = len - 1; i >= 0; i--) {
+    if (i != len - 1) {
+      ret.append(",");
+    }
+    if ((1 << i) & flag) {
+      ret.append("`" + variables[v--] + "`");
+    } else {
+      ret.append(parameter_stringnify(literals[l--]));
+    }
+  }
+  ret.append(")");
+#else
+  int64_t v = 0, l = 0;
   for (int64_t i = 0; i < len; i++) {
     if (i) {
       ret.append(",");
@@ -54,6 +69,7 @@ std::string FunctionConfigure::stringnify() {
     }
   }
   ret.append(")");
+#endif
   return ret;
 }
 

@@ -162,7 +162,7 @@ def parse_group(
 
             offset += tmp["dim"]
             user_features.append(tmp)
-        user_groups.append({"id": i, "index": i, "width": offset, "type": dtype})
+        user_groups.append({"id": gid, "index": i, "width": offset, "type": dtype})
 
     for i, (gid, dtype) in enumerate(item_groups_indeces):
         offset = 0
@@ -181,7 +181,7 @@ def parse_group(
 
             offset += tmp["dim"]
             item_features.append(tmp)
-        item_groups.append({"id": i, "index": i, "width": offset, "type": dtype})
+        item_groups.append({"id": gid, "index": i, "width": offset, "type": dtype})
     return item_groups, item_features, user_groups, user_features
 
 

@@ -127,11 +127,10 @@ bool contain_nullptr();
 
 template <typename T, typename... Args>
 bool contain_nullptr(T *arg, Args *... args) {
-  if constexpr (sizeof...(Args) == 0) {
-    return arg == nullptr;
-  } else {
-    return contain_nullptr(args...);
+  if (arg == nullptr) {
+    return true;
   }
+  return contain_nullptr(args...);
 }
 
 template <typename T0, typename... ArgsType>

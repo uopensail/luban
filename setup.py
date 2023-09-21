@@ -175,7 +175,11 @@ setup(
     keywords="feature operator and hasher",
     long_description=long_description,
     install_requires=[],
-    setup_requires=["pybind11>=2.11.1", "ninja>=1.11.1"],
+    setup_requires=[
+        "pybind11>=2.11.1",
+        "ninja>=1.11.1",
+        "antlr4-python3-runtime==4.13.1",
+    ],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

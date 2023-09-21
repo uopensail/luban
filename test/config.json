@@ -1,0 +1,50 @@
+{
+    "user_features": [
+        {
+            "name": "U1",
+            "expr": "A*B",
+            "type": 1,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "U2",
+            "expr": "C[int64]+D[int64]",
+            "type": 0,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        }
+    ],
+    "item_features": [
+        {
+            "name": "I1",
+            "expr": "F[int64]+G[int64]",
+            "type": 0,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "I2",
+            "expr": "concat(H[string],\"TEST\")",
+            "type": 0,
+            "hash": true,
+            "padding": 0,
+            "dim": 1
+        }
+    ],
+    "groups": [
+        [
+            "U1"
+        ],
+        [
+            "U2"
+        ],
+        [
+            "I1",
+            "I2"
+        ]
+    ]
+}
