@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+const int64_t mask = 0x0fffffffffffffffll;
+
 int64_t mmh3(const std::string &key);
 
 template <typename T> T _add(T &a, T &b) { return a + b; }
@@ -58,7 +60,9 @@ float _exp(float &x);
 float _log10(float &x);
 float _log2(float &x);
 float _sqrt(float &x);
-float _abs(float &x);
+
+template <typename T> T _abs(T &x) { return x < 0 ? -x : x; }
+
 float _sin(float &x);
 float _asin(float &x);
 float _sinh(float &x);

@@ -41,36 +41,6 @@ PYBIND11_MODULE(pyluban, m) {
         return list.stringnify();
       });
 
-  py::class_<luban::Matrices, std::shared_ptr<luban::Matrices>>(m, "Matrices")
-      .def("__len__", [](luban::Matrices &m) { return m.size(); })
-      .def("__getitem__", &luban::Matrices::operator[])
-      .def("__repr__", [](luban::Matrices &m) -> std::string {
-        int size = m.size();
-        if (size == 0) {
-          return "<pyluban.Matrices: null>";
-        }
-
-        std::string ret = "<pyluban.Matrices: [";
-        for (int i = 0; i < size; i++) {
-          if (i > 0) {
-            ret.append(", ");
-          }
-          ret.append("<shape: (");
-          ret.append(std::to_string(m.m_matrices[i]->m_rows));
-          ret.append(",");
-          ret.append(std::to_string(m.m_matrices[i]->m_cols));
-          ret.append("), dtype: ");
-          if (m.m_matrices[i]->m_type == luban::DataType::kFloat32) {
-            ret.append("float32");
-          } else {
-            ret.append("int64");
-          }
-          ret.append(">");
-        }
-        ret.append("]>");
-        return ret;
-      });
-
   py::class_<luban::Rows, std::shared_ptr<luban::Rows>>(m, "Rows")
       .def("__len__", [](luban::Rows &r) { return r.size(); })
       .def("__getitem__", &luban::Rows::operator[])
@@ -101,10 +71,9 @@ PYBIND11_MODULE(pyluban, m) {
 
   py::class_<luban::Toolkit>(m, "Toolkit")
       .def(py::init<const std::string &>())
-      .def("process", py::overload_cast<luban::SharedFeaturesPtr>(
-                          &luban::Toolkit::process))
-      .def("process", py::overload_cast<luban::SharedFeaturesListPtr>(
-                          &luban::Toolkit::process))
+      .def("process", &luban::Toolkit::process)
+      .def("process_item", &luban::Toolkit::process_item)
+      .def("process_user", &luban::Toolkit::process_user)
       .def("__repr__", [](const luban::Toolkit &t) -> std::string {
         return "<pyluban.Toolkit>";
       });
@@ -126,25 +95,5 @@ PYBIND11_MODULE(pyluban, m) {
         }
         return "<pyluban.luban.Row: shape: (" + std::to_string(r.m_cols) +
                ",), dtype:" + format + ">";
-      });
-
-  py::class_<luban::Matrix, std::shared_ptr<luban::Matrix>>(
-      m, "Matrix", py::buffer_protocol())
-      .def_buffer([](luban::Matrix &m) -> py::buffer_info {
-        std::string format = py::format_descriptor<int64_t>::format();
-        if (m.m_type == luban::DataType::kFloat32) {
-          format = py::format_descriptor<float>::format();
-        }
-        return py::buffer_info(m.m_data, m.m_size, format, 2,
-                               {m.m_rows, m.m_cols},
-                               {m.m_size * m.m_cols, m.m_size});
-      })
-      .def("__repr__", [](const luban::Matrix &m) -> std::string {
-        std::string format = py::format_descriptor<int64_t>::format();
-        if (m.m_type == luban::DataType::kFloat32) {
-          format = py::format_descriptor<float>::format();
-        }
-        return "<pyluban.luban.Matrix: shape: (" + std::to_string(m.m_rows) +
-               "," + std::to_string(m.m_cols) + "), dtype:" + format + ">";
       });
 }

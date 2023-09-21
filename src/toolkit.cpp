@@ -14,35 +14,72 @@ Toolkit::Toolkit(const std::string &config_file) {
   infile.seekg(0);
   infile.read(&buffer[0], buffer.size());
 
-  const json &doc = json::parse(buffer);
-  const std::vector<json> &transforms = doc["transforms"];
-
-  for (auto &t : transforms) {
-    m_funcs.emplace_back(t);
-  }
-  m_placer = std::make_shared<Placement>(doc);
   m_opr = std::make_shared<Operator>();
+
+  const json &doc = json::parse(buffer);
+  const json &user = doc["user"];
+  const json &item = doc["item"];
+
+  const std::vector<json> &user_transforms = user["transforms"];
+  const std::vector<json> &item_transforms = item["transforms"];
+  for (auto &t : user_transforms) {
+    m_user_funcs.emplace_back(t);
+  }
+  for (auto &t : item_transforms) {
+    m_item_funcs.emplace_back(t);
+  }
+
+  m_user_placer = std::make_shared<Placement>(user);
+  m_item_placer = std::make_shared<Placement>(item);
+
+  m_groups.resize(m_user_placer->m_groups.size() +
+                  m_item_placer->m_groups.size());
+
+  for (size_t i = 0; i < m_user_placer->m_groups.size(); i++) {
+    m_groups[m_user_placer->m_groups[i].id] = m_user_placer->m_groups[i];
+  }
+
+  for (size_t i = 0; i < m_item_placer->m_groups.size(); i++) {
+    m_groups[m_item_placer->m_groups[i].id] = m_item_placer->m_groups[i];
+  }
 }
 
-std::shared_ptr<Rows> Toolkit::process(SharedFeaturesPtr features) {
-  auto r = m_placer->rows();
-  for (size_t i = 0; i < m_funcs.size(); ++i) {
-    m_opr->call(m_funcs[i], *features);
+std::shared_ptr<Rows> Toolkit::process_item(SharedFeaturesPtr features) {
+  auto r = m_item_placer->rows();
+  for (size_t i = 0; i < m_item_funcs.size(); ++i) {
+    m_opr->call(m_item_funcs[i], *features);
   }
-  m_placer->call(*features, r);
+  m_item_placer->call(*features, r);
+  return r;
+}
+std::shared_ptr<Rows> Toolkit::process_user(SharedFeaturesPtr features) {
+  auto r = m_user_placer->rows();
+  for (size_t i = 0; i < m_user_funcs.size(); ++i) {
+    m_opr->call(m_user_funcs[i], *features);
+  }
+  m_user_placer->call(*features, r);
   return r;
 }
 
-std::shared_ptr<Matrices> Toolkit::process(SharedFeaturesListPtr list) {
-  int64_t size = list->size();
-  auto m = m_placer->matrices(size);
-  for (int64_t i = 0; i < size; ++i) {
-    for (size_t j = 0; j < m_funcs.size(); ++j) {
-      m_opr->call(m_funcs[j], *(list->operator[](i)));
-    }
-    m_placer->call(*(list->operator[](i)), m, i);
+std::shared_ptr<Rows> Toolkit::process(SharedFeaturesPtr features) {
+  auto r = std::make_shared<Rows>();
+  r->m_rows.resize(m_groups.size());
+  auto items = process_item(features);
+
+  for (size_t i = 0; i < m_item_placer->m_groups.size(); i++) {
+    r->m_rows[m_item_placer->m_groups[i].id] =
+        items->m_rows[m_item_placer->m_groups[i].index];
   }
-  return m;
+  items->m_rows.clear();
+
+  auto user = process_user(features);
+
+  for (size_t i = 0; i < m_user_placer->m_groups.size(); i++) {
+    r->m_rows[m_user_placer->m_groups[i].id] =
+        items->m_rows[m_user_placer->m_groups[i].index];
+  }
+  user->m_rows.clear();
+  return r;
 }
 
-}  // namespace luban
+} // namespace luban

@@ -28,20 +28,24 @@
 namespace luban {
 
 class Toolkit {
- public:
+public:
   Toolkit() = delete;
   Toolkit(const Toolkit &) = delete;
   Toolkit(const Toolkit &&) = delete;
   Toolkit(const std::string &config_file);
   ~Toolkit() = default;
+  std::shared_ptr<Rows> process_item(SharedFeaturesPtr features);
+  std::shared_ptr<Rows> process_user(SharedFeaturesPtr features);
   std::shared_ptr<Rows> process(SharedFeaturesPtr features);
-  std::shared_ptr<Matrices> process(SharedFeaturesListPtr list);
 
- public:
-  std::shared_ptr<Placement> m_placer;
+public:
   std::shared_ptr<Operator> m_opr;
-  std::vector<FunctionConfigure> m_funcs;
+  std::shared_ptr<Placement> m_item_placer;
+  std::shared_ptr<Placement> m_user_placer;
+  std::vector<FunctionConfigure> m_item_funcs;
+  std::vector<FunctionConfigure> m_user_funcs;
+  std::vector<GroupConfigure> m_groups;
 };
 
-}  // namespace luban
-#endif  // LUBAN_TOOLKIT_H
+} // namespace luban
+#endif // LUBAN_TOOLKIT_H

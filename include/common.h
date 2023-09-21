@@ -48,7 +48,7 @@ using SharedParameter = std::shared_ptr<Parameter>;
 
 using SharedParameterMap = std::unordered_map<std::string, SharedParameter>;
 
-enum DataType : int {
+enum DataType : int32_t {
   kInt64 = 0,
   kFloat32,
   kString,

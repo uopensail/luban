@@ -39,6 +39,7 @@ PLAT_TO_CMAKE = {
     "win-arm64": "ARM64",
 }
 
+
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
 # If you need multiple extensions, see scikit-build.
@@ -47,10 +48,16 @@ class CMakeExtension(Extension):
         super().__init__(name, sources=[])
         self.sourcedir = os.fspath(Path(sourcedir).resolve())
 
+
 def site_dir():
     import site
-    python_lib_dir = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') else sys.prefix
+
+    python_lib_dir = (
+        site.getsitepackages()[0] if hasattr(site, "getsitepackages") else sys.prefix
+    )
     return python_lib_dir
+
+
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
@@ -70,8 +77,8 @@ class CMakeBuild(build_ext):
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # from Python.
         site_packages_dir = site_dir()
-        pybind11_dir=f"{site_packages_dir}/pybind11/share/cmake/pybind11"
-        python_dir=os.path.abspath(sys.executable+"/../../")
+        pybind11_dir = f"{site_packages_dir}/pybind11/share/cmake/pybind11"
+        python_dir = os.path.abspath(sys.executable + "/../../")
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
@@ -124,9 +131,7 @@ class CMakeBuild(build_ext):
 
         if sys.platform.startswith("darwin"):
             # Cross-compile support for macOS - respect ARCHFLAGS if set
-            cmake_args += [
-                    f"-DPython3_ROOT_DIR={python_dir}"
-                ]
+            cmake_args += [f"-DPython3_ROOT_DIR={python_dir}"]
             archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
             if archs:
                 cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
@@ -170,7 +175,7 @@ setup(
     keywords="feature operator and hasher",
     long_description=long_description,
     install_requires=[],
-    setup_requires=["pybind11>=2.11.1","ninja>=1.11.1"],
+    setup_requires=["pybind11>=2.11.1", "ninja>=1.11.1"],
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -182,9 +187,5 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    scripts=[
-        "luban_parser/luban_parser.py",
-    ],
-    entry_points={"console_scripts": ["luban_parser = luban_parser:main"]},
     python_requires=">=3.6",
 )

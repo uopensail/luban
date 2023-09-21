@@ -3,7 +3,7 @@
 int64_t mmh3(const std::string &key) {
   char ret[16];
   MurmurHash3_x64_128(key.c_str(), key.size(), 0, ret);
-  return ((int64_t *)ret)[0];
+  return ((int64_t *)ret)[0] & mask;
 }
 
 int64_t _mod(int64_t &a, int64_t &b) {
@@ -27,9 +27,12 @@ float _log10(float &x) { return log10(x); }
 
 float _log2(float &x) { return log2f(x); }
 
-float _sqrt(float &x) { return sqrtf(x); }
-
-float _abs(float &x) { return abs(x); }
+float _sqrt(float &x) {
+  if (x <= 0) {
+    return 0.0;
+  }
+  return sqrtf(x);
+}
 
 float _sin(float &x) { return sinf(x); }
 

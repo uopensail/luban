@@ -17,43 +17,52 @@ The feature-processing module is used in different scenarios, such as: model tra
 
 ```json
 {
-    "features": [
+    "user_features": [
         {
-            "name": "A",
-            "expr": "(B+C)*F",
+            "name": "U1",
+            "expr": "A*B",
+            "type": 1,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        },
+        {
+            "name": "U2",
+            "expr": "C[int64]+D[int64]",
+            "type": 0,
+            "hash": false,
+            "padding": 0,
+            "dim": 1
+        }
+    ],
+    "item_features": [
+        {
+            "name": "I1",
+            "expr": "F[int64]+G[int64]",
             "type": 0,
             "hash": false,
             "padding": 0,
             "dim": 1
         },
         {
-            "name": "B",
-            "type": 0,
-            "padding": 0,
-            "dim": 1
-        },
-        {
-            "name": "C",
-            "type": 0,
-            "padding": 0,
-            "dim": 1
-        },
-        {
-            "name": "D",
-            "expr": "concat(\"prefix-\", E)",
+            "name": "I2",
+            "expr": "concat(H[string],\"TEST\")",
             "type": 0,
             "hash": true,
             "padding": 0,
-            "dim": 3
+            "dim": 1
         }
     ],
     "groups": [
         [
-            "A",
-            "B"
+            "U1"
         ],
         [
-            "D"
+            "U2"
+        ],
+        [
+            "I1",
+            "I2"
         ]
     ]
 }

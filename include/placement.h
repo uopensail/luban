@@ -24,16 +24,21 @@
 
 namespace luban {
 
+// this structure contains information of group
 typedef struct GroupConfigure {
-  int id;
-  int64_t width;
-  DataType type;
+  int id;         // global group id
+  int index;      // group index
+  int64_t width;  // width of group
+  int64_t stride; // data stride
+  DataType type;  // type of group
 } GroupConfigure;
 
+// this structure contains information of feature
 typedef struct FeatureConfigure {
-  bool hash;
+  bool hash; // hash of feature
   DataType type;
   int group;
+  int index;
   int dim;
   int64_t offset;
   Padding padding;
@@ -53,32 +58,6 @@ public:
   char *m_data;
 };
 
-class Matrix {
-public:
-  Matrix() = delete;
-  Matrix(DataType type, int64_t rows, int64_t cols);
-  ~Matrix();
-  void put(int64_t row, SharedParameter value, const FeatureConfigure &conf);
-
-public:
-  DataType m_type;
-  int64_t m_rows;
-  int64_t m_cols;
-  int64_t m_size;
-  char *m_data;
-};
-
-class Matrices {
-public:
-  Matrices() = default;
-  ~Matrices() = default;
-  int64_t size();
-  std::shared_ptr<Matrix> operator[](int index);
-
-public:
-  std::vector<std::shared_ptr<Matrix>> m_matrices;
-};
-
 class Rows {
 public:
   Rows() = default;
@@ -96,9 +75,7 @@ public:
   explicit Placement(std::string_view config);
   explicit Placement(const json &value);
   ~Placement() = default;
-  std::shared_ptr<Matrices> matrices(int64_t batch_size);
   std::shared_ptr<Rows> rows();
-  void call(Features &features, std::shared_ptr<Matrices> &m, int64_t row);
   void call(Features &features, std::shared_ptr<Rows> &r);
 
 private:
