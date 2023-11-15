@@ -113,6 +113,7 @@ Operator::Operator() {
   m_funcs["topki"] = get_func_call(topk<int64_t>);
   m_funcs["topk"] = get_func_call(topk<std::string>);
   m_funcs["cross"] = get_func_call(cross);
+  m_funcs["concat_ws"] = get_func_call(concat_ws);
 }
 
 void Operator::call(const FunctionConfigure &conf, Features &features) {

@@ -59,7 +59,8 @@ class LubanListener(lubanListener):
     def exitStringLISTArithmeticExpression(
         self, ctx: lubanParser.StringLISTArithmeticExpressionContext
     ):
-        self.parameters.append(Strings(list[eval(ctx.STRING_LIST().getText())]))
+        list_text = ctx.STRING_LIST().getText()[1:-1]
+        self.parameters.append(Strings(list[eval(eval(list_text))]))
 
     # Exit a parse tree produced by lubanParser#StringArithmeticExpression.
     def exitStringArithmeticExpression(
@@ -71,7 +72,8 @@ class LubanListener(lubanListener):
     def exitIntegerLISTArithmeticExpression(
         self, ctx: lubanParser.IntegerLISTArithmeticExpressionContext
     ):
-        self.parameters.append(Int64s(list[eval(ctx.INTEGER_LIST().getText())]))
+        list_text = ctx.INTEGER_LIST().getText()[1:-1]
+        self.parameters.append(Int64s(list(eval(list_text))))
 
     # Exit a parse tree produced by lubanParser#IntegerArithmeticExpression.
     def exitIntegerArithmeticExpression(
@@ -83,7 +85,8 @@ class LubanListener(lubanListener):
     def exitDecimalLISTArithmeticExpression(
         self, ctx: lubanParser.DecimalLISTArithmeticExpressionContext
     ):
-        self.parameters.append(Float32s(list[eval(ctx.DECIMAL_LIST().getText())]))
+        list_text = ctx.DECIMAL_LIST().getText()[1:-1]
+        self.parameters.append(Float32s(list[eval(eval(list_text))]))
 
     # Exit a parse tree produced by lubanParser#DecimalArithmeticExpression.
     def exitDecimalArithmeticExpression(

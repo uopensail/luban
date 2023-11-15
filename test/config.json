@@ -28,11 +28,11 @@
         },
         {
             "name": "I2",
-            "expr": "concat(H[string],\"TEST\")",
+            "expr": "concat_ws(\"TEST\", H[strings])",
             "type": 0,
             "hash": true,
             "padding": 0,
-            "dim": 1
+            "dim": 2
         }
     ],
     "groups": [

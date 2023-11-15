@@ -289,6 +289,8 @@ function_io_types = {
     },
     "box_cox": {"in": [DataType.kFloat32, DataType.kFloat32], "out": DataType.kFloat32},
     "cross": {"in": [DataType.kStrings, DataType.kStrings], "out": DataType.kStrings},
+    "concat_ws": {"in": [DataType.kString, DataType.kStrings], "out": DataType.kStrings},
+
 }
 
 

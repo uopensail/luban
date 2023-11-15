@@ -33,7 +33,7 @@ class ToolkitTestCase(unittest.TestCase):
             "D": {"type": 0, "value": 2100},
             "F": {"type": 0, "value": 1000},
             "G": {"type": 0, "value": 2},
-            # "H": {"type": 2, "value": "H"},
+            "H": {"type": 5, "value": ["H","H"]},
         }
 
         self.features = pyluban.Features(json.dumps(fea))
@@ -48,7 +48,7 @@ class ToolkitTestCase(unittest.TestCase):
         print(arr.dtype)
         print(arr)
         print(np.asarray(m[1]))
-        print(np.asarray(m[2]))
+        print(np.asarray(m[2]), len(np.asarray(m[2])))
         pass
 
 

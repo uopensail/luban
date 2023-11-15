@@ -219,3 +219,11 @@ std::vector<std::string> cross(std::vector<std::string> &srcA,
   }
   return ret;
 }
+
+std::vector<std::string> concat_ws(std::string &a, std::vector<std::string> &srcB) {
+  std::vector<std::string> ret;
+  for (auto &vb : srcB) {
+      ret.push_back(concat(a, vb));
+  }
+  return ret;
+}

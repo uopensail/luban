@@ -45,3 +45,4 @@ __pycache__/
 *.toml
 *.whl
 .eggs
+.antlr/

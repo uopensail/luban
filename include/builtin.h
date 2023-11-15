@@ -237,5 +237,5 @@ template <typename T0, typename T1> T0 cast(T1 &value) {
 
 std::vector<std::string> cross(std::vector<std::string> &srcA,
                                std::vector<std::string> &srcB);
-
+std::vector<std::string> concat_ws(std::string &a, std::vector<std::string> &srcB);
 #endif // LUBAN_BUILTIN_H
