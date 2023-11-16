@@ -191,5 +191,5 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.6,<3.12",
 )
