@@ -34,7 +34,8 @@ jobs:
         env:
           CIBW_BEFORE_ALL_MACOS: >
             uname -a && cmake --version &&
-            pip install — upgrade pip setuptools wheel
+            pip install --upgrade pip setuptools wheel &&
+            pip install packaging
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel
