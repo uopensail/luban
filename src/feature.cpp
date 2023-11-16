@@ -76,7 +76,7 @@ std::string Features::stringnify() {
       j[kv.first]["type"] = DataType::kString;
     } else if (auto *p = std::get_if<std::vector<int64_t>>(kv.second.get())) {
       j[kv.first]["value"] = *p;
-      j[kv.first]["type"] = DataType::kFloat32Array;
+      j[kv.first]["type"] = DataType::kInt64Array;
     } else if (auto *p = std::get_if<std::vector<float>>(kv.second.get())) {
       j[kv.first]["value"] = *p;
       j[kv.first]["type"] = DataType::kFloat32Array;

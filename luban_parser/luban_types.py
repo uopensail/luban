@@ -328,6 +328,8 @@ class Function(Parameter):
                 flags.append("1")
             else:
                 flags.append("0")
+        if len(flags) == 0:
+            return 0
         return int("".join(flags[::-1]), 2)
 
     @property

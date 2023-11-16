@@ -162,7 +162,7 @@ with open("README.md", "r", encoding="utf-8") as fd:
 
 setup(
     name="pyluban",
-    version="1.1.3",
+    version="1.1.4",
     description="Python wrapper for luban.",
     license="License :: AGLP 3",
     author="uopensail",
@@ -191,5 +191,5 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    python_requires=">=3.6,<3.12",
+    python_requires=">=3.6",
 )
