@@ -33,7 +33,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.6.1
         env:
           CIBW_BEFORE_ALL_MACOS: >
-            uname -a && cmake --version &&
+            uname -a && cmake --version
+          CIBW_BEFORE_BUILD_MACOS: >
             pip install --upgrade pip setuptools wheel &&
             pip install packaging
           CIBW_BEFORE_ALL_LINUX: >
