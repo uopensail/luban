@@ -13,7 +13,7 @@ Toolkit::Toolkit(const std::string &config_file) {
   std::string buffer(infile.tellg(), ' ');
   infile.seekg(0);
   infile.read(&buffer[0], buffer.size());
-  infile.close()
+  infile.close();
   m_opr = std::make_shared<Operator>();
 
   const json &doc = json::parse(buffer);
