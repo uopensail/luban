@@ -1,11 +1,11 @@
 name: Build and upload to PyPI
 
 on:
-  release:
-    types: [published]
-  #push:
-  #  branches:
-  #    - pypi
+  #release:
+  #  types: [published]
+  push:
+    branches:
+      - pypi
 
 jobs:
   build_wheels:
@@ -13,8 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest, macos-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
+        #os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +34,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.6.1
         env:
           CIBW_BEFORE_ALL_MACOS: >
-            uname -a && cmake --version
+            uname -a && cmake --version &&
+            python -m pip install --upgrade setuptools
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel
