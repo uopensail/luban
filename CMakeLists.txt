@@ -41,5 +41,7 @@ include/operator.h include/toolkit.h)
 SET(LUBAN_SOURCE  src/builtin.cpp src/common.cpp src/feature.cpp 
 src/MurmurHash3.cc src/operator.cpp src/placement.cpp src/toolkit.cpp)
 
+add_library(luban_static STATIC ${LUBAN_SOURCE})
+
 # Define the Python module
 pybind11_add_module(pyluban ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/pyluban.cpp)
