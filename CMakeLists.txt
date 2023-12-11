@@ -17,19 +17,6 @@ endif(APPLE)
 include_directories(include)
 include_directories(/usr/local/include)
 include_directories(/usr/include)
-set (Python3_FIND_VIRTUALENV FIRST)
-set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
-
-find_package(Python3 COMPONENTS Interpreter Development)
-include_directories(${Python3_INCLUDE_DIRS})
-
-message(STATUS "PYTHON3_LIBRARIES = ${Python3_LIBRARIES}")
-message(STATUS "PYTHON3_EXECUTABLE = ${PYTHON_EXECUTABLE}")
-message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
-
-# Include pybind11
-find_package(pybind11 REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
 
 
 link_directories(/usr/local/lib)
@@ -43,5 +30,23 @@ src/MurmurHash3.cc src/operator.cpp src/placement.cpp src/toolkit.cpp)
 
 add_library(luban_static STATIC ${LUBAN_SOURCE})
 
-# Define the Python module
-pybind11_add_module(pyluban ${LUBAN_INCLUDE} ${LUBAN_SOURCE} src/pyluban.cpp)
+option(PYBIND "Description of PYBIND" ON)
+if (PYBIND)
+    set (Python3_FIND_VIRTUALENV FIRST)
+    set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
+
+    find_package(Python3 COMPONENTS Interpreter Development)
+    include_directories(${Python3_INCLUDE_DIRS})
+
+    message(STATUS "PYTHON3_LIBRARIES = ${Python3_LIBRARIES}")
+    message(STATUS "PYTHON3_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+    message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
+
+    # Include pybind11
+    find_package(pybind11 REQUIRED)
+    include_directories(${PYTHON_INCLUDE_DIRS})
+
+    # Define the Python module
+    pybind11_add_module(pyluban  src/pyluban.cpp)
+    target_link_libraries(pyluban PRIVATE luban_static pthread)
+endif()
