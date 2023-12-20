@@ -64,7 +64,7 @@ public:
   ~Rows() = default;
   int64_t size();
   std::shared_ptr<Row> operator[](int index);
-
+  std::shared_ptr<json> to_json();
 public:
   std::vector<std::shared_ptr<Row>> m_rows;
 };

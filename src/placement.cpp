@@ -40,6 +40,23 @@ int64_t Rows::size() { return m_rows.size(); }
 
 std::shared_ptr<Row> Rows::operator[](int index) { return m_rows[index]; }
 
+std::shared_ptr<json> Rows::to_json() {
+  auto js = std::make_shared<json>();
+  for (int i = 0;i < m_rows.size();i++) {
+    auto row = m_rows[i];
+    if (row->m_type == DataType::kInt64) {
+      int64_t *ptr = (int64_t *)row->m_data;
+      std::vector<int64_t> vv(ptr, ptr+row->m_cols);
+      js->push_back(vv);
+    } else if (row->m_type == DataType::kFloat32) {
+      float *ptr = (float *)row->m_data;
+      std::vector<float> vv(ptr, ptr+row->m_cols);
+      js->push_back(vv);
+    }
+  }
+  return js;
+}
+
 void Placement::parse(const json &doc) {
   const std::vector<json> &groups = doc["groups"];
   m_groups.resize(groups.size());
