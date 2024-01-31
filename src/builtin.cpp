@@ -19,6 +19,10 @@ int64_t _floor(float &x) { return int64_t(floorf(x)); }
 
 int64_t _ceil(float &x) { return int64_t(ceilf(x)); }
 
+float _floorf(float &x) { return (floorf(x)); }
+
+float _ceilf(float &x) { return (ceilf(x)); }
+
 float _log(float &x) { return logf(x); }
 
 float _exp(float &x) { return expf(x); }

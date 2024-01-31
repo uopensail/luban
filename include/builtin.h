@@ -55,6 +55,8 @@ float _pow(float &a, float &b);
 int64_t _round(float &x);
 int64_t _floor(float &x);
 int64_t _ceil(float &x);
+float _floorf(float &x);
+float _ceilf(float &x);
 float _log(float &x);
 float _exp(float &x);
 float _log10(float &x);

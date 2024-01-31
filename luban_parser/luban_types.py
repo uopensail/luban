@@ -235,6 +235,8 @@ function_io_types = {
     "round": {"in": [DataType.kFloat32], "out": DataType.kInt64},
     "floor": {"in": [DataType.kFloat32], "out": DataType.kInt64},
     "ceil": {"in": [DataType.kFloat32], "out": DataType.kInt64},
+    "floorf": {"in": [DataType.kFloat32], "out": DataType.kFloat32},
+    "ceilf": {"in": [DataType.kFloat32], "out": DataType.kFloat32},
     "log": {"in": [DataType.kFloat32], "out": DataType.kFloat32},
     "exp": {"in": [DataType.kFloat32], "out": DataType.kFloat32},
     "log10": {"in": [DataType.kFloat32], "out": DataType.kFloat32},

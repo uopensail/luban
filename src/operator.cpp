@@ -45,6 +45,8 @@ Operator::Operator() {
   m_funcs["round"] = get_func_call(_round);
   m_funcs["floor"] = get_func_call(_floor);
   m_funcs["ceil"] = get_func_call(_ceil);
+  m_funcs["floorf"] = get_func_call(_floorf);
+  m_funcs["ceilf"] = get_func_call(_ceilf);
   m_funcs["log"] = get_func_call(_log);
   m_funcs["exp"] = get_func_call(_exp);
   m_funcs["log10"] = get_func_call(_log10);

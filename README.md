@@ -96,7 +96,7 @@ After installing the Python tool, the `luban_parser` tool is installed by defa
 ### Operators
 
 1. opr: +, -, *, /, %, **
-2. math function: round, floor, ceil, log, exp, log10, log2, sqrt, abs, sin, sinh, asin,asinh, cos, cosh, acos, acosh, tan, tanh, atan, atanh, sigmoid
+2. math function: round, floor, ceil, floorf, ceilf, log, exp, log10, log2, sqrt, abs, sin, sinh, asin,asinh, cos, cosh, acos, acosh, tan, tanh, atan, atanh, sigmoid
 3. aggravate function: min, max, variance, stddev, average, norm
 4. time function: year, month, day, hour, minute, second, date, now, date_diff, date_add, date_sub, from_unixtime, unix_timestamp
 5. string function: concat, substr, lower, upper, cross, reverse

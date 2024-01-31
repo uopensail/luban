@@ -91,7 +91,7 @@
 ### 支持的操作
 
 1. 操作符: +, -, *, /, %, **
-2. 数学函数: round, floor, ceil, log, exp, log10, log2, sqrt, abs, sin, sinh, asin,asinh, cos, cosh, acos, acosh, tan, tanh, atan, atanh, sigmoid
+2. 数学函数: round, floor, ceil, floorf, ceilf, log, exp, log10, log2, sqrt, abs, sin, sinh, asin,asinh, cos, cosh, acos, acosh, tan, tanh, atan, atanh, sigmoid
 3. 聚合函数：min, max, variance, stddev, average, norm
 4. 时间日期函数: year, month, day, hour, minute, second, date, now, date_diff, date_add, date_sub, from_unixtime, unix_timestamp
 5. 字符串处理函数: concat, substr, lower, upper, cross, reverse
