@@ -56,7 +56,10 @@ std::shared_ptr<json> Rows::to_json() {
   }
   return js;
 }
-
+std::string Rows::to_json_str() {
+   auto js = this->to_json();
+   return js->dump();
+}
 void Placement::parse(const json &doc) {
   const std::vector<json> &groups = doc["groups"];
   m_groups.resize(groups.size());
