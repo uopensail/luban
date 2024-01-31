@@ -13,6 +13,7 @@ if(APPLE)
 add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
 endif(APPLE)
 
+add_compile_options(-fPIC)
 
 include_directories(include)
 include_directories(/usr/local/include)
