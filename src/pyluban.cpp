@@ -32,6 +32,7 @@ PYBIND11_MODULE(pyluban, m) {
   py::class_<luban::Rows, std::shared_ptr<luban::Rows>>(m, "Rows")
       .def("__len__", [](luban::Rows &r) { return r.size(); })
       .def("__getitem__", &luban::Rows::operator[])
+      .def("to_json_str", &luban::Rows::to_json_str)
       .def("__repr__", [](luban::Rows &r) -> std::string {
         int64_t size = r.size();
         if (size == 0) {
